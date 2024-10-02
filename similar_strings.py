@@ -60,9 +60,9 @@ aligner.extend_gap_score = -0.1  # Penalty for extending a gap
 
 #input_s = "TGTGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGTGTGTGTGGGTGTGTGGGGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGGGTGTGGGTG"
 
-input_s = "TGTGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGGGTGTGGTGTGTGTGGGTGT"
+input_s = "GGTGTGTGGGTGTGTGGTGTGTGGTGTGGGTGTGGTGTGGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGTGGTGTGGGTGTGGGTGTGTGGGTGTGGGTGTGGTGTGGATGTGGTGTGGGTGTGGTGTTGTGGGTGTGGTGTGTGTGTGTGTGTGGGTGTGGTG"
 
-max_length = 40
+max_length = 75 
 output = {}
 
 # main function that finds whether or not parts of out input_s string are contained inside of our dictionary strings as substrings
@@ -71,16 +71,22 @@ def rec(input_s, offset):
     if len(input_s) < 20:
         return
     for i in range(max_length, -1, -1):
-        sub_str =input_s[0:i]
+        sub_str = input_s[0:i]
         for key in dict.keys():
             alignments = aligner.align(sub_str, dict[key])
-            for alignment in alignments:
-                #if alignment.score >= i*2 - 5:
+            #for alignment in alignments:
+            alignment = alignments[0]
+            if alignment.score >= i*2 - 1:
                 print(key)
+                print(i)
                 print(f"Alignment score: {alignment.score}")
                 print(alignment)
+                print(f"start: {offset}")
+                print(f"end: {offset+i}")
                 print("\n")
-        return
+                rec(input_s[i:], offset+i)
+                return
+    return
             #if dict[key]== sub_str:
             #if sub_str in dict[key]: 
                 #index = dict[key].find(sub_str)
