@@ -1,3 +1,4 @@
+####
 def read_fasta(file_path):
     fasta_dict = {}
     with open(file_path, 'r') as f:
@@ -17,7 +18,8 @@ def read_fasta(file_path):
             fasta_dict[identifier] = ''.join(sequence_lines)
     return fasta_dict
 
-file_path = r"C:\Users\Andrey\Desktop\momWork\2024\Find-dna-strings\6991_only_telomeres_new.fasta"
+#file_path = r"C:\Users\Andrey\Desktop\momWork\2024\Find-dna-strings\6991_only_telomeres_new.fasta"
+file_path = r"6991_only_telomeres_new.fasta"
 
 dict = read_fasta(file_path)
 
@@ -44,25 +46,13 @@ aligner = PairwiseAligner()
 aligner.mode = 'local'  # Local (Smith-Waterman) alignment; use 'global' for global (Needleman-Wunsch)
 aligner.match_score = 2  # Score for a match
 aligner.mismatch_score = -1  # Penalty for a mismatch
-aligner.open_gap_score = -1  # Penalty for opening a gap
+#aligner.open_gap_score = -1  # Penalty for opening a gap
+aligner.open_gap_score = -0.5  # Penalty for opening a gap
 aligner.extend_gap_score = -0.1  # Penalty for extending a gap
 
-# Define your sequences
-#seq1 = "GGTGTGGGGGTGGTGTGTGGGGGTGGGTGTGGTGTGTGGGT"
-#seq2 = "TGTGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGG"
+input_s = "GTGTGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGG"
 
-#alignments = aligner.align(seq1, seq2)
-
-#for alignment in alignments:
-    #print(f"Alignment score: {alignment.score}")
-    #print(alignment)
-    #print("\n")
-
-#input_s = "TGTGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGTGTGTGTGGGTGTGTGGGGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGGGTGTGGGTG"
-
-input_s = "GGTGTGTGGGTGTGTGGTGTGTGGTGTGGGTGTGGTGTGGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGTGGTGTGGGTGTGGGTGTGTGGGTGTGGGTGTGGTGTGGATGTGGTGTGGGTGTGGTGTTGTGGGTGTGGTGTGTGTGTGTGTGTGGGTGTGGTG"
-
-max_length = 75 
+max_length = 250
 output = {}
 
 # main function that finds whether or not parts of out input_s string are contained inside of our dictionary strings as substrings
@@ -76,7 +66,7 @@ def rec(input_s, offset):
             alignments = aligner.align(sub_str, dict[key])
             #for alignment in alignments:
             alignment = alignments[0]
-            if alignment.score >= i*2 - 1:
+            if alignment.score >= i*2 - 2:
                 print(key)
                 print(i)
                 print(f"Alignment score: {alignment.score}")
@@ -122,11 +112,18 @@ def self_search(input_s):
                         my_dict[subStr] = self_search_type(j, i, [k])
     sorted_dict = sorted(my_dict.items(), key=lambda item: item[1].n_subStr, reverse=True)
     print(sorted_dict)
-rec(input_s, 0)
-#for key in output.keys():
-    #print(f'{output[key]}')
 
+#rec(input_s, 0)
 
-#testStr = "TGTGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGGGTGTGGTGTGTGTGGGTGTTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGTGTGTGGGTGTGGTGTGGGTGTGGTTGTGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGGGTGTGGTGTGTGTGGGTGTTGTGTGGGTGTGGGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTTGTGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGGGTGTGGTGTGTGTGGGTGTTGTGTGGGTGTGTGTGTGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTTGTGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGGGTGTGGTGTGTGTGGGTGTTGGTGTGGTGTGTGGGTGTGTGGGTGTGGGTGTGGTGTGGATGTGGTGTGGGTGTGGTGTTGTGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGGGTGTGGTGTGTGTGGGTGT"
-#self_search(testStr)
+def compare_start(chr_compare, input_s):
+    compare_str = dict[chr_compare]
+    print(compare_str)
+    n = len(compare_str)
+    alignments = aligner.align(input_s[0:n+10], compare_str)
+    #for alignment in alignments:
+    alignment = alignments[0]
+    print(n)
+    print(f"Alignment score: {alignment.score}")
+    print(alignment)
 
+compare_start("chr1L_Telomere_Repeat", input_s)
