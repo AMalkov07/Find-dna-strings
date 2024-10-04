@@ -44,20 +44,41 @@ aligner = PairwiseAligner()
 
 # Customize the alignment parameters
 aligner.mode = 'local'  # Local (Smith-Waterman) alignment; use 'global' for global (Needleman-Wunsch)
-aligner.match_score = 2  # Score for a match
-aligner.mismatch_score = -1  # Penalty for a mismatch
-#aligner.open_gap_score = -1  # Penalty for opening a gap
-aligner.open_gap_score = -1  # Penalty for opening a gap
-aligner.extend_gap_score = -0.1  # Penalty for extending a gap
+aligner.match_score = 1  # Score for a match
+aligner.mismatch_score = -float(5)  # Penalty for a mismatch
+#aligner.mismatch_score = -float('inf')  # Penalty for a mismatch
+aligner.open_gap_score = -float(5)  # Penalty for opening a gap
+#aligner.open_gap_score = -float('inf')  # Penalty for opening a gap
+aligner.extend_gap_score = -float(5)  # Penalty for extending a gap
+#aligner.extend_gap_score = -float('inf')  # Penalty for extending a gap
+aligner.query_left_open_gap_score = 0
+aligner.query_right_open_gap_score = 0
+aligner.target_left_open_gap_score = 0
+aligner.target_right_open_gap_score = 0
 
 input_s = "GTGTGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGG"
 
-max_length = 250
+
+alignments = aligner.align(input_s, dict["chr1L_Telomere_Repeat"])
+print(f"lenth f alignments: {len(alignments)}")
+for alignment in alignments:
+    print(alignment)
+    print(alignment.score)
+    break
+
+
+def getDictMax():
+    n = 0
+    for val in dict.values():
+        n = max(n, len(val))
+    return n
+
 output = {}
+dictMax = getDictMax()
 
 # main function that finds whether or not parts of out input_s string are contained inside of our dictionary strings as substrings
 def rec(input_s, offset):
-    #print(f"running rec on {input_s}")
+    max_length = min(dictMax, len(input_s))
     if len(input_s) < 20:
         return
     for i in range(max_length, -1, -1):
@@ -66,7 +87,7 @@ def rec(input_s, offset):
             alignments = aligner.align(sub_str, dict[key])
             #for alignment in alignments:
             alignment = alignments[0]
-            if alignment.score >= i*2 - 2:
+            if alignment.score >= i*2 - (2+i//20):
                 print(key)
                 print(i)
                 print(f"Alignment score: {alignment.score}")
@@ -141,13 +162,12 @@ def compare_start(chr_compare, input_s):
 #self_search(input_s)
 
 
-compare_str = dict["chr1L_Telomere_Repeat"]
-n = len(compare_str)
-alignments = aligner.align(input_s[0:n+5], compare_str)
-#for alignment in alignments:
-#for i in range(len(alignments)):
-print(len(alignments))
-alignment = alignments[1000]
-print(f"score: {alignment.score}")
-print(alignment)
-print(">>>>>")
+#compare_str = dict["chr1L_Telomere_Repeat"]
+#n = len(compare_str)
+#alignments = aligner.align(input_s[0:n+5], compare_str)
+#print(len(alignments))
+#alignment = alignments[1000]
+#print(f"score: {alignment.score}")
+#print(alignment)
+#print(">>>>>")
+
