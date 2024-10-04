@@ -45,11 +45,11 @@ aligner = PairwiseAligner()
 # Customize the alignment parameters
 aligner.mode = 'local'  # Local (Smith-Waterman) alignment; use 'global' for global (Needleman-Wunsch)
 aligner.match_score = 1  # Score for a match
-aligner.mismatch_score = -float(5)  # Penalty for a mismatch
+aligner.mismatch_score = -(10)  # Penalty for a mismatch
 #aligner.mismatch_score = -float('inf')  # Penalty for a mismatch
-aligner.open_gap_score = -float(5)  # Penalty for opening a gap
+aligner.open_gap_score = -(10)  # Penalty for opening a gap
 #aligner.open_gap_score = -float('inf')  # Penalty for opening a gap
-aligner.extend_gap_score = -float(5)  # Penalty for extending a gap
+aligner.extend_gap_score = -(10)  # Penalty for extending a gap
 #aligner.extend_gap_score = -float('inf')  # Penalty for extending a gap
 aligner.query_left_open_gap_score = 0
 aligner.query_right_open_gap_score = 0
@@ -59,12 +59,12 @@ aligner.target_right_open_gap_score = 0
 input_s = "GTGTGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGG"
 
 
-alignments = aligner.align(input_s, dict["chr1L_Telomere_Repeat"])
-print(f"lenth f alignments: {len(alignments)}")
-for alignment in alignments:
-    print(alignment)
-    print(alignment.score)
-    break
+#alignments = aligner.align(input_s, dict["chr1L_Telomere_Repeat"])
+#print(f"lenth f alignments: {len(alignments)}")
+#for alignment in alignments:
+    #print(alignment)
+    #print(alignment.score)
+    #break
 
 
 def getDictMax():
@@ -77,27 +77,30 @@ output = {}
 dictMax = getDictMax()
 
 # main function that finds whether or not parts of out input_s string are contained inside of our dictionary strings as substrings
-def rec(input_s, offset):
-    max_length = min(dictMax, len(input_s))
-    if len(input_s) < 20:
-        return
-    for i in range(max_length, -1, -1):
-        sub_str = input_s[0:i]
-        for key in dict.keys():
-            alignments = aligner.align(sub_str, dict[key])
-            #for alignment in alignments:
-            alignment = alignments[0]
-            if alignment.score >= i*2 - (2+i//20):
-                print(key)
-                print(i)
-                print(f"Alignment score: {alignment.score}")
-                print(alignment)
-                print(f"start: {offset}")
-                print(f"end: {offset+i}")
-                print("\n")
-                rec(input_s[i:], offset+i)
-                return
-    return
+#def rec(input_s, offset):
+    #max_length = min(dictMax, len(input_s))
+    #if len(input_s) < 20:
+        #return
+    #for i in range(max_length, -1, -1):
+        #sub_str = input_s[0:i]
+        #for key in dict.keys():
+            #alignments = aligner.align(sub_str, dict[key])
+            ##for alignment in alignments:
+            ##alignment = alignments[0]
+            ##if alignment.score >= i*2 - (2+i//20):
+            #if len(alignments) > 0:
+                #alignment = alignments[0]
+                #print(f"key: {key}")
+                #print(f"length: {i}")
+                #print(f"Alignment score: {alignment.score}")
+                #print(alignment)
+                #print(f"start: {offset}")
+                #print(f"end: {offset+i}")
+                #print(">>>>>>>>>>")
+                #print("\n")
+                #rec(input_s[i:], offset+i)
+                #return
+    #return
             #if dict[key]== sub_str:
             #if sub_str in dict[key]: 
                 #index = dict[key].find(sub_str)
@@ -106,6 +109,36 @@ def rec(input_s, offset):
                 #return
             
 
+def rec(input_s, offset):
+    max_length = min(dictMax, len(input_s))
+    min_length = 20
+    last_score = 0
+    if len(input_s) < 20:
+        return
+    for i in range(min_length, max_length, 1):
+        sub_str = input_s[0:i]
+        for key in dict.keys():
+            alignments = aligner.align(sub_str, dict[key])
+            #for alignment in alignments:
+            #alignment = alignments[0]
+            #if alignment.score >= i*2 - (2+i//20):
+            if alignments[0].score < last_score:
+                #alignments = aligner.align(input_s[0:i-1])
+                alignment = alignments[0]
+                print(f"key: {key}")
+                print(f"length: {i}")
+                print(f"Alignment score: {alignment.score}")
+                print(alignment)
+                print(f"start: {offset}")
+                print(f"end: {offset+i}")
+                print(">>>>>>>>>>")
+                print("\n")
+                rec(input_s[i:], offset+i)
+                return
+            else:
+                last_score = alignments[0].score
+            break
+    return
 
 class self_search_type:
     def __init__(self, n_subStr, subStr_start, matches_start_indexes):
@@ -140,25 +173,25 @@ def compare_start(chr_compare, input_s):
     compare_str = dict[chr_compare]
     n = len(compare_str)
     counter = 10
-    alignments = aligner.align(input_s[0:counter], compare_str[0:counter])
+    alignments = aligner.align(input_s[0:100], compare_str[0:100])
     alignment = alignments[0]
     # max mistakes currently coded as 2
-    while alignment.score >= counter * 2 -(2):
-    #while alignment.score >= counter * 2 -(1+counter//10):
-        counter += 1
-        alignments = aligner.align(input_s[0:counter], compare_str[0:counter])
-        alignment = alignments[0]
+    #while alignment.score >= counter * 2 -(2):
+    ##while alignment.score >= counter * 2 -(1+counter//10):
+        #counter += 1
+        #alignments = aligner.align(input_s[0:counter], compare_str[0:counter])
+        #alignment = alignments[0]
 
-    print(counter)
+    #print(counter)
     print(alignment)
     print(alignment.score)
 
     print(">>>>>>>")
-    print(compare_str)
-    print(input_s)
+    #print(compare_str)
+    #print(input_s)
+    rec(input_s[50:], 50)
 
-
-#compare_start("chr1L_Telomere_Repeat", input_s)
+compare_start("chr1L_Telomere_Repeat", input_s)
 #self_search(input_s)
 
 
