@@ -47,7 +47,7 @@ aligner.mode = 'local'  # Local (Smith-Waterman) alignment; use 'global' for glo
 aligner.match_score = 2  # Score for a match
 aligner.mismatch_score = -1  # Penalty for a mismatch
 #aligner.open_gap_score = -1  # Penalty for opening a gap
-aligner.open_gap_score = -0.5  # Penalty for opening a gap
+aligner.open_gap_score = -1  # Penalty for opening a gap
 aligner.extend_gap_score = -0.1  # Penalty for extending a gap
 
 input_s = "GTGTGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGG"
@@ -98,7 +98,7 @@ class self_search_type:
 def self_search(input_s):
     my_dict = {}
     n = len(input_s)
-    min_length = 3
+    min_length = 10 
     for i in range(0, len(input_s)//2):
         for j in range(min_length, n-i):
             subStr = input_s[i:i+j]
@@ -117,13 +117,37 @@ def self_search(input_s):
 
 def compare_start(chr_compare, input_s):
     compare_str = dict[chr_compare]
-    print(compare_str)
     n = len(compare_str)
-    alignments = aligner.align(input_s[0:n+10], compare_str)
-    #for alignment in alignments:
+    counter = 10
+    alignments = aligner.align(input_s[0:counter], compare_str[0:counter])
     alignment = alignments[0]
-    print(n)
-    print(f"Alignment score: {alignment.score}")
-    print(alignment)
+    # max mistakes currently coded as 2
+    while alignment.score >= counter * 2 -(2):
+    #while alignment.score >= counter * 2 -(1+counter//10):
+        counter += 1
+        alignments = aligner.align(input_s[0:counter], compare_str[0:counter])
+        alignment = alignments[0]
 
-compare_start("chr1L_Telomere_Repeat", input_s)
+    print(counter)
+    print(alignment)
+    print(alignment.score)
+
+    print(">>>>>>>")
+    print(compare_str)
+    print(input_s)
+
+
+#compare_start("chr1L_Telomere_Repeat", input_s)
+#self_search(input_s)
+
+
+compare_str = dict["chr1L_Telomere_Repeat"]
+n = len(compare_str)
+alignments = aligner.align(input_s[0:n+5], compare_str)
+#for alignment in alignments:
+#for i in range(len(alignments)):
+print(len(alignments))
+alignment = alignments[1000]
+print(f"score: {alignment.score}")
+print(alignment)
+print(">>>>>")
