@@ -1,11 +1,18 @@
 from collections import deque, defaultdict
+import sys
+
+class filter_options:
+    def __init__(self, only_non_overlapping = True, min_substring_length = 50, min_matches = 23):
+        self.only_non_overlapping = only_non_overlapping
+        self.min_substring_length = min_substring_length
+        self.min_matches = min_matches
 
 class self_search_type:
-    def __init__(self, n_subStr, indexes):
+    def __init__(self, n_subStr, indexes, min_gap, is_overlap):
         self.n_subStr = n_subStr
-        #self.subStr_start = subStr_start
         self.indexes = indexes
-        #self.coverage = [indexes[0], indexes[0]+n_subStr]
+        self.min_gap = min_gap
+        self.is_overlap = is_overlap
     
     def average_distance(self):
         arr = self.indexes
@@ -19,7 +26,24 @@ class self_search_type:
     def __repr__(self):
         n = self.n_subStr
         avg_dist = self.average_distance()
-        return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, avg distance={avg_dist}\nstarting indexes: {self.indexes}\n"
+        #return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, avg distance={avg_dist}\nstarting indexes: {self.indexes}\n"
+        return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.is_overlap}\nstarting indexes: {self.indexes}\n"
+
+# this is a temporary function that shouldn't be necessary if you filter stuff out as your adding it instead
+def final_filter(my_dict, my_filter_options):
+    my_arr = list(my_dict.keys())
+    for key in my_arr:
+        tmp = my_dict[key]
+        if my_filter_options.only_non_overlapping == True and tmp.is_overlap == True:
+            del(my_dict[key])
+            continue
+        if tmp.n_subStr < my_filter_options.min_substring_length:
+            del(my_dict[key])
+            continue
+        if len(tmp.indexes) < my_filter_options.min_matches:
+            del(my_dict[key])
+            continue
+    return(my_dict)
 
 def consolidate(input_s, my_dict, coverage_dict):
     for initial_key in coverage_dict.keys():
@@ -35,18 +59,13 @@ def consolidate(input_s, my_dict, coverage_dict):
                 if cmp_start > end:
                     break
                 cmp_end = coverage_dict[initial_key][secondary_keys[j]]
-                #print(f"start: {start}")
-                #print(f"end: {end}")
-                #print(f"cmp_start: {cmp_start}")
-                #print(f"cmp_end: {cmp_end}")
                 del my_dict[input_s[cmp_start:cmp_end+1]]
-                #print(f"{input_s[cmp_start:cmp_end+1]} has been deleted")
-                #if end > cmp_end:
-                    #del my_dict[input_s[cmp_start:cmp_end+1]]
-                #else:
-                    #del my_dict[input_s[start:end+1]]
-    for key in my_dict:
-        print(f"input length={len(input_s)}, {my_dict[key]}{key}\n")
+
+    my_filter_options = filter_options()
+    new_dict = final_filter(my_dict, my_filter_options)
+    #print(f"input length={len(input_s)}, {my_dict[key]}{key}\n")
+    for key in new_dict:
+        print(f"input length={len(input_s)}, {new_dict[key]}{key}\n")
 
                 
 
@@ -57,14 +76,10 @@ def expand_dict(input_s, my_dict, coverage_dict):
     for key in my_dict.keys():
         queue.append(key)
     while queue:
-        #print(f"my_dict: {my_dict}")
-        #print(f"queue: {queue}")
-        #print(f"coverage_dict: {coverage_dict}")
         curr = queue.popleft()
         n_string = my_dict[curr].n_subStr
         indexes = my_dict[curr].indexes
         n_indexes = len(indexes)
-        #counter = -1
         s = ""
         tmp_dict = {}
         for index in indexes:
@@ -73,13 +88,18 @@ def expand_dict(input_s, my_dict, coverage_dict):
                 continue
             s = input_s[index:r_index+1]
             if s in my_dict:
+                gap = index - my_dict[s].indexes[-1]
+                if gap < my_dict[s].min_gap:
+                    my_dict[s].min_gap = gap
+                    my_dict[s].is_overlap = gap < len(s)
                 my_dict[s].indexes.append(index)
                 tmp_dict[s] = index
-                #counter += 1
             elif s in tmp_dict:
-                my_dict[s] = self_search_type(len(s), [tmp_dict[s], index])
+                first_val = tmp_dict[s]
+                gap = index - first_val
+                is_overlap = gap < len(s)
+                my_dict[s] = self_search_type(len(s), [first_val, index], gap, is_overlap)
                 queue.append(s)
-                #counter = 2
             else:
                 tmp_dict[s] = index
         for key in tmp_dict.keys():
@@ -92,7 +112,9 @@ def expand_dict(input_s, my_dict, coverage_dict):
                 else:
                     if  start_index in coverage_dict[n_tmp_indexes]:
                         end_index = coverage_dict[n_tmp_indexes][start_index]
-                        del my_dict[input_s[start_index:end_index+1]]
+                        sub_str = input_s[start_index:end_index+1]
+                        if my_dict[sub_str].is_overlap == my_dict[key].is_overlap:
+                            del my_dict[input_s[start_index:end_index+1]]
                     coverage_dict[n_tmp_indexes][start_index] = start_index + tmp.n_subStr - 1
     consolidate(input_s, my_dict, coverage_dict)
 
@@ -100,7 +122,6 @@ def expand_dict(input_s, my_dict, coverage_dict):
 
 def self_search(input_s, min_length = 50):
     my_dict = {}
-    #coverage_dict = {}
     coverage_dict = defaultdict(dict)
     n = len(input_s)
     tmp_dict = defaultdict(list)
@@ -111,10 +132,14 @@ def self_search(input_s, min_length = 50):
     for key in tmp_dict.keys():
         tmp_arr = tmp_dict[key]
         len_arr = len(tmp_arr)
-        i = tmp_arr[0]
         if len_arr > 1:
-            coverage_dict[len_arr][i] = i+min_length - 1
-            my_dict[key] = self_search_type(min_length, tmp_arr)
+            min_gap = sys.maxsize
+            for i in range(1, len_arr):
+                min_gap = min(min_gap, tmp_arr[i] - tmp_arr[i-1])
+            first_index = tmp_arr[0]
+            coverage_dict[len_arr][first_index] = first_index+min_length - 1
+            overlap = min_gap < min_length
+            my_dict[key] = self_search_type(min_length, tmp_arr, min_gap, overlap)
 
     expand_dict(input_s, my_dict, coverage_dict)
 
