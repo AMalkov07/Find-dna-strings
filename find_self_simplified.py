@@ -1,8 +1,9 @@
 from collections import deque, defaultdict
 import sys
+from Bio import Align
 
 class filter_options:
-    def __init__(self, only_non_overlapping = True, min_substring_length = 50, min_matches = 23):
+    def __init__(self, only_non_overlapping = True, min_substring_length = 50, min_matches = 2):
         self.only_non_overlapping = only_non_overlapping
         self.min_substring_length = min_substring_length
         self.min_matches = min_matches
@@ -13,6 +14,8 @@ class self_search_type:
         self.indexes = indexes
         self.min_gap = min_gap
         self.is_overlap = is_overlap
+        self.n_extra_alignment = 0
+        self.extra_alignment_indexes = []
     
     def average_distance(self):
         arr = self.indexes
@@ -27,7 +30,57 @@ class self_search_type:
         n = self.n_subStr
         avg_dist = self.average_distance()
         #return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, avg distance={avg_dist}\nstarting indexes: {self.indexes}\n"
-        return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.is_overlap}\nstarting indexes: {self.indexes}\n"
+        return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.is_overlap}, number of extra alignments={self.n_extra_alignment}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
+
+
+aligner = Align.PairwiseAligner()
+
+aligner.mode = 'local'  # Local (Smith-Waterman) alignment; use 'global' for global (Needleman-Wunsch)
+aligner.match_score = 1  # Score for a match
+aligner.mismatch_score = -(1)  # Penalty for a mismatch
+aligner.open_gap_score = -(1)  # Penalty for opening a gap
+aligner.extend_gap_score = -(.5)  # Penalty for extending a gap
+#aligner.query_left_open_gap_score = 0
+#aligner.query_right_open_gap_score = 0
+#aligner.target_left_open_gap_score = 0
+#aligner.target_right_open_gap_score = 0
+
+def alignment(seq1, seq2):
+    alignments = aligner.align(seq1, seq2)
+
+    last_val = 0
+    #str_arr = []
+    str_dict = {}
+    # pointless step, don't need to align pointless alignments
+    for alignment in alignments:
+        #print(alignment)
+        coordinates = alignment.coordinates[0]
+        #str_arr.append(seq1[last_val:coordinates[0]])
+        str_dict[seq1[last_val:coordinates[0]]] = [last_val, coordinates[0]]
+        last_val = coordinates[1]
+
+    good_alignment_arr = []
+    good_alignment_starting_pos = []
+    arr = []
+    counter = 0
+    for str in str_dict.keys():
+        if str != "":
+        #print(str)
+            alignments = aligner.align(str, seq2)
+            n_seq2 = len(seq2)
+            score = alignments[0].score
+            if score >= n_seq2 - n_seq2/20:
+                counter += 1 
+                good_alignment_arr.append(alignments[0])
+                alignment_start = alignments[0].coordinates[0][0]
+                good_alignment_starting_pos.append(str_dict[str][0]+alignment_start)
+            arr.append(score)
+    return(good_alignment_starting_pos)
+
+    #print(f"number of good extra alignments: {counter}\nextra alignment scores: {arr}\ngood alignment starts: {good_alignment_starting_pos}\n")
+    #for alignment in good_alignment_arr:
+        #print(alignment)
+    #print(f"number of good extra alignments: {counter}, extra alignment scores: {arr}\nThe best extra Alignment that was found:\n{best_alignment}\n")
 
 # this is a temporary function that shouldn't be necessary if you filter stuff out as your adding it instead
 def final_filter(my_dict, my_filter_options):
@@ -63,9 +116,22 @@ def consolidate(input_s, my_dict, coverage_dict):
 
     my_filter_options = filter_options()
     new_dict = final_filter(my_dict, my_filter_options)
+    output_dict = {}
     #print(f"input length={len(input_s)}, {my_dict[key]}{key}\n")
     for key in new_dict:
-        print(f"input length={len(input_s)}, {new_dict[key]}{key}\n")
+        new_dict[key].extra_alignment_indexes = alignment(input_s, key)
+        new_dict[key].n_extra_alignment = len(new_dict[key].extra_alignment_indexes)
+        tmp = new_dict[key]
+        if tmp.n_subStr not in output_dict:
+            output_dict[tmp.n_subStr] = [len(tmp.indexes), (len(tmp.indexes)+tmp.n_extra_alignment)]
+            print(f"input length={len(input_s)}, {new_dict[key]}{key}\n")
+        #elif output_dict[tmp.n_subStr][0] < len(tmp.indexes):
+            #output_dict[tmp.n_subStr][0] = len(tmp.indexes)
+            #print(f"input length={len(input_s)}, {new_dict[key]}{key}\n")
+        elif output_dict[tmp.n_subStr][1] < len(tmp.indexes)+tmp.n_extra_alignment:
+            output_dict[tmp.n_subStr][1] = len(tmp.indexes)+tmp.n_extra_alignment
+            print(f"input length={len(input_s)}, {new_dict[key]}{key}\n")
+        #alignment(input_s, key)
 
                 
 
