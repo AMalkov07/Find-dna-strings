@@ -3,7 +3,7 @@ import sys
 from Bio import Align
 
 class filter_options:
-    def __init__(self, only_non_overlapping = True, min_substring_length = 50, min_matches = 2):
+    def __init__(self, only_non_overlapping = True, min_substring_length = 50, min_matches = 3):
         self.only_non_overlapping = only_non_overlapping
         self.min_substring_length = min_substring_length
         self.min_matches = min_matches
@@ -29,7 +29,6 @@ class self_search_type:
     def __repr__(self):
         n = self.n_subStr
         avg_dist = self.average_distance()
-        #return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, avg distance={avg_dist}\nstarting indexes: {self.indexes}\n"
         return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.is_overlap}, number of extra alignments={self.n_extra_alignment}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
 
 
@@ -45,19 +44,21 @@ aligner.extend_gap_score = -(.5)  # Penalty for extending a gap
 #aligner.target_left_open_gap_score = 0
 #aligner.target_right_open_gap_score = 0
 
-def alignment(seq1, seq2):
-    alignments = aligner.align(seq1, seq2)
+def alignment(input_s, key, my_dict_entry):
+#def alignment(seq1, seq2):
+    #alignments = aligner.align(seq1, seq2)
+    alignments = my_dict_entry.indexes
+    key_n = len(key)
 
     last_val = 0
     #str_arr = []
     str_dict = {}
     # pointless step, don't need to align pointless alignments
     for alignment in alignments:
-        #print(alignment)
-        coordinates = alignment.coordinates[0]
-        #str_arr.append(seq1[last_val:coordinates[0]])
-        str_dict[seq1[last_val:coordinates[0]]] = [last_val, coordinates[0]]
-        last_val = coordinates[1]
+        #coordinates = alignment.coordinates[0]
+        #str_dict[seq1[last_val:coordinates[0]]] = [last_val, coordinates[0]]
+        str_dict[input_s[last_val:alignment]] = [last_val, alignment]
+        last_val = alignment+key_n
 
     good_alignment_arr = []
     good_alignment_starting_pos = []
@@ -65,17 +66,17 @@ def alignment(seq1, seq2):
     counter = 0
     for str in str_dict.keys():
         if str != "":
-        #print(str)
-            alignments = aligner.align(str, seq2)
-            n_seq2 = len(seq2)
+            alignments = aligner.align(str, key)
+            key_n
             score = alignments[0].score
-            if score >= n_seq2 - n_seq2/20:
+            # below if statement determines what qualifies as a good alignment score
+            if score >= key_n - key_n/20:
                 counter += 1 
                 good_alignment_arr.append(alignments[0])
                 alignment_start = alignments[0].coordinates[0][0]
                 good_alignment_starting_pos.append(str_dict[str][0]+alignment_start)
             arr.append(score)
-    return(good_alignment_starting_pos)
+    return(good_alignment_starting_pos, arr)
 
     #print(f"number of good extra alignments: {counter}\nextra alignment scores: {arr}\ngood alignment starts: {good_alignment_starting_pos}\n")
     #for alignment in good_alignment_arr:
@@ -119,18 +120,36 @@ def consolidate(input_s, my_dict, coverage_dict):
     output_dict = {}
     #print(f"input length={len(input_s)}, {my_dict[key]}{key}\n")
     for key in new_dict:
-        new_dict[key].extra_alignment_indexes = alignment(input_s, key)
+        doesnt_fit = True
+        #new_dict[key].extra_alignment_indexes, all_extra_alignment_scores = alignment(input_s, key)
+        new_dict[key].extra_alignment_indexes, all_extra_alignment_scores = alignment(input_s, key, my_dict[key])
         new_dict[key].n_extra_alignment = len(new_dict[key].extra_alignment_indexes)
         tmp = new_dict[key]
         if tmp.n_subStr not in output_dict:
-            output_dict[tmp.n_subStr] = [len(tmp.indexes), (len(tmp.indexes)+tmp.n_extra_alignment)]
-            print(f"input length={len(input_s)}, {new_dict[key]}{key}\n")
+            output_dict[tmp.n_subStr] = [[len(tmp.indexes), (len(tmp.indexes)+tmp.n_extra_alignment), [tmp.indexes[0],tmp.indexes[1]]]]
+            print(f"{new_dict[key]}all alignment scores: {all_extra_alignment_scores}\n{key}\n")
         #elif output_dict[tmp.n_subStr][0] < len(tmp.indexes):
             #output_dict[tmp.n_subStr][0] = len(tmp.indexes)
             #print(f"input length={len(input_s)}, {new_dict[key]}{key}\n")
-        elif output_dict[tmp.n_subStr][1] < len(tmp.indexes)+tmp.n_extra_alignment:
-            output_dict[tmp.n_subStr][1] = len(tmp.indexes)+tmp.n_extra_alignment
-            print(f"input length={len(input_s)}, {new_dict[key]}{key}\n")
+        #elif output_dict[tmp.n_subStr][1] < len(tmp.indexes)+tmp.n_extra_alignment:
+            #output_dict[tmp.n_subStr][1] = len(tmp.indexes)+tmp.n_extra_alignment
+            #print(f"input length={len(input_s)}, {new_dict[key]}{key}\n")
+        else:
+            output_dict_val = output_dict[tmp.n_subStr]
+            for val in output_dict_val:
+                if (val[2][0]<=tmp.indexes[0] and val[2][0]+tmp.n_subStr >= tmp.indexes[0]) or (val[2][1]<=tmp.indexes[0] and val[2][1]+tmp.n_subStr >= tmp.indexes[0]):
+                    doesnt_fit = False
+                    if val[1] < len(tmp.indexes)+tmp.n_extra_alignment:
+                        val[1] = len(tmp.indexes)+tmp.n_extra_alignment
+                        print(f"{new_dict[key]}all alignment scores: {all_extra_alignment_scores}\n{key}\n")
+                    break
+                #else:
+                    #output_dict_val.append([len(tmp.indexes), (len(tmp.indexes)+tmp.n_extra_alignment), tmp.indexes[0]])
+                    #print(f"input length={len(input_s)}, {new_dict[key]}{key}\n")
+            if(doesnt_fit):
+                output_dict_val.append([len(tmp.indexes), (len(tmp.indexes)+tmp.n_extra_alignment), [tmp.indexes[0], tmp.indexes[1]]])
+                print(f"{new_dict[key]}all alignment scores: {all_extra_alignment_scores}\n{key}\n")
+
         #alignment(input_s, key)
 
                 
@@ -198,7 +217,7 @@ def self_search(input_s, min_length = 50):
     for key in tmp_dict.keys():
         tmp_arr = tmp_dict[key]
         len_arr = len(tmp_arr)
-        if len_arr > 1:
+        if len_arr > 2:
             min_gap = sys.maxsize
             for i in range(1, len_arr):
                 min_gap = min(min_gap, tmp_arr[i] - tmp_arr[i-1])
