@@ -3,8 +3,11 @@ import sys
 from Bio import Align
 from Bio.Seq import Seq
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyArrowPatch, Rectangle, Polygon
 
-global_counter = 0
+fig, ax = plt.subplots()
+
+global_counter = -1 
 
 class filter_options:
     def __init__(self, only_non_overlapping = True, min_substring_length = 50, min_matches = 3, is_best_only = True):
@@ -129,8 +132,11 @@ def graph_setup():
     plt.figure(figsize=(8,6))
     # Set a fixed DPI for both display and saving
     fig = plt.gcf()
-    display_dpi = fig.get_dpi()  # Get the current display DPI
-    fig.set_dpi(display_dpi)
+    #plt.figure(dpi=150)
+    #display_dpi = fig.get_dpi()  # Get the current display DPI
+    #fig.set_dpi(display_dpi)
+    #plt.title(0, 8.5, "IT148")
+    plt.text(0, 8, "IT148", ha='center', va='center', fontsize=12, color='black')
     plt.text(0, 7, "chr1", ha='center', va='center', fontsize=10, color='black')
     plt.text(0, 6.5, "chr2", ha='center', va='center', fontsize=10, color='black')
     plt.text(0, 6, "chr3", ha='center', va='center', fontsize=10, color='black')
@@ -145,9 +151,27 @@ def graph_setup():
     plt.text(0, 1.5, "chr12", ha='center', va='center', fontsize=10, color='black')
     plt.text(0, 1, "chr13", ha='center', va='center', fontsize=10, color='black')
 
+    ax.text(0, 8, "IT148", ha='center', va='center', fontsize=12, color='black')
+    ax.text(0, 7, "chr1", ha='center', va='center', fontsize=10, color='black')
+    ax.text(0, 6.5, "chr2", ha='center', va='center', fontsize=10, color='black')
+    ax.text(0, 6, "chr3", ha='center', va='center', fontsize=10, color='black')
+    ax.text(0, 5.5, "chr4", ha='center', va='center', fontsize=10, color='black')
+    ax.text(0, 5, "chr5", ha='center', va='center', fontsize=10, color='black')
+    ax.text(0, 4.5, "chr6", ha='center', va='center', fontsize=10, color='black')
+    ax.text(0, 4, "chr7", ha='center', va='center', fontsize=10, color='black')
+    ax.text(0, 3.5, "chr8", ha='center', va='center', fontsize=10, color='black')
+    ax.text(0, 3, "chr9", ha='center', va='center', fontsize=10, color='black')
+    ax.text(0, 2.5, "chr10", ha='center', va='center', fontsize=10, color='black')
+    ax.text(0, 2, "chr11", ha='center', va='center', fontsize=10, color='black')
+    ax.text(0, 1.5, "chr12", ha='center', va='center', fontsize=10, color='black')
+    ax.text(0, 1, "chr13", ha='center', va='center', fontsize=10, color='black')
+
     # Add x-axis label and set limits
     plt.xlabel("X-axis")
-    plt.ylim(0, 8)  # Set y-axis limits to keep the line flat
+    ax.set_xlabel("X-axis")
+    plt.ylim(.5, 7.5)  # Set y-axis limits to keep the line flat
+    ax.set_ylim(.5, 7.5)
+    ax.set_xlim(-6000, 5000)
 
 
     # Remove y-axis and add legend
@@ -160,8 +184,8 @@ def graph_output(my_dict):
     key = list(my_dict.keys())[0]
     set1 = my_dict[key].indexes
     set2 = my_dict[key].extra_alignment_indexes
+    set2.sort()
     insertions_and_deletions = my_dict[key].extra_alignment_insertions_and_deletions
-    #good_alignment = my_dict[key].extra_alignment_indexes
     all_points = []
     set1_ptr = 0
     set2_ptr = 0
@@ -177,15 +201,12 @@ def graph_output(my_dict):
             all_points.append(set2_tmp + offset)
             set2_ptr += 1
     if set1_ptr == set1_n:
-        #all_points += set2[set2_ptr:]
         for i in range(set2_ptr, set2_n):
             all_points.append(set2[i] + offset)
     else:
-        #all_points += set1[set1_ptr:]
         for i in range(set1_ptr, set1_n, 1):
             all_points.append(set1[i] + offset)
-    print(all_points)
-
+    
     arrow_style = "->"
     sign = global_counter % 2
     if sign == 0:
@@ -197,50 +218,78 @@ def graph_output(my_dict):
             set1[i] *= -1
         for i in range(len(set2)):
             set2[i] *= -1
-        arrow_style = "->"
 
-    global_counter += 1
     arrow_distance = my_dict[key].n_subStr
-
-    # Set up the figure with a custom size
-    #plt.figure(figsize=(8, 2))  # Adjust figsize for desired aspect ratio
 
     previous_end_point = None
 
     # Create the 1D plot along the x-axis
-    plt.plot(all_points, [y_index] * len(all_points), 'o', color='black', markersize=1, label='Data Points')  # Black dots for all data points
+    #plt.plot(all_points, [y_index] * len(all_points), 'o', color='black', markersize=0, label='Data Points')  # Black dots for all data points
 
     # Add arrows between each point, with color based on originating set
+    arrow_color = 'teal'
     for i, point in enumerate(all_points):
-        #print(f">>>>>>>>>> {all_points[i] - (offset * sign)}")
         if all_points[i] - offset * sign in set1:
-            arrow_color = 'teal'
+            #arrow_color = 'teal'
+            perfect_alignment = 'teal'
         else:
-            arrow_color = 'skyblue' 
+            #arrow_color = 'skyblue' 
+            perfect_alignment = 'skyblue' 
+
 
         end_point = point+arrow_distance*sign
 
+        tail_length = arrow_distance * .5
+        tail_width = .1 
+        head_length = arrow_distance * .5
+        head_width = .2
+
+        if sign == 1:
+            bottom_left = point
+        else:
+            bottom_left = point - tail_length
+
+        tail = Rectangle((bottom_left, y_index - tail_width / 2), tail_length, tail_width, color=arrow_color)
+        ax.add_patch(tail)
+
+        #arrowhead = FancyArrowPatch((point + tail_length, y_index), (end_point, y_index),
+                            #color="blue", arrowstyle="->", mutation_scale=100, lw=2)
+        #ax.add_patch(arrowhead)
+
+        triangle = Polygon([[point + (tail_length+head_length) * sign, y_index],
+                           #[point+(tail_length+head_length) * sign, y_index-head_width/2],
+                           [point+(tail_length) * sign, y_index-head_width/2],
+                           #[point+(tail_length+head_length) * sign, y_index+head_width/2]],
+                           [point+(tail_length) * sign, y_index+head_width/2]],
+                           closed=True, color=arrow_color)
+        ax.add_patch(triangle)
+
+        #arrow = FancyArrowPatch((end_point, y_index), (point, y_index),
+                        #color=arrow_color, linewidth=3, arrowstyle="->",
+                        #mutation_scale=10)  # Adjust mutation_scale for arrowhead
+
+        #ax.add_patch(arrow)
+
         plt.annotate('', xy=(end_point, y_index), xytext=(point, y_index),
                     arrowprops=dict(arrowstyle=arrow_style, color=arrow_color, lw=1.5,
-                                    mutation_scale=20, shrinkA=0, shrinkB=0))
+                                    mutation_scale=10, shrinkA=0, shrinkB=0))
 
-        if arrow_color == 'skyblue':
-            midpoint = (point + end_point) / 2  # Calculate the midpoint of the arrow
+
+        if perfect_alignment == 'skyblue':
             insertions_and_deletions_key = abs(all_points[i] - offset * sign)
             insertions = insertions_and_deletions[insertions_and_deletions_key][0]
             deletions = insertions_and_deletions[insertions_and_deletions_key][1]
             for i in insertions:
-                plt.plot([point+i*sign, point+i*sign], [y_index-.15, y_index+.15], color='blue', lw=1)  # Draw vertical line at midpoint
+                plt.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='blue', lw=1)  # Draw vertical line at midpoint
+                ax.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='blue', linestyle = '-')
             for i in deletions:
-                plt.plot([point+i*sign, point+i*sign], [y_index-.15, y_index+.15], color='gold', lw=1)  # Draw vertical line at midpoint
+                plt.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='gold', lw=1)  # Draw vertical line at midpoint
+                ax.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='gold', linestyle = '-')
 
         if previous_end_point is not None:
             plt.plot([previous_end_point, point], [y_index, y_index], color='red', lw=1)
+            ax.plot([previous_end_point, point], [y_index, y_index], color='red', linestyle='-')
         previous_end_point = end_point
-
-
-    # Display the plot
-    #plt.show()
 
 
 # this is a temporary function that shouldn't be necessary if you filter stuff out as your adding it instead
@@ -248,6 +297,7 @@ def final_filter(my_dict, my_filter_options):
     last_diff = sys.maxsize
     last_key = ""
     last_n_subStr = 0
+    last_n_matches = 0
     my_arr = list(my_dict.keys())
     for key in my_arr:
         tmp = my_dict[key]
@@ -261,10 +311,11 @@ def final_filter(my_dict, my_filter_options):
             del(my_dict[key])
             continue
         tmp_diff = tmp.min_gap - tmp.n_subStr
-        if tmp.min_gap - tmp.n_subStr <= last_diff and tmp.n_subStr > last_n_subStr:
+        if tmp.min_gap - tmp.n_subStr <= last_diff and tmp.n_subStr > last_n_subStr and len(tmp.indexes) > last_n_matches/2:
             last_diff = tmp_diff
             last_key = key
             last_n_subStr = tmp.n_subStr
+            last_n_matches = len(tmp.indexes)
     if my_filter_options.is_best_only:
         #my_dict = {last_key: my_dict[last_key]}
         my_dict = {last_key: my_dict[last_key]}
@@ -368,9 +419,9 @@ def expand_dict(input_s, my_dict, coverage_dict):
             
 
 def self_search(input_s, min_length = 50):
+    global global_counter
+    global_counter += 1
     if input_s == "":
-        global global_counter
-        global_counter += 1
         return
     my_dict = {}
     coverage_dict = defaultdict(dict)
@@ -391,7 +442,13 @@ def self_search(input_s, min_length = 50):
             coverage_dict[len_arr][first_index] = first_index+min_length - 1
             overlap = min_gap < min_length
             my_dict[key] = self_search_type(min_length, tmp_arr, min_gap, overlap)
-
+    if len(list(my_dict.keys())) == 0:
+        return
+    if global_counter%2 == 0:
+        x = "L"
+    else:
+        x = "R"
+    print(f"<<<<<<<<<<<CHR{global_counter//2+1}{x}>>>>>>>>>>>>>>>>")
     expand_dict(input_s, my_dict, coverage_dict)
 
 
@@ -480,8 +537,8 @@ def main():
     self_search("")
 
     # chr6L - ??
-    #self_search("GTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGGTGTGGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGGGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGGTGGTGTGTGGTGTGGTGTGGGTGTGTGTGTGGGGTGTGGTGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGGTGTGGTGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGGTGTGTGTGGTGTGGTGTGTGGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGTGTGGGGTGTGGTGTGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGTGGGGTGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGGTGTGTGGTGGGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTG")
-    self_search("")
+    self_search("GTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGGTGTGGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGGGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGGTGGTGTGTGGTGTGGTGTGGGTGTGTGTGTGGGGTGTGGTGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGGTGTGGTGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGGTGTGTGTGGTGTGGTGTGTGGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGTGTGGGGTGTGGTGTGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGTGGGGTGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGGTGTGTGGTGGGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTG")
+    #self_search("")
 
     # chr6R - multiple congigs
     self_search("")
@@ -539,10 +596,11 @@ def main():
     #self_search("ACCACACCCACATCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACACCACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCCACACCACACCCACATCCACATCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACATCCACACACCCACACACCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACACCCACACACCACACCCACACCACACCCACACCACACCCACATCCACACACCCACACACCCACACACCCACACCCACACCCACACACCCACACACCACACCCACACACCACACCCACACACCACACCCACACCCACACCCACACACCACACCCACACACCACACCCACACACCCACACACCACACCCACACACCACACCCACACACCACCCACACCCACACAC")
 
     # Set the figure’s DPI to match the interactive display
-    plt.gcf().set_dpi(plt.gcf().get_dpi())  # This will use the current DPI
+    #plt.gcf().set_dpi(plt.gcf().get_dpi())  # This will use the current DPI
 
     # Save the plot with tight bounding box to capture layout
-    plt.savefig("my_plot.png", dpi=plt.gcf().get_dpi(), bbox_inches='tight')
+    #plt.savefig("my_plot.png", dpi=plt.gcf().get_dpi(), bbox_inches='tight')
+    fig.savefig('my_plot.png', dpi=300, bbox_inches='tight')
 
     plt.show()
 
