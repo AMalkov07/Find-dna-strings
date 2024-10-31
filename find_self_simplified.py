@@ -5,7 +5,7 @@ from Bio.Seq import Seq
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, Rectangle, Polygon
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(16,4))
 
 global_counter = -1 
 
@@ -176,6 +176,7 @@ def graph_setup():
 
     # Remove y-axis and add legend
     plt.gca().get_yaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
 
 def graph_output(my_dict):
     offset = 300 
@@ -219,7 +220,8 @@ def graph_output(my_dict):
         for i in range(len(set2)):
             set2[i] *= -1
 
-    arrow_distance = my_dict[key].n_subStr
+    arrow_distance_orig = my_dict[key].n_subStr
+    #arrow_distance = my_dict[key].n_subStr
 
     previous_end_point = None
 
@@ -229,19 +231,28 @@ def graph_output(my_dict):
     # Add arrows between each point, with color based on originating set
     arrow_color = 'teal'
     for i, point in enumerate(all_points):
+        arrow_distance = arrow_distance_orig
         if all_points[i] - offset * sign in set1:
             #arrow_color = 'teal'
-            perfect_alignment = 'teal'
+            #perfect_alignment = 'teal'
+            perfect_alignment = True
         else:
             #arrow_color = 'skyblue' 
-            perfect_alignment = 'skyblue' 
+            #perfect_alignment = 'skyblue' 
+            perfect_alignment = False
+
+        if not perfect_alignment:
+            insertions_and_deletions_key = abs(all_points[i] - offset * sign)
+            n_insertions = len(insertions_and_deletions[insertions_and_deletions_key][0])
+            n_deletions = len(insertions_and_deletions[insertions_and_deletions_key][1])
+            arrow_distance += (n_deletions - n_insertions)
 
 
         end_point = point+arrow_distance*sign
 
-        tail_length = arrow_distance * .5
+        tail_length = arrow_distance * .6
         tail_width = .1 
-        head_length = arrow_distance * .5
+        head_length = (arrow_distance * .4)
         head_width = .2
 
         if sign == 1:
@@ -256,7 +267,7 @@ def graph_output(my_dict):
                             #color="blue", arrowstyle="->", mutation_scale=100, lw=2)
         #ax.add_patch(arrowhead)
 
-        triangle = Polygon([[point + (tail_length+head_length) * sign, y_index],
+        triangle = Polygon([[point + (tail_length+head_length)*.9 * sign, y_index],
                            #[point+(tail_length+head_length) * sign, y_index-head_width/2],
                            [point+(tail_length) * sign, y_index-head_width/2],
                            #[point+(tail_length+head_length) * sign, y_index+head_width/2]],
@@ -275,7 +286,7 @@ def graph_output(my_dict):
                                     mutation_scale=10, shrinkA=0, shrinkB=0))
 
 
-        if perfect_alignment == 'skyblue':
+        if not perfect_alignment:
             insertions_and_deletions_key = abs(all_points[i] - offset * sign)
             insertions = insertions_and_deletions[insertions_and_deletions_key][0]
             deletions = insertions_and_deletions[insertions_and_deletions_key][1]
@@ -288,7 +299,7 @@ def graph_output(my_dict):
 
         if previous_end_point is not None:
             plt.plot([previous_end_point, point], [y_index, y_index], color='red', lw=1)
-            ax.plot([previous_end_point, point], [y_index, y_index], color='red', linestyle='-')
+            ax.plot([previous_end_point, point], [y_index, y_index], linewidth= 3, color='red', linestyle='-')
         previous_end_point = end_point
 
 
@@ -600,7 +611,7 @@ def main():
 
     # Save the plot with tight bounding box to capture layout
     #plt.savefig("my_plot.png", dpi=plt.gcf().get_dpi(), bbox_inches='tight')
-    fig.savefig('my_plot.png', dpi=300, bbox_inches='tight')
+    fig.savefig('my_plot.png', dpi=100, bbox_inches='tight')
 
     plt.show()
 
