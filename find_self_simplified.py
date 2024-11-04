@@ -7,7 +7,9 @@ from matplotlib.patches import FancyArrowPatch, Rectangle, Polygon
 
 fig, ax = plt.subplots(figsize=(16,4))
 
-global_counter = -1 
+global_counter = -1
+global_max_x = 0
+global_min_x = 0
 
 class filter_options:
     def __init__(self, only_non_overlapping = True, min_substring_length = 50, min_matches = 3, is_best_only = True):
@@ -81,17 +83,27 @@ def alignment(input_s, key, my_dict_entry):
             if score >= key_n - key_n/10:
                 counter += 1 
                 good_alignment_arr.append(alignments[0])
+                
                 alignment_start = alignments[0].coordinates[0][0]
                 good_alignment_starting_pos.append(str_dict[str][0]+alignment_start)
+                if global_counter == 22:
+                    print(f"starting pos: {good_alignment_starting_pos[-1]}")
+                    print(alignments[0])
+                    print(alignments[0].coordinates)
 
                 new_entry_start = str_dict[str][0]
+                print(f"new_entry_start 1: {new_entry_start}")
                 new_entry_end = new_entry_start + alignment_start
+                print(f"new_entry_end 1: {new_entry_end}")
                 new_str = input_s[new_entry_start:new_entry_end+1]
                 str_dict[new_str] = [new_entry_start, new_entry_end]
                 queue.append(new_str)
 
-                new_entry_start = str_dict[str][0] + alignments[0].coordinates[0][0] + key_n + 1
+                #new_entry_start = str_dict[str][0] + alignments[0].coordinates[0][0] + key_n + 1
+                new_entry_start = str_dict[str][0] + alignments[0].coordinates[0][-1] + 1
+                print(f"new_entry_start 2: {new_entry_start}")
                 new_entry_end = str_dict[str][1]
+                print(f"new_entry_end 2: {new_entry_end}")
                 new_str = input_s[new_entry_start:new_entry_end]
                 str_dict[new_str] = [new_entry_start, new_entry_end]
                 queue.append(new_str)
@@ -102,6 +114,9 @@ def alignment(input_s, key, my_dict_entry):
                 deletions=0
                 deletions_indexes = []
 
+                for i in range(coordinates[1][0]):
+                    insertions_indexes.append(i+1)
+
                 # Iterate over each alignment block in coordinates
                 for i in range(1, len(coordinates[0])-2, 2):
                     # Extract the end of the current block and the start of the next
@@ -110,13 +125,17 @@ def alignment(input_s, key, my_dict_entry):
 
                     # Count gaps between alignment blocks
                     if seq1_end != seq1_next:  # Deletion in seq2
-                        deletions += seq1_next - seq1_end
+                        #deletions += seq1_next - seq1_end
+                        #insertions += seq1_next - seq1_end
                         for i in range(seq1_next-seq1_end):
                            deletions_indexes.append(seq2_end + i)
+                           #insertions_indexes.append(seq2_end + i)
                     if seq2_end != seq2_next:  # Insertion in seq1
-                        insertions += seq2_next - seq2_end
+                        #insertions += seq2_next - seq2_end
+                        #deletions += seq2_next - seq2_end
                         for i in range(seq2_next-seq2_end):
                            insertions_indexes.append(seq2_end + i)
+                           #deletions_indexes.append(seq2_end + i)
 
                 dict_insertions_and_deletions[str_dict[str][0]+alignment_start] = [insertions_indexes, deletions_indexes]
 
@@ -177,12 +196,19 @@ def graph_setup():
     # Remove y-axis and add legend
     plt.gca().get_yaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
+    ax.get_xaxis().set_visible(False)
 
 def graph_output(my_dict):
     offset = 300 
+    #offset_offset = 75
+    counter = 0
     global global_counter
+    global global_max_x
+    global global_min_x
     y_index = (14 - (global_counter//2)) / 2
     key = list(my_dict.keys())[0]
+    arrow_distance_orig = my_dict[key].n_subStr-1
+    offset_offset = arrow_distance_orig//2
     set1 = my_dict[key].indexes
     set2 = my_dict[key].extra_alignment_indexes
     set2.sort()
@@ -196,19 +222,30 @@ def graph_output(my_dict):
         set1_tmp = set1[set1_ptr]
         set2_tmp = set2[set2_ptr]
         if set1_tmp < set2_tmp:
-            all_points.append(set1_tmp + offset)
+            #all_points.append(set1_tmp + offset)
+            #all_points.append(set1_tmp + offset + (5*counter))
+            all_points.append(set1_tmp + offset + (offset_offset*counter))
             set1_ptr += 1
         else:
-            all_points.append(set2_tmp + offset)
+            #all_points.append(set2_tmp + offset)
+            #all_points.append(set2_tmp + offset + (5*counter))
+            all_points.append(set2_tmp + offset + (offset_offset*counter))
             set2_ptr += 1
+        counter += 1
     if set1_ptr == set1_n:
         for i in range(set2_ptr, set2_n):
-            all_points.append(set2[i] + offset)
+            #all_points.append(set2[i] + offset)
+            #all_points.append(set2[i] + offset + (5 * counter))
+            all_points.append(set2[i] + offset + (offset_offset* counter))
+            counter += 1
     else:
         for i in range(set1_ptr, set1_n, 1):
-            all_points.append(set1[i] + offset)
+            #all_points.append(set1[i] + offset)
+            #all_points.append(set1[i] + offset + (5*counter))
+            all_points.append(set1[i] + offset + (offset_offset*counter))
+            counter += 1
     
-    arrow_style = "->"
+    #arrow_style = "->"
     sign = global_counter % 2
     if sign == 0:
         sign = -1
@@ -220,7 +257,7 @@ def graph_output(my_dict):
         for i in range(len(set2)):
             set2[i] *= -1
 
-    arrow_distance_orig = my_dict[key].n_subStr
+    #arrow_distance_orig = my_dict[key].n_subStr-1
     #arrow_distance = my_dict[key].n_subStr
 
     previous_end_point = None
@@ -233,12 +270,8 @@ def graph_output(my_dict):
     for i, point in enumerate(all_points):
         arrow_distance = arrow_distance_orig
         if all_points[i] - offset * sign in set1:
-            #arrow_color = 'teal'
-            #perfect_alignment = 'teal'
             perfect_alignment = True
         else:
-            #arrow_color = 'skyblue' 
-            #perfect_alignment = 'skyblue' 
             perfect_alignment = False
 
         if not perfect_alignment:
@@ -246,6 +279,9 @@ def graph_output(my_dict):
             n_insertions = len(insertions_and_deletions[insertions_and_deletions_key][0])
             n_deletions = len(insertions_and_deletions[insertions_and_deletions_key][1])
             arrow_distance += (n_deletions - n_insertions)
+            #arrow_distance += (n_insertions - n_deletions)
+            print(f"<<<<<<<<<<<<<n_insertions: {n_insertions}")
+            print(f"<<<<<<<<<<<<<n_deletions: {n_deletions}")
 
 
         end_point = point+arrow_distance*sign
@@ -263,11 +299,12 @@ def graph_output(my_dict):
         tail = Rectangle((bottom_left, y_index - tail_width / 2), tail_length, tail_width, color=arrow_color)
         ax.add_patch(tail)
 
-        #arrowhead = FancyArrowPatch((point + tail_length, y_index), (end_point, y_index),
-                            #color="blue", arrowstyle="->", mutation_scale=100, lw=2)
-        #ax.add_patch(arrowhead)
+        if sign == -1 and point < global_min_x:
+            global_min_x = point
+        elif point > global_max_x:
+            global_max_x = point
 
-        triangle = Polygon([[point + (tail_length+head_length)*.9 * sign, y_index],
+        triangle = Polygon([[point + (tail_length+head_length) * sign, y_index],
                            #[point+(tail_length+head_length) * sign, y_index-head_width/2],
                            [point+(tail_length) * sign, y_index-head_width/2],
                            #[point+(tail_length+head_length) * sign, y_index+head_width/2]],
@@ -275,15 +312,13 @@ def graph_output(my_dict):
                            closed=True, color=arrow_color)
         ax.add_patch(triangle)
 
-        #arrow = FancyArrowPatch((end_point, y_index), (point, y_index),
-                        #color=arrow_color, linewidth=3, arrowstyle="->",
-                        #mutation_scale=10)  # Adjust mutation_scale for arrowhead
 
-        #ax.add_patch(arrow)
+        #plt.annotate('', xy=(end_point, y_index), xytext=(point, y_index),
+                    #arrowprops=dict(arrowstyle=arrow_style, color=arrow_color, lw=1.5,
+                                    #mutation_scale=10, shrinkA=0, shrinkB=0))
 
-        plt.annotate('', xy=(end_point, y_index), xytext=(point, y_index),
-                    arrowprops=dict(arrowstyle=arrow_style, color=arrow_color, lw=1.5,
-                                    mutation_scale=10, shrinkA=0, shrinkB=0))
+        print(f">>>>>>>>>>>>>>point: {point}")
+        print(f">>>>>>>>>>>>>>endpoint: {end_point}")
 
 
         if not perfect_alignment:
@@ -297,10 +332,16 @@ def graph_output(my_dict):
                 plt.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='gold', lw=1)  # Draw vertical line at midpoint
                 ax.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='gold', linestyle = '-')
 
-        if previous_end_point is not None:
+        #if previous_end_point is not None and abs(point - previous_end_point) > 1:
+        if previous_end_point is not None and abs(point - previous_end_point) > offset_offset+1:
             plt.plot([previous_end_point, point], [y_index, y_index], color='red', lw=1)
-            ax.plot([previous_end_point, point], [y_index, y_index], linewidth= 3, color='red', linestyle='-')
+            #ax.plot([previous_end_point, point], [y_index, y_index], linewidth= 3, color='red', linestyle='-')
+            ax.plot([previous_end_point+offset_offset/2*sign, point-offset_offset/2*sign], [y_index, y_index], linewidth= 2, color='red', linestyle='-')
         previous_end_point = end_point
+        #offset += 5
+        offset += offset_offset
+
+    ax.set_xlim(global_min_x, global_max_x)
 
 
 # this is a temporary function that shouldn't be necessary if you filter stuff out as your adding it instead
@@ -375,8 +416,6 @@ def consolidate(input_s, my_dict, coverage_dict):
     graph_output(new_dict)
 
         #alignment(input_s, key)
-
-                
 
 
 def expand_dict(input_s, my_dict, coverage_dict):
@@ -611,7 +650,7 @@ def main():
 
     # Save the plot with tight bounding box to capture layout
     #plt.savefig("my_plot.png", dpi=plt.gcf().get_dpi(), bbox_inches='tight')
-    fig.savefig('my_plot.png', dpi=100, bbox_inches='tight')
+    fig.savefig('my_plot.png', dpi=300, bbox_inches='tight')
 
     plt.show()
 
