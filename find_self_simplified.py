@@ -438,11 +438,6 @@ def expand_dict(input_s, my_dict, coverage_dict):
                         if my_dict[sub_str].is_overlap == my_dict[key].is_overlap:
                             del my_dict[input_s[start_index:end_index+1]]
                     coverage_dict[n_tmp_indexes][start_index] = start_index + tmp.n_subStr - 1
-    for key in my_dict:
-        print(my_dict[key])
-        print(key)
-        print("\n")
-    return
     consolidate(input_s, my_dict, coverage_dict)
 
             
@@ -480,11 +475,11 @@ def self_search(input_s, min_length = 50):
     if len(list(my_dict.keys())) == 0:
         print("no loops of the minimum length were found\n")
         return
-    for key in my_dict:
-        print(my_dict[key])
-        print(key)
-        print("\n")
-    return
+    #for key in my_dict:
+        #print(my_dict[key])
+        #print(key)
+        #print("\n")
+    #return
     expand_dict(input_s, my_dict, coverage_dict)
 
 
