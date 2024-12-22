@@ -1,10 +1,11 @@
 from collections import deque, defaultdict
 import sys
-from Bio import Align
+from Bio import Align, SeqIO
 from Bio.Seq import Seq
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Polygon
 import copy
+import time
 
 def is_circular_rearrangement(s1, s2):
     # Check if the strings are of the same length
@@ -18,7 +19,7 @@ def is_circular_rearrangement(s1, s2):
     return s1 in s2_double
 
 class self_search_type:
-    def __init__(self, n_subStr, indexes, min_gap, has_overlap):
+    def __init__(self, n_subStr, indexes, min_gap, has_overlap, parent_key = ""):
         self.n_subStr = n_subStr
         self.indexes = indexes
         self.min_gap = min_gap
@@ -26,6 +27,7 @@ class self_search_type:
         self.n_extra_alignment = 0
         self.extra_alignment_indexes = []
         self.extra_alignment_insertions_and_deletions = {}
+        self.parent_key = parent_key
     
     #def average_distance(self):
         #arr = self.indexes
@@ -39,7 +41,8 @@ class self_search_type:
     def __repr__(self):
         n = self.n_subStr
         #avg_dist = self.average_distance()
-        return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.has_overlap}, number of extra alignments={self.n_extra_alignment}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
+        #return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.has_overlap}, number of extra alignments={self.n_extra_alignment}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
+        return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.has_overlap}, number of extra alignments={self.n_extra_alignment}, parent key: {self.parent_key}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
 
 class find_loops:
 
@@ -82,7 +85,7 @@ class find_loops:
                     first_val = tmp_dict[s]
                     gap = index - first_val
                     has_overlap = gap < len(s)
-                    my_dict[s] = self_search_type(len(s), [first_val, index], gap, has_overlap)
+                    my_dict[s] = self_search_type(len(s), [first_val, index], gap, has_overlap, curr)
                     queue.append(s)
                 else:
                     tmp_dict[s] = index
@@ -126,7 +129,6 @@ class find_loops:
         last_key = None
         should_skip = False
         sequential_englargments_counter = 1
-        counter = 0
 
         #for i in range(0, n-min_length+1):
         for key in tmp_dict:
@@ -139,10 +141,12 @@ class find_loops:
             # following if conditional also determines the minimum number of matches that must be found in order to continue
             if len_arr > 2:
 
-                if last_index != None and last_index == counter-1:
+                #if last_index != None and last_index == counter-1:
+                if last_key:
                     prev_arr = self.my_dict[last_key].indexes
                     len_prev = len(prev_arr)
                     has_all_same_locations = True
+                    should_skip = False
 
                     #if len_arr == len_prev:
                         #for j in range(0,len_prev):
@@ -174,10 +178,7 @@ class find_loops:
 
                         if has_all_same_locations:
                             if len_arr != len_prev:
-                                last_index = counter
                                 sequential_englargments_counter += 1
-                                counter += 1
-                                should_skip = False
                                 continue
                             should_skip = True
                             #tmp_object = self.my_dict[last_key]
@@ -189,7 +190,6 @@ class find_loops:
                             self.my_dict[new_key] = tmp_object
                             if had_overlapping == tmp_object.has_overlap:
                                 del self.my_dict[last_key]
-                            last_index = counter
                             last_key = new_key
                             sequential_englargments_counter += 1
 
@@ -244,15 +244,37 @@ class find_loops:
                     self.coverage_dict[len_arr][first_index] = first_index+min_length - 1
                     overlap = min_gap < min_length
                     self.my_dict[sub_str] = self_search_type(min_length, tmp_arr, min_gap, overlap)
-                    last_index = counter
                     last_key = sub_str
                     sequential_englargments_counter = 1
-                should_skip = False
-                counter += 1
 
         if len(list(self.my_dict.keys())) == 0:
             print("no loops of the minimum length were found\n")
             return
+
+    def get_sorted_my_dict_keys(self):
+        return sorted(self.my_dict, key=lambda k: self.my_dict[k].n_subStr)
+
+    def filter_same_length(self):
+        sorted_keys = self.get_sorted_my_dict_keys()
+        prev_key = sorted_keys[0]
+        for i in range(1, len(sorted_keys)):
+            curr_key = sorted_keys[i]
+            #if self.my_dict[prev_key].n_subStr == self.my_dict[curr_key].n_subStr and is_circular_rearrangement(prev_key, curr_key):
+            if self.my_dict[prev_key].n_subStr == self.my_dict[curr_key].n_subStr:
+                if len(self.my_dict[prev_key].indexes) >= len(self.my_dict[curr_key].indexes): 
+                    del self.my_dict[curr_key]
+                else:
+                    del self.my_dict[prev_key]
+                    prev_key = curr_key
+            else:
+                prev_key = curr_key
+                
+    def get_if_n_subStr_equals_min_gap(self):
+        output_arr = []
+        for key in self.my_dict:
+            if self.my_dict[key].n_subStr == self.my_dict[key].min_gap:
+                output_arr.append(key)
+        return output_arr
 
 
     def print_my_dict(self):
@@ -263,7 +285,7 @@ class find_loops:
             print("\n")
 
     def print_my_dict_sorted(self):
-        sorted_keys = sorted(self.my_dict, key=lambda k: self.my_dict[k].n_subStr)
+        sorted_keys = self.get_sorted_my_dict_keys()
 
         for key in sorted_keys:
             print(self.my_dict[key])
@@ -272,11 +294,69 @@ class find_loops:
 
     def run(self):
         self.self_search()
-        #self.expand_dict()
+        if len(self.my_dict.keys()) == 0:
+            return 1
+        self.expand_dict()
+        self.filter_same_length()
         #self.print_my_dict_sorted()
-        self.print_my_dict()
+        #self.print_my_dict()
+        return 0
+
+        
+
+
+def read_fasta_to_array(file_path):
+    sequences = []
+    print(file_path)
+    for sequence in SeqIO.parse(file_path, "fasta"):
+        sequences.append(str(sequence.seq))
+    return sequences
 
 def main():
+
+    all_sequences = read_fasta_to_array("IT130_testInput.fasta")
+    my_arr = []
+    for sequence in all_sequences:
+        loop_obj = find_loops(sequence)
+        err = loop_obj.run()
+        if err == 0:
+            my_arr.append(loop_obj)
+
+    for i in range(len(my_arr)-1):
+        # change curr name
+        curr = my_arr[i]
+        possibilities = curr.get_if_n_subStr_equals_min_gap()
+        possibilities.sort(key=len)
+        #print(possibilities)
+        final_dict = defaultdict(list)
+        for my_arr_ptr in range(i+1, len(my_arr)):
+            # change curr_obj name
+            curr_obj = my_arr[my_arr_ptr]
+            sorted_my_dict_keys = curr_obj.get_sorted_my_dict_keys()
+            possibilites_ptr = 0
+            sorted_my_dict_keys_ptr = 0
+            while possibilites_ptr < len(possibilities) and sorted_my_dict_keys_ptr < len(sorted_my_dict_keys):
+                if len(possibilities[possibilites_ptr]) > len(sorted_my_dict_keys[sorted_my_dict_keys_ptr]):
+                    sorted_my_dict_keys_ptr += 1
+                elif len(possibilities[possibilites_ptr]) < len(sorted_my_dict_keys[sorted_my_dict_keys_ptr]):
+                    possibilites_ptr += 1
+                else:
+                    #print(f">>>>>chr{my_arr_ptr}")
+                    #print(curr_obj.my_dict[sorted_my_dict_keys[sorted_my_dict_keys_ptr]])
+                    final_dict[curr.my_dict[possibilities[possibilites_ptr]]].append(curr_obj.my_dict[sorted_my_dict_keys[sorted_my_dict_keys_ptr]])
+                    del curr_obj.my_dict[sorted_my_dict_keys[sorted_my_dict_keys_ptr]]
+                    # below += function is necessary
+                    sorted_my_dict_keys_ptr += 1
+                    possibilites_ptr += 1
+
+        for key in final_dict:
+            print(key)
+            for elem in final_dict[key]:
+                print(elem)
+            print("________________________________________________")
+
+
+    return
 
     #my_chr_end = find_loops("ABCDEFQABCDEFRABCDETXYZXYZ")
     #my_chr_end.run()
@@ -290,10 +370,14 @@ def main():
     #my_chr_end = find_loops("")
 
 
+    start_time = time.time()
+
 
     # chr1R
     my_chr_end = find_loops("GTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGGGTGCGTGGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGGTGGGTGGTGTGTGTGTGTGGGTGTGGTGTGTGGTGTGTGGGGGTGTGGGTGGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGGTGTGTGTGTGTGGTGTGTGTGTGTGTGTGGTGTGTGTGTGTGTGTGGTGTGTGGTGTGTGGGGTGTGTGTGGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGGTGTGGGTGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGGTGGGTGTGGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTG")
     my_chr_end.run()
+    elapsed_time = time.time() - start_time
+    print(f"execution time: {elapsed_time}")
     return
 
     #my_chr_end = find_loops("")
