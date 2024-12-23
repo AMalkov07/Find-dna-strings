@@ -13,14 +13,11 @@ global_max_x = 0
 global_min_x = 0
 
 def is_circular_rearrangement(s1, s2):
-    # Check if the strings are of the same length
     if len(s1) != len(s2):
         return False
     
-    # Concatenate s2 with itself
     s2_double = s2 + s2
     
-    # Check if s1 is a substring of s2_double
     return s1 in s2_double
 
 class self_search_type:
