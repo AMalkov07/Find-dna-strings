@@ -17,8 +17,18 @@ def is_circular_rearrangement(s1, s2):
         return False
     
     s2_double = s2 + s2
-    
-    return s1 in s2_double
+
+    if s1 in s2_double:
+        return True
+    return s1[::-1] in s2_double
+
+def convert_num_to_chr_end(num):
+    tmp = (num+2)//2
+    if num % 2 == 0:
+        return f"{tmp}L"
+    else:
+        return f"{tmp}R"
+
 
 class self_search_type:
     def __init__(self, n_subStr, indexes, min_gap, has_overlap, parent_key = ""):
@@ -540,7 +550,6 @@ class full_analysis:
             # change curr name
             curr = all_find_loops_objects[i]
             if not curr:
-                print(f"skipping: {i}")
                 continue
             possibilities = curr.get_if_n_subStr_equals_min_gap()
             possibilities.sort(key=len)
@@ -557,12 +566,15 @@ class full_analysis:
                         sorted_my_dict_keys_ptr += 1
                     elif len(possibilities[possibilites_ptr]) < len(sorted_my_dict_keys[sorted_my_dict_keys_ptr]):
                         possibilites_ptr += 1
-                    else:
+                    elif is_circular_rearrangement(possibilities[possibilites_ptr], sorted_my_dict_keys[sorted_my_dict_keys_ptr]):
                         all_multi_chr_repeat_sequences_dict[(curr.my_dict[possibilities[possibilites_ptr]], i)].append((curr_obj.my_dict[sorted_my_dict_keys[sorted_my_dict_keys_ptr]], all_find_loops_objects_ptr))
                         del curr_obj.my_dict[sorted_my_dict_keys[sorted_my_dict_keys_ptr]]
                         # below += function is necessary
                         sorted_my_dict_keys_ptr += 1
                         possibilites_ptr += 1
+                    else:
+                        sorted_my_dict_keys_ptr += 1
+
 
         all_multi_chr_repeat_sequences_final_arr = []
         for key in all_multi_chr_repeat_sequences_dict:
@@ -600,46 +612,120 @@ class full_analysis:
             self.graph_output(elem[0], elem[1])
         self.save_graph()
 
-# Function to extract the index from the header
-def get_index(header):
-    # Use a regular expression to match digits at the end of the string
-    match = re.search(r'(\d+)([LR])?$', header)
-    if match:
-        index = int(match.group(1))  # Extract the matched number
-        #>>>>>>>>>>>>>>>>NOTe: see if this works when I don't have an 
-        modifier = match.group(2) if match.group(2) else ""  # Extract 'L' or 'R', or default to empty
-        modifier = match.group(2)
-        if modifier:
-            index *= 2
-            if modifier == "L":
-                index -= 1
+class parse_fasta_file():
 
-        if 1 <= index <= 32:
-            return index - 1  # Convert to 0-based indexing
-    raise ValueError(f"Invalid header format: {header}")
-        
-def read_fasta_to_array(file_path):
-    sequences = [None] * 32
-    print(file_path)
-    for sequence in SeqIO.parse(file_path, "fasta"):
-        try:
-            index = get_index(sequence.id)  # Extract index from header
-            sequences[index] = str(sequence.seq)  # Assign sequence to the array
-        except ValueError as e:
-            print(e) 
+    # Function to extract the index from the header
+    def get_index(self, header):
+        # Use a regular expression to match digits at the end of the string
+        match = re.search(r'(\d+)([LR])?$', header)
+        if match:
+            index = int(match.group(1))  # Extract the matched number
+            #>>>>>>>>>>>>>>>>NOTe: see if this works when I don't have an 
+            modifier = match.group(2) if match.group(2) else ""  # Extract 'L' or 'R', or default to empty
+            modifier = match.group(2)
+            if modifier:
+                index *= 2
+                if modifier == "L":
+                    index -= 1
 
-    return sequences
+            if 1 <= index <= 32:
+                return index - 1  # Convert to 0-based indexing
+        raise ValueError(f"Invalid header format: {header}")
+            
+    def read_fasta_to_array(self, file_path):
+        sequences = [None] * 32
+        print(file_path)
+        for sequence in SeqIO.parse(file_path, "fasta"):
+            try:
+                index = self.get_index(sequence.id)  # Extract index from header
+                sequences[index] = str(sequence.seq)  # Assign sequence to the array
+            except ValueError as e:
+                print(e) 
 
-def convert_num_to_chr_end(num):
-    tmp = (num+2)//2
-    if num % 2 == 0:
-        return f"{tmp}L"
-    else:
-        return f"{tmp}R"
+        return sequences
+
+    def find_flexible_telomeric_regions(self, all_chr_ends, window_size=50, threshold=0.9):
+        for i in range(len(all_chr_ends)):
+            dna_sequence = all_chr_ends[i]
+            if dna_sequence == None:
+                continue
+            regions = []
+            n = len(dna_sequence)
+
+            def is_ac_like(base1, base2):
+                """Returns True if the pair is "AC-like" (e.g., AA, CC, CA, AC)."""
+                return base1 in "AC" and base2 in "AC"
+
+            def is_tg_like(base1, base2):
+                """Returns True if the pair is "TG-like" (e.g., TT, GG, GT, TG)."""
+                return base1 in "TG" and base2 in "TG"
+
+            def is_dominated_by(window, motif_check):
+                """Checks if a window is dominated by a given motif type."""
+                valid_pairs = sum(1 for i in range(len(window) - 1) if motif_check(window[i], window[i + 1]))
+                return valid_pairs / (len(window) - 1) >= threshold
+
+            def trim_to_valid_region(start, end, motif_type):
+                """Trims the region to ensure it starts and ends with valid characters."""
+                while start < end and dna_sequence[start] not in ("AC" if motif_type == "AC-like" else "TG"):
+                    start += 1
+                while end > start and dna_sequence[end - 1] not in ("AC" if motif_type == "AC-like" else "TG"):
+                    end -= 1
+                return start, end
+
+            # Sliding window analysis
+            for j in range(n - window_size + 1):
+                window = dna_sequence[j:j + window_size]
+                if is_dominated_by(window, is_ac_like):
+                    regions.append((j, j + window_size, "AC-like"))
+                elif is_dominated_by(window, is_tg_like):
+                    regions.append((j, j + window_size, "TG-like"))
+
+            # Merge and trim overlapping regions of the same motif type
+            merged_regions = []
+            for start, end, motif_type in regions:
+                if not merged_regions or start > merged_regions[-1][1] or motif_type != merged_regions[-1][2]:
+                    merged_regions.append((start, end, motif_type))
+                else:
+                    merged_regions[-1] = (merged_regions[-1][0], end, motif_type)
+
+            # Trim regions to valid start and end
+            trimmed_regions = [
+                (start, end, motif_type)
+                for start, end, motif_type in (trim_to_valid_region(s, e, t) + (t,) for s, e, t in merged_regions)
+                if start < end  # Ensure trimmed region is valid
+            ]
+
+            valid_telomer = None
+            for elem in trimmed_regions:
+                if elem[1] - elem[0] >= 100 and (elem[0] <= 30 or elem[1] >= n-31):
+                    if valid_telomer:
+                        print(f"multiple valid sequences were found in index {i}")
+                        if elem[1] - elem[0] > len(valid_telomer):
+                            valid_telomer = dna_sequence[elem[0]:elem[1] + 1]
+                            if elem[2] == "AC-like":
+                                valid_telomer = str(Seq(valid_telomer).reverse_complement())
+                    else:
+                        valid_telomer = dna_sequence[elem[0]:elem[1] + 1]
+                        if elem[2] == "AC-like":
+                            valid_telomer = str(Seq(valid_telomer).reverse_complement())
+
+            all_chr_ends[i] = valid_telomer
+        return all_chr_ends
+
+    def run(self, file_path):
+        all_chr_ends = self.read_fasta_to_array(file_path)
+        return self.find_flexible_telomeric_regions(all_chr_ends)
 
 def main():
-
-    all_chr_ends = read_fasta_to_array("IT130_testInput.fasta")
+    #sequence = "CCACAGGCCATAACTTCTATGACTTCCAGACCTGGGAAACTCTCTTTGACCCACTTGAGCATGTTCAATTGGAAGATATGGGTAATACAAATAGAGCCAGCCGTCCGCACCGGCAGCAATCAAATTGGCCGCTTGTTCCCTAGTGACAACGTTACCAGCGTTCCCATACCAATTCTCAAAACCCACACCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACACCCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACACACCACACCACACCCACACACACACCCACACACACACACACCACACCCACACACACACACCCACACACACACACCCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACACACCACACCCACACACACACACCCACACACACACACCCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACCCACACCACACCCACACACACACACCCACACACACACACCCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACCCACACCACACCCACACCCACACACCACACCCACACCCACACACACCACACCCACACCCACACCCACACACCACACCCACACCCACACACCACACCCACACCCACACCCACACACCCACACCACACCCACACACCACACCCACACCACACCCACACACCCACACACACACACCCACACACCACACCCACACCACACCCACACCACACCCACACCCACACCCACACCACACCCACACACACCACACCCACACCCACACACCACACACAC"
+    #fuzzy_telomeres = find_flexible_telomeric_regions(sequence, window_size=50, threshold=0.9)
+    #print("Fuzzy telomeric regions:", fuzzy_telomeres)
+    #for i in fuzzy_telomeres:
+        #print(sequence[i[0]:i[1]])
+    #return
+    parse_fasta_file_obj = parse_fasta_file()
+    all_chr_ends = parse_fasta_file_obj.run("IT130_testInput.fasta")
     full_analysis_obj = full_analysis()
     full_analysis_obj.run_full_analysis(all_chr_ends)
     return
