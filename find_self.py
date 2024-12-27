@@ -1,12 +1,10 @@
 from collections import deque, defaultdict
-import sys
+import sys, copy, time, re, argparse, os
 from Bio import Align, SeqIO
 from Bio.Seq import Seq
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Polygon
-import copy
-import time
-import re
+from contextlib import redirect_stdout
 
 
 global_max_x = 0
@@ -31,7 +29,7 @@ def convert_num_to_chr_end(num):
 
 
 class self_search_type:
-    def __init__(self, n_subStr, indexes, min_gap, has_overlap, parent_key = ""):
+    def __init__(self, n_subStr, indexes, min_gap, has_overlap):
         self.n_subStr = n_subStr
         self.indexes = indexes
         self.min_gap = min_gap
@@ -39,7 +37,7 @@ class self_search_type:
         self.n_extra_alignment = 0
         self.extra_alignment_indexes = []
         self.extra_alignment_insertions_and_deletions = {}
-        self.parent_key = parent_key
+        #self.parent_key = parent_key
     
     #def average_distance(self):
         #arr = self.indexes
@@ -54,14 +52,21 @@ class self_search_type:
         n = self.n_subStr
         #avg_dist = self.average_distance()
         #return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.has_overlap}, number of extra alignments={self.n_extra_alignment}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
-        return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.has_overlap}, number of extra alignments={self.n_extra_alignment}, parent key: {self.parent_key}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
+        return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.has_overlap}, number of extra alignments={self.n_extra_alignment}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
+
+class user_input:
+    def __init__(self, **kwargs):
+        # Dynamically set attributes based on the provided keyword arguments
+        self.__dict__.update(kwargs)
 
 class find_loops:
 
-    def __init__(self, input_s):
+    def __init__(self, input_s, user_input_obj):
         self.input_s = input_s
         self.my_dict = {}
         self.coverage_dict = defaultdict(dict)
+        #self.min_length = min_length
+        self.user_input_obj = user_input_obj
 
         self.aligner = Align.PairwiseAligner()
 
@@ -110,7 +115,7 @@ class find_loops:
                     first_val = tmp_dict[s]
                     gap = index - first_val
                     has_overlap = gap < len(s)
-                    my_dict[s] = self_search_type(len(s), [first_val, index], gap, has_overlap, curr)
+                    my_dict[s] = self_search_type(len(s), [first_val, index], gap, has_overlap)
                     queue.append(s)
                 else:
                     tmp_dict[s] = index
@@ -123,7 +128,8 @@ class find_loops:
                         if n_curr_dict_value_indexes == len(my_dict[curr].indexes):
                             del my_dict[curr]
 
-    def self_search(self, input_s = "", min_length = 50):
+    def self_search(self, input_s = ""):
+        min_length = self.user_input_obj.min_length
         #self.input_s = input_s
         input_s = self.input_s
         n = len(input_s)
@@ -234,7 +240,16 @@ class find_loops:
             tmp = self.input_s[last_val:alignment]
             str_dict[tmp] = [last_val, alignment]
             queue.append(tmp)
+            if queue[-1] == "GGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTG":
+                print("the magical string was just added in the first loop")
+                print(f"last_val: {last_val}")
+                print(alignment)
             last_val = alignment+key_n
+
+        #if last_val < len(self.input_s):
+            #tmp = self.input_s[last_val:]
+            #str_dict[tmp] = [last_val, ""]
+            #queue.append(tmp)
 
         good_alignment_arr = []
         good_alignment_starting_pos = []
@@ -245,13 +260,13 @@ class find_loops:
             str = queue.popleft()
             if str != "":
                 alignments = self.aligner.align(str, key)
-                # think about why this if else statement is necesary<<<<<
                 # try except block is necessary cause of overflow if there are too many optimal alignments
                 try: 
                     n_alignments = len(alignments)
                 except OverflowError:
                     n_alignments = 1
 
+                # if statement is necessary because sometimes there arent any good alignments
                 if n_alignments > 0:
                     score = alignments[0].score
                 else:
@@ -313,7 +328,7 @@ class find_loops:
             curr_key = sorted_keys[i]
             #if self.my_dict[prev_key].n_subStr == self.my_dict[curr_key].n_subStr and is_circular_rearrangement(prev_key, curr_key):
             if self.my_dict[prev_key].n_subStr == self.my_dict[curr_key].n_subStr:
-                if len(self.my_dict[prev_key].indexes) >= len(self.my_dict[curr_key].indexes): 
+                if len(self.my_dict[prev_key].indexes) + len(self.my_dict[prev_key].extra_alignment_indexes) >= len(self.my_dict[curr_key].indexes) + len(self.my_dict[prev_key].extra_alignment_indexes): 
                     del self.my_dict[curr_key]
                 else:
                     del self.my_dict[prev_key]
@@ -349,18 +364,25 @@ class find_loops:
         if len(self.my_dict.keys()) == 0:
             return 1
         self.expand_dict()
-        self.filter_same_length()
+        # think about y expand_dict() might delete all value from dict
+        if len(self.my_dict.keys()) == 0:
+            return 1
         
         #self.print_my_dict()
         #self.print_my_dict_sorted()
         for key in self.my_dict:
-            self.my_dict[key].extra_alignment_indexes, all_extra_alignment_scores, self.my_dict[key].extra_alignment_insertions_and_deletions  = self.alignment(key)
+            print(f"str: {key}")
+            print(f"indexes: {self.my_dict[key].indexes}")
+            self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[key].extra_alignment_insertions_and_deletions  = self.alignment(key)
+            print(self.my_dict[key].extra_alignment_indexes)
+        self.filter_same_length()
         return 0
 
 class full_analysis:
 
-    def __init__(self):
+    def __init__(self, user_input_obj):
         self.fig, self.ax = plt.subplots(figsize=(16,4))
+        self.user_input_obj = user_input_obj
 
     def graph_setup(self):
         #ax.text(0, 8, "IT148", ha='center', va='center', fontsize=12, color='black')
@@ -523,7 +545,7 @@ class full_analysis:
     def save_graph(self):
 
         self.ax.set_xlim(global_min_x, global_max_x)
-        self.fig.savefig("aaaTEST_graph_output.png", dpi=300, bbox_inches='tight')
+        self.fig.savefig("aaaTEST_graph_output.png", dpi=self.user_input_obj.graph_dpi, bbox_inches='tight')
 
     def run_all_chr_ends(self, all_chr_ends):
         all_find_loops_objects = []
@@ -532,7 +554,7 @@ class full_analysis:
             if not sequence:
                 all_find_loops_objects.append(None)
                 continue
-            loop_obj = find_loops(sequence)
+            loop_obj = find_loops(sequence, self.user_input_obj)
             err = loop_obj.run()
             # err code of 0 means that there were no issues
             if err == 0:
@@ -603,14 +625,21 @@ class full_analysis:
 
     def run_full_analysis(self, all_chr_ends):
         all_find_loops_objects = self.run_all_chr_ends(all_chr_ends)
+        if len(all_find_loops_objects) == 0:
+            print("no loops of the minimum size were found")
+            return []
+        print(f"length of all_find_loops_objects: {len(all_find_loops_objects)}")
         all_multi_chr_repeat_sequences_final_arr = self.find_all_multi_chr_repeat_sequences(all_find_loops_objects)
+        if len(all_multi_chr_repeat_sequences_final_arr) == 0:
+            print("no loops were found in multiple chr's")
+            return []
+        print(f"length of all_multi_chr_repeat_sequences_final_arr: {len(all_multi_chr_repeat_sequences_final_arr)}")
         best_repeat_sequence_arr = self.find_best_multi_chr_repeat_sequence(all_multi_chr_repeat_sequences_final_arr)
-        self.graph_setup()
-        for elem in best_repeat_sequence_arr:
-            print(f"chr{convert_num_to_chr_end(elem[1])}")
-            print(elem[0])
-            self.graph_output(elem[0], elem[1])
-        self.save_graph()
+        print(f"length of best_repeat_sequence_arr: {len(best_repeat_sequence_arr)}")
+        #self.graph_setup()
+            #self.graph_output(elem[0], elem[1])
+        #self.save_graph()
+        return best_repeat_sequence_arr
 
 class parse_fasta_file():
 
@@ -644,12 +673,53 @@ class parse_fasta_file():
 
         return sequences
 
+    def read_fasta_flexible(self, file_path):
+        sequences_headers = []
+        sequences_data = []
+        for Sequence in SeqIO.parse(file_path, "fasta"):
+            sequences_headers.append(str(Sequence.id))
+            sequences_data.append(str(Sequence.seq))
+        if len(sequences_headers) != len(sequences_data):
+            print("invalid fasta File")
+
+        is_whole_ref_sequence = False
+        for elem in sequences_data:
+            if len(elem) > 100000:
+                is_whole_ref_sequence = True
+                break
+        if is_whole_ref_sequence:
+            print("whole reference sequence detected")
+        else:
+            print("partial sequence detected")
+        if is_whole_ref_sequence:
+            original_length = len(sequences_data)
+            target_length = 2 * original_length
+            sequences_data.extend([None] * (target_length) - original_length)
+            sequences_headers.extend([None] * (target_length) - original_length)
+            for i in range(original_length-1, -1, -1):
+                original_sequence = sequences_data[i]
+                if original_sequence:
+                    first_half_sequence = original_sequence[:5000]
+                    second_half_sequence = original_sequence[-5000:]
+                else:
+                    first_half_sequence = None
+                    second_half_sequence = None
+                first_half_header = sequences_headers[i] + "_firstHalf"
+                second_half_header = sequences_headers[i] + "_secondHalf"
+                sequences_data[i*2+1] = second_half_sequence
+                sequences_data[i*2] = first_half_sequence
+                sequences_headers[i*2+1] = second_half_header
+                sequences_headers[i*2] = first_half_header
+        return(sequences_headers, sequences_data)
+
     def find_flexible_telomeric_regions(self, all_chr_ends, window_size=50, threshold=0.9):
+        # fix for full genome sequences
         for i in range(len(all_chr_ends)):
             dna_sequence = all_chr_ends[i]
             if dna_sequence == None:
                 continue
             regions = []
+            end_regions = []
             n = len(dna_sequence)
 
             def is_ac_like(base1, base2):
@@ -666,20 +736,70 @@ class parse_fasta_file():
                 return valid_pairs / (len(window) - 1) >= threshold
 
             def trim_to_valid_region(start, end, motif_type):
+                # try to fix this if else statement to make it cleaner
                 """Trims the region to ensure it starts and ends with valid characters."""
-                while start < end and dna_sequence[start] not in ("AC" if motif_type == "AC-like" else "TG"):
-                    start += 1
-                while end > start and dna_sequence[end - 1] not in ("AC" if motif_type == "AC-like" else "TG"):
-                    end -= 1
+                #while start < end and dna_sequence[start] not in ("AC" if motif_type == "AC-like" else "TG"):
+                #while start <= end-3 and dna_sequence[start] not in ("AC" if motif_type == "AC-like" else "TG"):
+                    #start += 1
+
+                if motif_type == "AC":
+                    while start <= len(dna_sequence) - 3:
+                        if all(c in 'AC' for c in dna_sequence[start:start + 3]):
+                            break
+                        start += 1
+                #while end > start and dna_sequence[end - 1] not in ("AC" if motif_type == "AC-like" else "TG"):
+                    #end -= 1
+
+                    while end >= start+2:
+                        if all(c in 'AC' for c in dna_sequence[end - 3:end]):
+                            break
+                        end -= 1
+
+                else:
+                    while start <= len(dna_sequence) - 3:
+                        if all(c in 'TG' for c in dna_sequence[start:start + 3]):
+                            break
+                        start += 1
+                #while end > start and dna_sequence[end - 1] not in ("AC" if motif_type == "AC-like" else "TG"):
+                    #end -= 1
+
+                    while end >= start+2:
+                        if all(c in 'TG' for c in dna_sequence[end - 3:end]):
+                            break
+                        end -= 1
+
                 return start, end
 
-            # Sliding window analysis
             for j in range(n - window_size + 1):
                 window = dna_sequence[j:j + window_size]
                 if is_dominated_by(window, is_ac_like):
-                    regions.append((j, j + window_size, "AC-like"))
+                    regions.append((j, j + window_size, "AC"))
                 elif is_dominated_by(window, is_tg_like):
-                    regions.append((j, j + window_size, "TG-like"))
+                    regions.append((j, j + window_size, "TG"))
+
+            # Sliding window analysis
+            #for j in range(n - window_size + 1):
+                #window = dna_sequence[j:j + window_size]
+                #if is_dominated_by(window, is_ac_like):
+                    #regions.append((j, j + window_size, "AC"))
+                #elif is_dominated_by(window, is_tg_like):
+                    #regions.append((j, j + window_size, "TG"))
+                #elif n>1000 and j>200:
+                    #break
+
+            #for j in range(n-window_size+1, -1,-1):
+                #window = dna_sequence[j:j+window_size]
+                #if is_dominated_by(window, is_ac_like):
+                    #end_regions.append((j, j + window_size, "AC"))
+                #elif is_dominated_by(window, is_tg_like):
+                    #end_regions.append((j, j + window_size, "TG"))
+                #elif n>1000 and j<n-200:
+                    #break
+
+            #if len(regions) == 0:
+                #regions = end_regions.reverse()
+            #elif len(end_regions)>0 and regions[-1][1] < end_regions[-1][0] and len(end_regions) > len(regions):
+                #regions = end_regions.reverse()
 
             # Merge and trim overlapping regions of the same motif type
             merged_regions = []
@@ -698,26 +818,111 @@ class parse_fasta_file():
 
             valid_telomer = None
             for elem in trimmed_regions:
-                if elem[1] - elem[0] >= 100 and (elem[0] <= 30 or elem[1] >= n-31):
+                if elem[1] - elem[0] >= 100 and (elem[0] <= 50 or elem[1] >= n-50):
                     if valid_telomer:
                         print(f"multiple valid sequences were found in index {i}")
                         if elem[1] - elem[0] > len(valid_telomer):
                             valid_telomer = dna_sequence[elem[0]:elem[1] + 1]
-                            if elem[2] == "AC-like":
+                            if elem[2] == "AC":
                                 valid_telomer = str(Seq(valid_telomer).reverse_complement())
                     else:
                         valid_telomer = dna_sequence[elem[0]:elem[1] + 1]
-                        if elem[2] == "AC-like":
+                        if elem[2] == "AC":
                             valid_telomer = str(Seq(valid_telomer).reverse_complement())
 
             all_chr_ends[i] = valid_telomer
         return all_chr_ends
 
     def run(self, file_path):
-        all_chr_ends = self.read_fasta_to_array(file_path)
-        return self.find_flexible_telomeric_regions(all_chr_ends)
+        #all_chr_ends = self.read_fasta_to_array(file_path)
+        all_chr_headers, all_chr_ends = self.read_fasta_flexible(file_path)
+        #print(all_chr_headers)
+        return (all_chr_headers, self.find_flexible_telomeric_regions(all_chr_ends))
 
-def main():
+def mod_str(my_str, self_search_type_object):
+    #make this function less shit
+    offset = self_search_type_object.n_subStr
+    perfect_indexes_arr = self_search_type_object.indexes
+    extra_alignment_indexes_arr = self_search_type_object.extra_alignment_indexes
+    extra_alignment_indexes_arr.sort()
+    #extra_alignment_insertions_and_deletions_dict = self_search_type_object.extra_alignment_insertions_and_deletions
+    perfect_indexes_arr_ptr = len(perfect_indexes_arr)-1
+    extra_alignment_indexes_arr_ptr = len(extra_alignment_indexes_arr)-1
+    #for i in range(len(my_dict)-1, -1, -1):
+        #my_str = my_str[:my_dict[i]] + "[" + my_str[my_dict[i]:my_dict[i] + offset] + "]" + my_str[my_dict[i]+offset:]
+    while perfect_indexes_arr_ptr >= 0 and extra_alignment_indexes_arr_ptr >= 0:
+        if perfect_indexes_arr[perfect_indexes_arr_ptr] >= extra_alignment_indexes_arr[extra_alignment_indexes_arr_ptr]:
+            curr_index = perfect_indexes_arr[perfect_indexes_arr_ptr]
+            perfect_indexes_arr_ptr -= 1
+            perfect_alignment = True
+        else:
+            curr_index = extra_alignment_indexes_arr[extra_alignment_indexes_arr_ptr]
+            extra_alignment_indexes_arr_ptr -= 1
+            perfect_alignment = False
+        my_str = my_str[:curr_index+offset] + "]" + my_str[curr_index+offset:]
+        if not perfect_alignment:
+            insertions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index][0]
+            deletions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index][1]
+            insertions_ptr = 0
+            deletions_ptr = 0
+            n_insertions = len(insertions)
+            n_deletions = len(deletions)
+            while insertions_ptr < n_insertions and deletions_ptr < n_deletions:
+                if insertions[insertions_ptr] < deletions[deletions_ptr]:
+                    my_str = my_str[:curr_index + insertions[insertions_ptr]] + "^" + my_str[curr_index +insertions[insertions_ptr]:]
+                    insertions_ptr += 1
+                else:
+                    my_str = my_str[:curr_index +deletions[deletions_ptr]] + "!" + my_str[curr_index +deletions[deletions_ptr]:]
+                    deletions_ptr += 1
+            while insertions_ptr < n_insertions:
+                my_str = my_str[:curr_index +insertions[insertions_ptr]] + "^" + my_str[curr_index +insertions[insertions_ptr]:]
+                insertions_ptr += 1
+            while deletions_ptr < n_deletions:
+                my_str = my_str[:curr_index +deletions[deletions_ptr]] + "!" + my_str[curr_index +deletions[deletions_ptr]:]
+                deletions_ptr += 1
+        my_str = my_str[:curr_index] + "[" + my_str[curr_index:]
+    while perfect_indexes_arr_ptr >= 0:
+        curr_index = perfect_indexes_arr[perfect_indexes_arr_ptr]
+        my_str = my_str[:curr_index+offset] + "]" + my_str[curr_index+offset:]
+        my_str = my_str[:curr_index] + "[" + my_str[curr_index:]
+        perfect_indexes_arr_ptr -= 1
+    while extra_alignment_indexes_arr_ptr >= 0:
+        curr_index = extra_alignment_indexes_arr[extra_alignment_indexes_arr_ptr]
+        my_str = my_str[:curr_index+offset] + "]" + my_str[curr_index+offset:]
+        insertions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index][0]
+        deletions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index][1]
+        print(f"insertions: {insertions}")
+        print(f"deletions: {deletions}")
+        insertions_ptr = 0
+        deletions_ptr = 0
+        n_insertions = len(insertions)
+        n_deletions = len(deletions)
+        while insertions_ptr < n_insertions and deletions_ptr < n_deletions:
+            if insertions[insertions_ptr] < deletions[deletions_ptr]:
+                my_str = my_str[:curr_index +insertions[insertions_ptr]] + "^" + my_str[curr_index +insertions[insertions_ptr]:]
+                insertions_ptr += 1
+            else:
+                my_str = my_str[:curr_index +deletions[deletions_ptr]] + "!" + my_str[curr_index +deletions[deletions_ptr]:]
+                deletions_ptr += 1
+        while insertions_ptr < n_insertions:
+            my_str = my_str[:curr_index +insertions[insertions_ptr]] + "^" + my_str[curr_index +insertions[insertions_ptr]:]
+            insertions_ptr += 1
+        while deletions_ptr < n_deletions:
+            my_str = my_str[:curr_index +deletions[deletions_ptr]] + "!" + my_str[curr_index +deletions[deletions_ptr]:]
+            deletions_ptr += 1
+        my_str = my_str[:curr_index] + "[" + my_str[curr_index:]
+        extra_alignment_indexes_arr_ptr -= 1
+
+
+    return my_str
+
+def main(args):
+    # converts args to a dictionary and pass it to the user_input class
+    user_input_obj = user_input(**vars(args))
+    # Check if the file exists
+    if not os.path.isfile(user_input_obj.file):
+        print(f"Error: The file '{user_input_obj.file}' does not exist.")
+        return
     #sequence = "CCACAGGCCATAACTTCTATGACTTCCAGACCTGGGAAACTCTCTTTGACCCACTTGAGCATGTTCAATTGGAAGATATGGGTAATACAAATAGAGCCAGCCGTCCGCACCGGCAGCAATCAAATTGGCCGCTTGTTCCCTAGTGACAACGTTACCAGCGTTCCCATACCAATTCTCAAAACCCACACCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACACCCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACACACCACACCACACCCACACACACACCCACACACACACACACCACACCCACACACACACACCCACACACACACACCCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACACACCACACCCACACACACACACCCACACACACACACCCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACCCACACCACACCCACACACACACACCCACACACACACACCCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACCCACACCACACCCACACCCACACACCACACCCACACCCACACACACCACACCCACACCCACACCCACACACCACACCCACACCCACACACCACACCCACACCCACACCCACACACCCACACCACACCCACACACCACACCCACACCACACCCACACACCCACACACACACACCCACACACCACACCCACACCACACCCACACCACACCCACACCCACACCCACACCACACCCACACACACCACACCCACACCCACACACCACACACAC"
     #fuzzy_telomeres = find_flexible_telomeric_regions(sequence, window_size=50, threshold=0.9)
     #print("Fuzzy telomeric regions:", fuzzy_telomeres)
@@ -725,9 +930,22 @@ def main():
         #print(sequence[i[0]:i[1]])
     #return
     parse_fasta_file_obj = parse_fasta_file()
-    all_chr_ends = parse_fasta_file_obj.run("IT130_testInput.fasta")
-    full_analysis_obj = full_analysis()
-    full_analysis_obj.run_full_analysis(all_chr_ends)
+    #all_chr_headers, all_chr_ends = parse_fasta_file_obj.run("AAAAAallFiles_145_modified.txt")
+    all_chr_headers, all_chr_ends = parse_fasta_file_obj.run(user_input_obj.file)
+    full_analysis_obj = full_analysis(user_input_obj)
+    best_repeat_sequence_arr = full_analysis_obj.run_full_analysis(all_chr_ends)
+    #print(f"lenght of best_repeat_sequence_arr: {len(best_repeat_sequence_arr)}")
+    print(f"lenght of all_chr_headers: {len(all_chr_headers)}")
+    print(f"lenght of all_chr_ends: {len(all_chr_ends)}")
+    #print(f"best_repeat_sequence_arr: {best_repeat_sequence_arr}")
+    #for elem in best_repeat_sequence_arr:
+    for i in range(len(best_repeat_sequence_arr)):
+        elem = best_repeat_sequence_arr[i]
+        print(all_chr_headers[elem[1]])
+        #print(f"chr{convert_num_to_chr_end(elem[1])}")
+        print(elem[0])
+        moded_str = mod_str(all_chr_ends[elem[1]], elem[0])
+        print(f"{moded_str}\n")
     return
 
     #my_chr_end = find_loops("ABCDEFQABCDEFRABCDETXYZXYZ")
@@ -753,4 +971,15 @@ def main():
     return
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="program used for finding loops inside of data, provided in the form of a .fasta file")
+    parser.add_argument("file", help="The path to the file to be processed.")
+    parser.add_argument("-o", "--output", help="Optional output file to save the content.")
+    parser.add_argument("--min_length", type=int, default=50, help="The minimum length for a valid repeat sequence (default: 50)")
+    parser.add_argument("--graph_dpi", type=int, default=300, help="the dpi of the saved graph (default: 300)")
+    args = parser.parse_args()
+
+    # Open the output file if provided
+    with open(args.output, 'w') if args.output else sys.stdout as output:
+        # Redirect all prints within main
+        with redirect_stdout(output):
+            main(args)
