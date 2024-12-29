@@ -240,10 +240,6 @@ class find_loops:
             tmp = self.input_s[last_val:alignment]
             str_dict[tmp] = [last_val, alignment]
             queue.append(tmp)
-            if queue[-1] == "GGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTG":
-                print("the magical string was just added in the first loop")
-                print(f"last_val: {last_val}")
-                print(alignment)
             last_val = alignment+key_n
 
         #if last_val < len(self.input_s):
@@ -371,20 +367,18 @@ class find_loops:
         #self.print_my_dict()
         #self.print_my_dict_sorted()
         for key in self.my_dict:
-            print(f"str: {key}")
-            print(f"indexes: {self.my_dict[key].indexes}")
             self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[key].extra_alignment_insertions_and_deletions  = self.alignment(key)
-            print(self.my_dict[key].extra_alignment_indexes)
         self.filter_same_length()
         return 0
 
 class full_analysis:
 
-    def __init__(self, user_input_obj):
-        self.fig, self.ax = plt.subplots(figsize=(16,4))
+    def __init__(self, user_input_obj, all_chr_headers):
         self.user_input_obj = user_input_obj
+        self.all_chr_headers = all_chr_headers
 
     def graph_setup(self):
+        self.fig, self.ax = plt.subplots(figsize=(16,4))
         #ax.text(0, 8, "IT148", ha='center', va='center', fontsize=12, color='black')
         #ax.text(0, 7, "chr1", ha='center', va='center', fontsize=10, color='black')
         #ax.text(0, 6.5, "chr2", ha='center', va='center', fontsize=10, color='black')
@@ -437,10 +431,10 @@ class full_analysis:
         y_index = (17 - (global_counter//2)) / 2
         arrow_distance_orig = curr_sequence.n_subStr-1
         offset_offset = arrow_distance_orig//2
-        set1 = curr_sequence.indexes
-        set2 = curr_sequence.extra_alignment_indexes
+        set1 = copy.deepcopy(curr_sequence.indexes)
+        set2 = copy.deepcopy(curr_sequence.extra_alignment_indexes)
         set2.sort()
-        insertions_and_deletions = curr_sequence.extra_alignment_insertions_and_deletions
+        insertions_and_deletions = copy.deepcopy(curr_sequence.extra_alignment_insertions_and_deletions)
         all_points = []
         set1_ptr = 0
         set2_ptr = 0
@@ -545,10 +539,11 @@ class full_analysis:
     def save_graph(self):
 
         self.ax.set_xlim(global_min_x, global_max_x)
-        self.fig.savefig("aaaTEST_graph_output.png", dpi=self.user_input_obj.graph_dpi, bbox_inches='tight')
+        self.fig.savefig(self.user_input_obj.graph_output, dpi=self.user_input_obj.graph_dpi, bbox_inches='tight')
 
     def run_all_chr_ends(self, all_chr_ends):
         all_find_loops_objects = []
+        no_loops_found_indexes = []
         counter = 0
         for sequence in all_chr_ends:
             if not sequence:
@@ -560,10 +555,10 @@ class full_analysis:
             if err == 0:
                 all_find_loops_objects.append(loop_obj)
             else:
-                print(f"no loops of the minimum length were found in chr{counter}")
+                no_loops_found_indexes.append(counter)
                 all_find_loops_objects.append(None)
             counter += 1
-        return all_find_loops_objects
+        return all_find_loops_objects, no_loops_found_indexes
 
     def find_all_multi_chr_repeat_sequences(self, all_find_loops_objects):
 
@@ -603,10 +598,6 @@ class full_analysis:
             all_multi_chr_repeat_sequences_dict[key].append(key)
             all_multi_chr_repeat_sequences_dict[key].sort(key=lambda x: x[1])
             all_multi_chr_repeat_sequences_final_arr.append(all_multi_chr_repeat_sequences_dict[key])
-            #for elem in all_multi_chr_repeat_sequences_dict[key]:
-                #print(f"chr{elem[1]} sequence value:")
-                #print(elem[0])
-            #print("________________________________________________")
 
         return all_multi_chr_repeat_sequences_final_arr
 
@@ -624,22 +615,21 @@ class full_analysis:
         
 
     def run_full_analysis(self, all_chr_ends):
-        all_find_loops_objects = self.run_all_chr_ends(all_chr_ends)
+        all_find_loops_objects, no_loops_found_indexes = self.run_all_chr_ends(all_chr_ends)
         if len(all_find_loops_objects) == 0:
             print("no loops of the minimum size were found")
             return []
-        print(f"length of all_find_loops_objects: {len(all_find_loops_objects)}")
         all_multi_chr_repeat_sequences_final_arr = self.find_all_multi_chr_repeat_sequences(all_find_loops_objects)
         if len(all_multi_chr_repeat_sequences_final_arr) == 0:
             print("no loops were found in multiple chr's")
             return []
-        print(f"length of all_multi_chr_repeat_sequences_final_arr: {len(all_multi_chr_repeat_sequences_final_arr)}")
         best_repeat_sequence_arr = self.find_best_multi_chr_repeat_sequence(all_multi_chr_repeat_sequences_final_arr)
-        print(f"length of best_repeat_sequence_arr: {len(best_repeat_sequence_arr)}")
-        #self.graph_setup()
-            #self.graph_output(elem[0], elem[1])
-        #self.save_graph()
-        return best_repeat_sequence_arr
+        if self.user_input_obj.graph_output:
+            self.graph_setup()
+            for elem in best_repeat_sequence_arr:
+                self.graph_output(elem[0], elem[1])
+            self.save_graph()
+        return best_repeat_sequence_arr, no_loops_found_indexes
 
 class parse_fasta_file():
 
@@ -891,8 +881,6 @@ def mod_str(my_str, self_search_type_object):
         my_str = my_str[:curr_index+offset] + "]" + my_str[curr_index+offset:]
         insertions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index][0]
         deletions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index][1]
-        print(f"insertions: {insertions}")
-        print(f"deletions: {deletions}")
         insertions_ptr = 0
         deletions_ptr = 0
         n_insertions = len(insertions)
@@ -923,29 +911,31 @@ def main(args):
     if not os.path.isfile(user_input_obj.file):
         print(f"Error: The file '{user_input_obj.file}' does not exist.")
         return
-    #sequence = "CCACAGGCCATAACTTCTATGACTTCCAGACCTGGGAAACTCTCTTTGACCCACTTGAGCATGTTCAATTGGAAGATATGGGTAATACAAATAGAGCCAGCCGTCCGCACCGGCAGCAATCAAATTGGCCGCTTGTTCCCTAGTGACAACGTTACCAGCGTTCCCATACCAATTCTCAAAACCCACACCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACACCCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACACACCACACCACACCCACACACACACCCACACACACACACACCACACCCACACACACACACCCACACACACACACCCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACACACCACACCCACACACACACACCCACACACACACACCCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACCCACACCACACCCACACACACACACCCACACACACACACCCACACCACACCCACACACACACCCACACCACACCCACACCACACCACACCCACACACACACCCACACACACACCCACACCACACCCACACCCACACACCACACCCACACCCACACACACCACACCCACACCCACACCCACACACCACACCCACACCCACACACCACACCCACACCCACACCCACACACCCACACCACACCCACACACCACACCCACACCACACCCACACACCCACACACACACACCCACACACCACACCCACACCACACCCACACCACACCCACACCCACACCCACACCACACCCACACACACCACACCCACACCCACACACCACACACAC"
-    #fuzzy_telomeres = find_flexible_telomeric_regions(sequence, window_size=50, threshold=0.9)
-    #print("Fuzzy telomeric regions:", fuzzy_telomeres)
-    #for i in fuzzy_telomeres:
-        #print(sequence[i[0]:i[1]])
-    #return
     parse_fasta_file_obj = parse_fasta_file()
     #all_chr_headers, all_chr_ends = parse_fasta_file_obj.run("AAAAAallFiles_145_modified.txt")
     all_chr_headers, all_chr_ends = parse_fasta_file_obj.run(user_input_obj.file)
-    full_analysis_obj = full_analysis(user_input_obj)
-    best_repeat_sequence_arr = full_analysis_obj.run_full_analysis(all_chr_ends)
-    #print(f"lenght of best_repeat_sequence_arr: {len(best_repeat_sequence_arr)}")
-    print(f"lenght of all_chr_headers: {len(all_chr_headers)}")
-    print(f"lenght of all_chr_ends: {len(all_chr_ends)}")
-    #print(f"best_repeat_sequence_arr: {best_repeat_sequence_arr}")
+    full_analysis_obj = full_analysis(user_input_obj, all_chr_headers)
+    best_repeat_sequence_arr, no_loops_found_indexes = full_analysis_obj.run_full_analysis(all_chr_ends)
     #for elem in best_repeat_sequence_arr:
-    for i in range(len(best_repeat_sequence_arr)):
-        elem = best_repeat_sequence_arr[i]
-        print(all_chr_headers[elem[1]])
-        #print(f"chr{convert_num_to_chr_end(elem[1])}")
-        print(elem[0])
-        moded_str = mod_str(all_chr_ends[elem[1]], elem[0])
-        print(f"{moded_str}\n")
+    best_repeat_sequence_arr_ptr = 0
+    no_loops_found_indexes_ptr = 0
+    n_no_loops_found_indexes = len(no_loops_found_indexes)
+    n_best_repeat_sequences_arr = len(best_repeat_sequence_arr)
+    for i in range(len(all_chr_headers)):
+        #if elem[1] == i:
+        if best_repeat_sequence_arr_ptr < n_best_repeat_sequences_arr and best_repeat_sequence_arr[best_repeat_sequence_arr_ptr][1] == i:
+            elem = best_repeat_sequence_arr[best_repeat_sequence_arr_ptr]
+            print(all_chr_headers[elem[1]])
+            #print(f"chr{convert_num_to_chr_end(elem[1])}")
+            print(elem[0])
+            moded_str = mod_str(all_chr_ends[elem[1]], elem[0])
+            print(f"{moded_str}\n")
+            best_repeat_sequence_arr_ptr += 1
+        elif no_loops_found_indexes_ptr < n_no_loops_found_indexes and i == no_loops_found_indexes[no_loops_found_indexes_ptr]:
+            print(f"{all_chr_headers[i]}\nno loops of the minimum length were found in {all_chr_headers[i]}\n")
+            no_loops_found_indexes_ptr += 1
+        else:
+            print(f"{all_chr_headers[i]}\nthe repeated sequence was not found in {all_chr_headers[i]}\n")
     return
 
     #my_chr_end = find_loops("ABCDEFQABCDEFRABCDETXYZXYZ")
@@ -976,6 +966,7 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output", help="Optional output file to save the content.")
     parser.add_argument("--min_length", type=int, default=50, help="The minimum length for a valid repeat sequence (default: 50)")
     parser.add_argument("--graph_dpi", type=int, default=300, help="the dpi of the saved graph (default: 300)")
+    parser.add_argument("-go", "--graph_output", help="Optional output file that a graph of the output will be saved too. (if No output is given, no graph will be created)")
     args = parser.parse_args()
 
     # Open the output file if provided
