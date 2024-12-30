@@ -7,8 +7,8 @@ from matplotlib.patches import Rectangle, Polygon
 from contextlib import redirect_stdout
 
 
-global_max_x = 0
-global_min_x = 0
+#global_max_x = 0
+#global_min_x = 0
 
 def is_circular_rearrangement(s1, s2):
     if len(s1) != len(s2):
@@ -425,8 +425,10 @@ class full_analysis:
         offset = 300 
         counter = 0
         global_counter = chr_index
-        global global_max_x
-        global global_min_x
+        #global global_max_x
+        max_x = 0
+        #global global_min_x
+        min_x = 0
         #y_index = (14 - (global_counter//2)) / 2
         y_index = (17 - (global_counter//2)) / 2
         arrow_distance_orig = curr_sequence.n_subStr-1
@@ -506,10 +508,10 @@ class full_analysis:
             tail = Rectangle((bottom_left, y_index - tail_width / 2), tail_length, tail_width, color=arrow_color)
             self.ax.add_patch(tail)
 
-            if sign == -1 and point < global_min_x:
-                global_min_x = point
-            elif point > global_max_x:
-                global_max_x = point
+            if sign == -1 and point < min_x:
+                min_x = point
+            elif point > max_x:
+                max_x = point
 
             triangle = Polygon([[point + (tail_length+head_length) * sign, y_index],
                             [point+(tail_length) * sign, y_index-head_width/2],
@@ -535,10 +537,11 @@ class full_analysis:
                 self.ax.plot([previous_end_point+offset_offset/2*sign, point-offset_offset/2*sign], [y_index, y_index], linewidth= 2, color='red', linestyle='-')
             previous_end_point = end_point
             offset += offset_offset
+        return max_x, min_x
 
-    def save_graph(self):
+    def save_graph(self, max_x, min_x):
 
-        self.ax.set_xlim(global_min_x, global_max_x)
+        self.ax.set_xlim(min_x, max_x)
         self.fig.savefig(self.user_input_obj.graph_output, dpi=self.user_input_obj.graph_dpi, bbox_inches='tight')
 
     def run_all_chr_ends(self, all_chr_ends):
@@ -626,9 +629,13 @@ class full_analysis:
         best_repeat_sequence_arr = self.find_best_multi_chr_repeat_sequence(all_multi_chr_repeat_sequences_final_arr)
         if self.user_input_obj.graph_output:
             self.graph_setup()
+            max_x = 0
+            min_x = 0
             for elem in best_repeat_sequence_arr:
-                self.graph_output(elem[0], elem[1])
-            self.save_graph()
+                max_x_output, min_x_output = self.graph_output(elem[0], elem[1])
+                max_x = max(max_x, max_x_output)
+                min_x = min(min_x, min_x_output)
+            self.save_graph(max_x, min_x)
         return best_repeat_sequence_arr, no_loops_found_indexes
 
 class parse_fasta_file():
@@ -650,6 +657,10 @@ class parse_fasta_file():
             if 1 <= index <= 32:
                 return index - 1  # Convert to 0-based indexing
         raise ValueError(f"Invalid header format: {header}")
+    
+    def read_fasta_to_dict(self, file_path):
+        fasta_dict = {record.id: str(record.seq) for record in SeqIO.parse(file_path, "fasta")}
+        return fasta_dict
             
     def read_fasta_to_array(self, file_path):
         sequences = [None] * 32
