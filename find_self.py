@@ -571,7 +571,11 @@ class full_analysis:
             curr = all_find_loops_objects[i]
             if not curr:
                 continue
-            possibilities = curr.get_if_n_subStr_equals_min_gap()
+            if self.user_input_obj.exaustive_analysis:
+                possibilities = list(curr.my_dict.keys())
+                #print(possibilities)
+            else:
+                possibilities = curr.get_if_n_subStr_equals_min_gap()
             possibilities.sort(key=len)
             for all_find_loops_objects_ptr in range(0, len(all_find_loops_objects)):
                 if all_find_loops_objects_ptr == i or not all_find_loops_objects[all_find_loops_objects_ptr]:
@@ -978,10 +982,15 @@ if __name__ == "__main__":
     parser.add_argument("--min_length", type=int, default=50, help="The minimum length for a valid repeat sequence (default: 50)")
     parser.add_argument("--graph_dpi", type=int, default=300, help="the dpi of the saved graph (default: 300)")
     parser.add_argument("-go", "--graph_output", help="Optional output file that a graph of the output will be saved too. (if No output is given, no graph will be created)")
+    parser.add_argument("-ea", "--exaustive_analysis", action="store_true", help="performs a more exaustive analysis which sacrifices runtime for the chance to catch some edgecase sequences")
     args = parser.parse_args()
 
-    # Open the output file if provided
+     # Open the output file if provided
     with open(args.output, 'w') if args.output else sys.stdout as output:
         # Redirect all prints within main
         with redirect_stdout(output):
             main(args)
+   
+       
+       
+           
