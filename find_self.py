@@ -366,8 +366,9 @@ class find_loops:
         
         #self.print_my_dict()
         #self.print_my_dict_sorted()
-        for key in self.my_dict:
-            self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[key].extra_alignment_insertions_and_deletions  = self.alignment(key)
+        if not self.user_input_obj.ignore_alignment:
+            for key in self.my_dict:
+                self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[key].extra_alignment_insertions_and_deletions  = self.alignment(key)
         self.filter_same_length()
         return 0
 
@@ -642,7 +643,10 @@ class full_analysis:
             self.save_graph(max_x, min_x)
         return best_repeat_sequence_arr, no_loops_found_indexes
 
-class parse_fasta_file():
+class parse_fasta_file:
+
+    def __init__(self, user_input_obj):
+        self.user_input_obj = user_input_obj
 
     # Function to extract the index from the header
     def get_index(self, header):
@@ -660,36 +664,67 @@ class parse_fasta_file():
 
             if 1 <= index <= 32:
                 return index - 1  # Convert to 0-based indexing
-        raise ValueError(f"Invalid header format: {header}")
+        raise ValueError(f"Invalid header format: {header}, no sorting will be performed")
     
     def read_fasta_to_dict(self, file_path):
         fasta_dict = {record.id: str(record.seq) for record in SeqIO.parse(file_path, "fasta")}
         return fasta_dict
-            
-    def read_fasta_to_array(self, file_path):
-        sequences = [None] * 32
+
+    def read_original_reference_to_array(self):
+        file_path = self.user_input_obj.original_reference
         print(file_path)
+        sequences = []
         for sequence in SeqIO.parse(file_path, "fasta"):
-            try:
-                index = self.get_index(sequence.id)  # Extract index from header
-                sequences[index] = str(sequence.seq)  # Assign sequence to the array
-            except ValueError as e:
-                print(e) 
-
+            sequences.append(str(sequence.seq))
         return sequences
+            
+    #def read_fasta_to_array(self, file_path):
+        #sequences = [None] * self.user_input_obj.maximum_ends
+        #print(file_path)
+        #for sequence in SeqIO.parse(file_path, "fasta"):
+            #try:
+                #index = self.get_index(sequence.id)  # Extract index from header
+                #sequences[index] = str(sequence.seq)  # Assign sequence to the array
+            #except ValueError as e:
+                #print(e) 
 
-    def read_fasta_flexible(self, file_path):
-        sequences_headers = []
-        sequences_data = []
-        for Sequence in SeqIO.parse(file_path, "fasta"):
-            sequences_headers.append(str(Sequence.id))
-            sequences_data.append(str(Sequence.seq))
-        if len(sequences_headers) != len(sequences_data):
-            print("invalid fasta File")
+        #return sequences
+
+    def read_fasta_flexible(self):
+        file_path = self.user_input_obj.file
+        sequences_headers = [None] * self.user_input_obj.maximum_ends
+        sequences_data = [None] * self.user_input_obj.maximum_ends
+        total_fasta_entries_counter = 0
+        with open(file_path, "r") as fasta_file:
+            while True:
+                counter = 0
+                for Sequence in SeqIO.parse(fasta_file, "fasta"):
+                    if counter >= self.user_input_obj.maximum_ends:
+                        print("error, the number of entries in the fasta file exeeds the number of maximum ends. Please change the number of maximum ends withe the --maximum_ends flag")
+                        return [], []
+                    if self.user_input_obj.ignore_sorting:
+                        sequences_headers[counter] = (str(Sequence.id))
+                        sequences_data[counter] = (str(Sequence.seq))
+                        counter += 1
+                        total_fasta_entries_counter += 1
+                    else:
+                        try:
+                            index = self.get_index(Sequence.id)  # Extract index from header
+                            sequences_headers[index] = str(Sequence.id)  # Assign sequence to the array
+                            sequences_data[index] = str(Sequence.seq)  # Assign sequence to the array
+                            total_fasta_entries_counter += 1
+                        except ValueError as e:
+                            print(e) 
+                            fasta_file.seek(0)
+                            self.user_input_obj.ignore_sorting = True
+                            total_fasta_entries_counter = 0
+                            break
+                else:
+                    break
 
         is_whole_ref_sequence = False
         for elem in sequences_data:
-            if len(elem) > 100000:
+            if elem and len(elem) > 100000:
                 is_whole_ref_sequence = True
                 break
         if is_whole_ref_sequence:
@@ -697,11 +732,11 @@ class parse_fasta_file():
         else:
             print("partial sequence detected")
         if is_whole_ref_sequence:
-            original_length = len(sequences_data)
-            target_length = 2 * original_length
-            sequences_data.extend([None] * (target_length) - original_length)
-            sequences_headers.extend([None] * (target_length) - original_length)
-            for i in range(original_length-1, -1, -1):
+            if total_fasta_entries_counter > self.user_input_obj.maximum_ends//2:
+                print("error, the number of entries in the fasta file exeeds the number of maximum ends for a whole reference sequence. Please change the number of maximum ends withe the --maximum_ends flag")
+                return [], []
+            # note: add an edge case for there being entry numbers that exceed the half of the maximum_ends variable
+            for i in range(total_fasta_entries_counter-1, -1, -1):
                 original_sequence = sequences_data[i]
                 if original_sequence:
                     first_half_sequence = original_sequence[:5000]
@@ -709,8 +744,8 @@ class parse_fasta_file():
                 else:
                     first_half_sequence = None
                     second_half_sequence = None
-                first_half_header = sequences_headers[i] + "_firstHalf"
-                second_half_header = sequences_headers[i] + "_secondHalf"
+                first_half_header = sequences_headers[i] + "_L"
+                second_half_header = sequences_headers[i] + "_R"
                 sequences_data[i*2+1] = second_half_sequence
                 sequences_data[i*2] = first_half_sequence
                 sequences_headers[i*2+1] = second_half_header
@@ -838,9 +873,9 @@ class parse_fasta_file():
             all_chr_ends[i] = valid_telomer
         return all_chr_ends
 
-    def run(self, file_path):
+    def run(self):
         #all_chr_ends = self.read_fasta_to_array(file_path)
-        all_chr_headers, all_chr_ends = self.read_fasta_flexible(file_path)
+        all_chr_headers, all_chr_ends = self.read_fasta_flexible()
         #print(all_chr_headers)
         return (all_chr_headers, self.find_flexible_telomeric_regions(all_chr_ends))
 
@@ -926,9 +961,11 @@ def main(args):
     if not os.path.isfile(user_input_obj.file):
         print(f"Error: The file '{user_input_obj.file}' does not exist.")
         return
-    parse_fasta_file_obj = parse_fasta_file()
+    parse_fasta_file_obj = parse_fasta_file(user_input_obj)
     #all_chr_headers, all_chr_ends = parse_fasta_file_obj.run("AAAAAallFiles_145_modified.txt")
-    all_chr_headers, all_chr_ends = parse_fasta_file_obj.run(user_input_obj.file)
+    all_chr_headers, all_chr_ends = parse_fasta_file_obj.run()
+    if len(all_chr_ends) == 0:
+        return
     full_analysis_obj = full_analysis(user_input_obj, all_chr_headers)
     best_repeat_sequence_arr, no_loops_found_indexes = full_analysis_obj.run_full_analysis(all_chr_ends)
     #for elem in best_repeat_sequence_arr:
@@ -983,6 +1020,10 @@ if __name__ == "__main__":
     parser.add_argument("--graph_dpi", type=int, default=300, help="the dpi of the saved graph (default: 300)")
     parser.add_argument("-go", "--graph_output", help="Optional output file that a graph of the output will be saved too. (if No output is given, no graph will be created)")
     parser.add_argument("-ea", "--exaustive_analysis", action="store_true", help="performs a more exaustive analysis which sacrifices runtime for the chance to catch some edgecase sequences")
+    parser.add_argument("-me", "--maximum_ends", type=int, default=32, help="changes the maximum number of chr ends that are expected (default is 32)")
+    parser.add_argument("-is", "--ignore_sorting", action="store_true", help="stops the program not attempt to automatically sort the sequences from fasta file based on the sequence headers")
+    parser.add_argument("-ia", "--ignore_alignment", action="store_true", help="stops the program from attempting to find imperfecting alighments. This drastically decreases the runtime of the program")
+    parser.add_argument("-or", "--original_reference", help="Optional input file with the original reference. New chr ends will be compared against the original reference, and any identical prefixes will not be examined for repeat sequences")
     args = parser.parse_args()
 
      # Open the output file if provided
