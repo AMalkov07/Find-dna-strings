@@ -29,11 +29,12 @@ def convert_num_to_chr_end(num):
 
 
 class self_search_type:
-    def __init__(self, n_subStr, indexes, min_gap, has_overlap):
+    def __init__(self, n_subStr, indexes, min_gap, has_overlap, offset):
         self.n_subStr = n_subStr
         self.indexes = indexes
         self.min_gap = min_gap
         self.has_overlap = has_overlap
+        self.offset = offset
         self.n_extra_alignment = 0
         self.extra_alignment_indexes = []
         self.extra_alignment_insertions_and_deletions = {}
@@ -47,12 +48,26 @@ class self_search_type:
             #tmp += (arr[i] - arr[i-1])
         #return tmp//n
 
+    def add_offset(self):
+        for i in range(len(self.indexes)):
+            self.indexes[i] += self.offset
+        for i in range(len(self.extra_alignment_indexes)):
+            self.extra_alignment_indexes[i] += self.offset
+        #for key in self.extra_alignment_insertions_and_deletions.keys():
+            #for i in range(len(self.extra_alignment_insertions_and_deletions[key])):
+                #for j in range(len(self.extra_alignment_insertions_and_deletions[key][i])):
+                    #self.extra_alignment_insertions_and_deletions[key][i][j] += self.offset
+                #self.extra_alignment_insertions_and_deletions[key][i] += self.offset
+            #for i in range(len(self.extra_alignment_insertions_and_deletions[key][1])):
+                #self.extra_alignment_insertions_and_deletions[key][i] += self.offset
+
+
     
     def __repr__(self):
         n = self.n_subStr
         #avg_dist = self.average_distance()
         #return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.has_overlap}, number of extra alignments={self.n_extra_alignment}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
-        return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.has_overlap}, number of extra alignments={self.n_extra_alignment}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
+        return f"extra_alignment_insertions_and_deletions = {self.extra_alignment_insertions_and_deletions}\nsubstring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.has_overlap}, number of extra alignments={self.n_extra_alignment}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
 
 class user_input:
     def __init__(self, **kwargs):
@@ -61,12 +76,13 @@ class user_input:
 
 class find_loops:
 
-    def __init__(self, input_s, user_input_obj):
+    def __init__(self, input_s, user_input_obj, offset):
         self.input_s = input_s
         self.my_dict = {}
         self.coverage_dict = defaultdict(dict)
         #self.min_length = min_length
         self.user_input_obj = user_input_obj
+        self.offset = offset
 
         self.aligner = Align.PairwiseAligner()
 
@@ -115,7 +131,7 @@ class find_loops:
                     first_val = tmp_dict[s]
                     gap = index - first_val
                     has_overlap = gap < len(s)
-                    my_dict[s] = self_search_type(len(s), [first_val, index], gap, has_overlap)
+                    my_dict[s] = self_search_type(len(s), [first_val, index], gap, has_overlap, self.offset)
                     queue.append(s)
                 else:
                     tmp_dict[s] = index
@@ -220,7 +236,7 @@ class find_loops:
                     first_index = tmp_arr[0]
                     self.coverage_dict[len_arr][first_index] = first_index+min_length - 1
                     overlap = min_gap < min_length
-                    self.my_dict[sub_str] = self_search_type(min_length, tmp_arr, min_gap, overlap)
+                    self.my_dict[sub_str] = self_search_type(min_length, tmp_arr, min_gap, overlap, self.offset)
                     last_key = sub_str
                     sequential_englargments_counter = 1
 
@@ -374,9 +390,10 @@ class find_loops:
 
 class full_analysis:
 
-    def __init__(self, user_input_obj, all_chr_headers):
+    def __init__(self, user_input_obj, all_chr_headers, same_prefix_length):
         self.user_input_obj = user_input_obj
         self.all_chr_headers = all_chr_headers
+        self.same_prefix_length = same_prefix_length
 
     def graph_setup(self):
         self.fig, self.ax = plt.subplots(figsize=(16,4))
@@ -549,11 +566,12 @@ class full_analysis:
         all_find_loops_objects = []
         no_loops_found_indexes = []
         counter = 0
-        for sequence in all_chr_ends:
+        for i in range(len(all_chr_ends)):
+            sequence = all_chr_ends[i]
             if not sequence:
                 all_find_loops_objects.append(None)
                 continue
-            loop_obj = find_loops(sequence, self.user_input_obj)
+            loop_obj = find_loops(sequence[self.same_prefix_length[i]:], self.user_input_obj, self.same_prefix_length[i])
             err = loop_obj.run()
             # err code of 0 means that there were no issues
             if err == 0:
@@ -647,6 +665,9 @@ class parse_fasta_file:
 
     def __init__(self, user_input_obj):
         self.user_input_obj = user_input_obj
+        self.all_chr_headers = []
+        self.all_chr_ends = []
+        self.same_prefix_length = [user_input_obj.skip_prefix] * user_input_obj.maximum_ends
 
     # Function to extract the index from the header
     def get_index(self, header):
@@ -677,6 +698,33 @@ class parse_fasta_file:
         for sequence in SeqIO.parse(file_path, "fasta"):
             sequences.append(str(sequence.seq))
         return sequences
+
+    def cmp_original_ref(self, original_ref_array):
+        if len(original_ref_array) != self.user_input_obj.maximum_ends:
+            print("number of entries in original reference file does not match the maximum ends value. Please change the maximum ends value with --maximum_ends flag or use a different reference file, origianl reference comparison will be ignored")
+
+        for i in range(self.user_input_obj.maximum_ends):
+            input_s = self.sequences_data[i]
+            if not input_s:
+                continue
+            input_n = len(input_s)
+            known_value = original_ref_array[i]
+            known_value_n = len(known_value)
+
+            output = 0
+
+            for j in range(5):
+                tmp_value = 0
+                for k in range(min(known_value_n, input_n)):
+                    if known_value[k] == input_s[k+j]:
+                        tmp_value += 1
+                    else:
+                        break
+                output = max(output, tmp_value)
+                #if output > 5:
+                    ##return(output+i)
+            self.same_prefix_length[i] = max(self.same_prefix_length[i], output+j)
+            print(f"deleting first {output+j} characters in chr{i}")
             
     #def read_fasta_to_array(self, file_path):
         #sequences = [None] * self.user_input_obj.maximum_ends
@@ -692,8 +740,8 @@ class parse_fasta_file:
 
     def read_fasta_flexible(self):
         file_path = self.user_input_obj.file
-        sequences_headers = [None] * self.user_input_obj.maximum_ends
-        sequences_data = [None] * self.user_input_obj.maximum_ends
+        self.sequences_headers = [None] * self.user_input_obj.maximum_ends
+        self.sequences_data = [None] * self.user_input_obj.maximum_ends
         total_fasta_entries_counter = 0
         with open(file_path, "r") as fasta_file:
             while True:
@@ -703,15 +751,15 @@ class parse_fasta_file:
                         print("error, the number of entries in the fasta file exeeds the number of maximum ends. Please change the number of maximum ends withe the --maximum_ends flag")
                         return [], []
                     if self.user_input_obj.ignore_sorting:
-                        sequences_headers[counter] = (str(Sequence.id))
-                        sequences_data[counter] = (str(Sequence.seq))
+                        self.sequences_headers[counter] = (str(Sequence.id))
+                        self.sequences_data[counter] = (str(Sequence.seq))
                         counter += 1
                         total_fasta_entries_counter += 1
                     else:
                         try:
                             index = self.get_index(Sequence.id)  # Extract index from header
-                            sequences_headers[index] = str(Sequence.id)  # Assign sequence to the array
-                            sequences_data[index] = str(Sequence.seq)  # Assign sequence to the array
+                            self.sequences_headers[index] = str(Sequence.id)  # Assign sequence to the array
+                            self.sequences_data[index] = str(Sequence.seq)  # Assign sequence to the array
                             total_fasta_entries_counter += 1
                         except ValueError as e:
                             print(e) 
@@ -723,7 +771,7 @@ class parse_fasta_file:
                     break
 
         is_whole_ref_sequence = False
-        for elem in sequences_data:
+        for elem in self.sequences_data:
             if elem and len(elem) > 100000:
                 is_whole_ref_sequence = True
                 break
@@ -737,23 +785,23 @@ class parse_fasta_file:
                 return [], []
             # note: add an edge case for there being entry numbers that exceed the half of the maximum_ends variable
             for i in range(total_fasta_entries_counter-1, -1, -1):
-                original_sequence = sequences_data[i]
+                original_sequence = self.sequences_data[i]
                 if original_sequence:
                     first_half_sequence = original_sequence[:5000]
                     second_half_sequence = original_sequence[-5000:]
                 else:
                     first_half_sequence = None
                     second_half_sequence = None
-                first_half_header = sequences_headers[i] + "_L"
-                second_half_header = sequences_headers[i] + "_R"
-                sequences_data[i*2+1] = second_half_sequence
-                sequences_data[i*2] = first_half_sequence
-                sequences_headers[i*2+1] = second_half_header
-                sequences_headers[i*2] = first_half_header
-        return(sequences_headers, sequences_data)
+                first_half_header = self.sequences_headers[i] + "_L"
+                second_half_header = self.sequences_headers[i] + "_R"
+                self.sequences_data[i*2+1] = second_half_sequence
+                self.sequences_data[i*2] = first_half_sequence
+                self.sequences_headers[i*2+1] = second_half_header
+                self.sequences_headers[i*2] = first_half_header
 
-    def find_flexible_telomeric_regions(self, all_chr_ends, window_size=50, threshold=0.9):
+    def find_flexible_telomeric_regions(self, window_size=50, threshold=0.9):
         # fix for full genome sequences
+        all_chr_ends = self.sequences_data
         for i in range(len(all_chr_ends)):
             dna_sequence = all_chr_ends[i]
             if dna_sequence == None:
@@ -875,9 +923,12 @@ class parse_fasta_file:
 
     def run(self):
         #all_chr_ends = self.read_fasta_to_array(file_path)
-        all_chr_headers, all_chr_ends = self.read_fasta_flexible()
+        self.read_fasta_flexible()
         #print(all_chr_headers)
-        return (all_chr_headers, self.find_flexible_telomeric_regions(all_chr_ends))
+        self.find_flexible_telomeric_regions()
+        if self.user_input_obj.original_reference:
+            original_ref_arr = self.read_original_reference_to_array()
+            self.cmp_original_ref(original_ref_arr)
 
 def mod_str(my_str, self_search_type_object):
     #make this function less shit
@@ -901,8 +952,8 @@ def mod_str(my_str, self_search_type_object):
             perfect_alignment = False
         my_str = my_str[:curr_index+offset] + "]" + my_str[curr_index+offset:]
         if not perfect_alignment:
-            insertions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index][0]
-            deletions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index][1]
+            insertions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index - self_search_type_object.offset][0]
+            deletions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index - self_search_type_object.offset][1]
             insertions_ptr = 0
             deletions_ptr = 0
             n_insertions = len(insertions)
@@ -929,8 +980,8 @@ def mod_str(my_str, self_search_type_object):
     while extra_alignment_indexes_arr_ptr >= 0:
         curr_index = extra_alignment_indexes_arr[extra_alignment_indexes_arr_ptr]
         my_str = my_str[:curr_index+offset] + "]" + my_str[curr_index+offset:]
-        insertions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index][0]
-        deletions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index][1]
+        insertions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index - self_search_type_object.offset][0]
+        deletions = self_search_type_object.extra_alignment_insertions_and_deletions[curr_index - self_search_type_object.offset][1]
         insertions_ptr = 0
         deletions_ptr = 0
         n_insertions = len(insertions)
@@ -951,6 +1002,7 @@ def mod_str(my_str, self_search_type_object):
         my_str = my_str[:curr_index] + "[" + my_str[curr_index:]
         extra_alignment_indexes_arr_ptr -= 1
 
+    my_str = my_str[:self_search_type_object.offset] + "|" + my_str[self_search_type_object.offset:]
 
     return my_str
 
@@ -963,10 +1015,13 @@ def main(args):
         return
     parse_fasta_file_obj = parse_fasta_file(user_input_obj)
     #all_chr_headers, all_chr_ends = parse_fasta_file_obj.run("AAAAAallFiles_145_modified.txt")
-    all_chr_headers, all_chr_ends = parse_fasta_file_obj.run()
+    parse_fasta_file_obj.run()
+    all_chr_headers = parse_fasta_file_obj.sequences_headers
+    all_chr_ends = parse_fasta_file_obj.sequences_data
+    same_prefix_length = parse_fasta_file_obj.same_prefix_length
     if len(all_chr_ends) == 0:
         return
-    full_analysis_obj = full_analysis(user_input_obj, all_chr_headers)
+    full_analysis_obj = full_analysis(user_input_obj, all_chr_headers, same_prefix_length)
     best_repeat_sequence_arr, no_loops_found_indexes = full_analysis_obj.run_full_analysis(all_chr_ends)
     #for elem in best_repeat_sequence_arr:
     best_repeat_sequence_arr_ptr = 0
@@ -979,6 +1034,7 @@ def main(args):
             elem = best_repeat_sequence_arr[best_repeat_sequence_arr_ptr]
             print(all_chr_headers[elem[1]])
             #print(f"chr{convert_num_to_chr_end(elem[1])}")
+            elem[0].add_offset()
             print(elem[0])
             moded_str = mod_str(all_chr_ends[elem[1]], elem[0])
             print(f"{moded_str}\n")
@@ -1013,7 +1069,7 @@ def main(args):
     return
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="program used for finding loops inside of data, provided in the form of a .fasta file")
+    parser = argparse.ArgumentParser(description="program used for finding repeating sequences inside of data, provided in the form of a .fasta file")
     parser.add_argument("file", help="The path to the file to be processed.")
     parser.add_argument("-o", "--output", help="Optional output file to save the content.")
     parser.add_argument("--min_length", type=int, default=50, help="The minimum length for a valid repeat sequence (default: 50)")
@@ -1024,6 +1080,7 @@ if __name__ == "__main__":
     parser.add_argument("-is", "--ignore_sorting", action="store_true", help="stops the program not attempt to automatically sort the sequences from fasta file based on the sequence headers")
     parser.add_argument("-ia", "--ignore_alignment", action="store_true", help="stops the program from attempting to find imperfecting alighments. This drastically decreases the runtime of the program")
     parser.add_argument("-or", "--original_reference", help="Optional input file with the original reference. New chr ends will be compared against the original reference, and any identical prefixes will not be examined for repeat sequences")
+    parser.add_argument("-sp", "--skip_prefix", type=int, default=0, help="skips looking for repeating sequences for the specified number of base pairs in all chr's")
     args = parser.parse_args()
 
      # Open the output file if provided
