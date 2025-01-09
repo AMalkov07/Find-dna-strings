@@ -376,12 +376,12 @@ class find_loops:
         # if self.input_s == "GTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGA":
             # print(f"16L3: {self.my_dict}")
 
-        if self.input_s == "AGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGG":
-            print(f"7R: {self.my_dict}")
+        # if self.input_s == "AGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGG":
+            # print(f"7R: {self.my_dict}")
 
         self.expand_dict()
-        if self.input_s == "AGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGG":
-            print(f"7R: {self.my_dict}")
+        # if self.input_s == "AGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGG":
+        # print(f"7R: {self.my_dict}")
         # think about y expand_dict() might delete all value from dict
         if len(self.my_dict.keys()) == 0:
             return 1
@@ -608,8 +608,8 @@ class full_analysis:
             # print(f"same prefix length {i} = {self.same_prefix_length[i]}")
             loop_obj = find_loops(
                 # Note: figure out why below line doesn't work correctly in all cases
-                # sequence[self.same_prefix_length[i]:], self.user_input_obj, self.same_prefix_length[i])
-                sequence, self.user_input_obj, self.same_prefix_length[i])
+                sequence[self.same_prefix_length[i]:], self.user_input_obj, self.same_prefix_length[i])
+            # sequence, self.user_input_obj, self.same_prefix_length[i])
             err = loop_obj.run()
             # err code of 0 means that there were no issues
             if err == 0:
@@ -691,6 +691,7 @@ class full_analysis:
             return []
         best_repeat_sequence_arr = self.find_best_multi_chr_repeat_sequence(
             all_multi_chr_repeat_sequences_final_arr)
+        # print(f"best_repeat_sequence_arr: {best_repeat_sequence_arr}")
         if self.user_input_obj.graph_output:
             self.graph_setup()
             max_x = 0
@@ -813,9 +814,9 @@ class parse_fasta_file:
                 is_whole_ref_sequence = True
                 break
         if is_whole_ref_sequence:
-            print("whole reference sequence detected")
+            print("whole reference detected\n")
         else:
-            print("partial sequence detected")
+            print("chr ends sequences detected\n")
         if is_whole_ref_sequence:
             if total_fasta_entries_counter > self.user_input_obj.maximum_ends//2:
                 print("error, the number of entries in the fasta file exeeds the number of maximum ends for a whole reference sequence. Please change the number of maximum ends withe the --maximum_ends flag")
@@ -944,6 +945,7 @@ class parse_fasta_file:
         self.read_fasta_flexible()
         # print(all_chr_headers)
         self.find_flexible_telomeric_regions()
+        # print(f"sequences: {self.sequences_data[0]}")
         if self.user_input_obj.original_reference:
             original_ref_arr = self.read_original_reference_to_array()
             self.cmp_original_ref(original_ref_arr)
@@ -965,11 +967,16 @@ def mod_str(my_str, self_search_type_object):
             curr_index = perfect_indexes_arr[perfect_indexes_arr_ptr]
             perfect_indexes_arr_ptr -= 1
             perfect_alignment = True
+            right_delimeter = "]"
+            left_delimeter = "["
         else:
             curr_index = extra_alignment_indexes_arr[extra_alignment_indexes_arr_ptr]
             extra_alignment_indexes_arr_ptr -= 1
             perfect_alignment = False
-        my_str = my_str[:curr_index+offset] + "]" + my_str[curr_index+offset:]
+            right_delimeter = "}"
+            left_delimeter = "{"
+        my_str = my_str[:curr_index+offset] + \
+            right_delimeter + my_str[curr_index+offset:]
         if not perfect_alignment:
             insertions = self_search_type_object.extra_alignment_insertions_and_deletions[
                 curr_index - self_search_type_object.offset][0]
@@ -996,7 +1003,7 @@ def mod_str(my_str, self_search_type_object):
                 my_str = my_str[:curr_index + deletions[deletions_ptr]] + \
                     "!" + my_str[curr_index + deletions[deletions_ptr]:]
                 deletions_ptr += 1
-        my_str = my_str[:curr_index] + "[" + my_str[curr_index:]
+        my_str = my_str[:curr_index] + left_delimeter + my_str[curr_index:]
     while perfect_indexes_arr_ptr >= 0:
         curr_index = perfect_indexes_arr[perfect_indexes_arr_ptr]
         my_str = my_str[:curr_index+offset] + "]" + my_str[curr_index+offset:]
@@ -1004,7 +1011,7 @@ def mod_str(my_str, self_search_type_object):
         perfect_indexes_arr_ptr -= 1
     while extra_alignment_indexes_arr_ptr >= 0:
         curr_index = extra_alignment_indexes_arr[extra_alignment_indexes_arr_ptr]
-        my_str = my_str[:curr_index+offset] + "]" + my_str[curr_index+offset:]
+        my_str = my_str[:curr_index+offset] + "}" + my_str[curr_index+offset:]
         insertions = self_search_type_object.extra_alignment_insertions_and_deletions[
             curr_index - self_search_type_object.offset][0]
         deletions = self_search_type_object.extra_alignment_insertions_and_deletions[
@@ -1030,7 +1037,7 @@ def mod_str(my_str, self_search_type_object):
             my_str = my_str[:curr_index + deletions[deletions_ptr]] + \
                 "!" + my_str[curr_index + deletions[deletions_ptr]:]
             deletions_ptr += 1
-        my_str = my_str[:curr_index] + "[" + my_str[curr_index:]
+        my_str = my_str[:curr_index] + "{" + my_str[curr_index:]
         extra_alignment_indexes_arr_ptr -= 1
 
     my_str = my_str[:self_search_type_object.offset] + \
@@ -1063,6 +1070,12 @@ def main(args):
     no_loops_found_indexes_ptr = 0
     n_no_loops_found_indexes = len(no_loops_found_indexes)
     n_best_repeat_sequences_arr = len(best_repeat_sequence_arr)
+    # print out the sequence
+    elem = best_repeat_sequence_arr[0]
+    sequence = all_chr_ends[elem[1]][elem[0].indexes[0] +
+                                     elem[0].offset:elem[0].indexes[0] + elem[0].n_subStr + elem[0].offset]
+    print(f"best repeating sequence: {sequence}\n")
+    printed_sequnce = False
     for i in range(len(all_chr_headers)):
         # if elem[1] == i:
         if best_repeat_sequence_arr_ptr < n_best_repeat_sequences_arr and best_repeat_sequence_arr[best_repeat_sequence_arr_ptr][1] == i:
