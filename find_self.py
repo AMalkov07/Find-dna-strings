@@ -143,7 +143,6 @@ class find_loops:
 
     def self_search(self, input_s=""):
         min_length = self.user_input_obj.min_length
-        # self.input_s = input_s
         input_s = self.input_s
         n = len(input_s)
         tmp_dict = defaultdict(list)
@@ -153,7 +152,7 @@ class find_loops:
             sub_str = input_s[i:i+min_length]
             tmp_dict[sub_str].append(i)
 
-        # coverage_dict is a dictionary of dictionaries. First value refers to how many matches for a particular value, second value is the start of the coverage, and the dictionary value is the end of the coverage
+        # covrage_dict is a dictionary of dictionaries. First value refers to how many matches for a particular value, second value is the start of the coverage, and the dictionary value is the end of the coverag\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\e
 
         # following code is for converting
         last_index = None
@@ -179,13 +178,8 @@ class find_loops:
                     has_all_same_locations = True
                     should_skip = False
 
-                    # if len_arr == len_prev:
-                    # for j in range(0,len_prev):
-                    # if tmp_arr[j] != prev_arr[j] + sequential_englargments_counter:
-                    # has_all_same_locations = False
-                    # break
-
-                    if len_arr <= len_prev:
+                    # if len_arr <= len_prev:
+                    if len_arr == len_prev:
                         curr_arr_ptr = 0
                         prev_arr_ptr = 0
                         while curr_arr_ptr < len_arr:
@@ -373,16 +367,8 @@ class find_loops:
         self.self_search()
         if len(self.my_dict.keys()) == 0:
             return 1
-        # if self.input_s == "GTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGA":
-            # print(f"16L3: {self.my_dict}")
-
-        # if self.input_s == "AGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGG":
-            # print(f"7R: {self.my_dict}")
 
         self.expand_dict()
-        # if self.input_s == "AGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGG":
-        # print(f"7R: {self.my_dict}")
-        # think about y expand_dict() might delete all value from dict
         if len(self.my_dict.keys()) == 0:
             return 1
 
@@ -630,7 +616,6 @@ class full_analysis:
                 continue
             if self.user_input_obj.exaustive_analysis:
                 possibilities = list(curr.my_dict.keys())
-                # print(possibilities)
             else:
                 possibilities = curr.get_if_n_subStr_equals_min_gap()
             possibilities.sort(key=len)
@@ -691,7 +676,6 @@ class full_analysis:
             return []
         best_repeat_sequence_arr = self.find_best_multi_chr_repeat_sequence(
             all_multi_chr_repeat_sequences_final_arr)
-        # print(f"best_repeat_sequence_arr: {best_repeat_sequence_arr}")
         if self.user_input_obj.graph_output:
             self.graph_setup()
             max_x = 0
@@ -943,9 +927,7 @@ class parse_fasta_file:
     def run(self):
         # all_chr_ends = self.read_fasta_to_array(file_path)
         self.read_fasta_flexible()
-        # print(all_chr_headers)
         self.find_flexible_telomeric_regions()
-        # print(f"sequences: {self.sequences_data[0]}")
         if self.user_input_obj.original_reference:
             original_ref_arr = self.read_original_reference_to_array()
             self.cmp_original_ref(original_ref_arr)
@@ -1070,7 +1052,6 @@ def main(args):
     no_loops_found_indexes_ptr = 0
     n_no_loops_found_indexes = len(no_loops_found_indexes)
     n_best_repeat_sequences_arr = len(best_repeat_sequence_arr)
-    # print out the sequence
     elem = best_repeat_sequence_arr[0]
     sequence = all_chr_ends[elem[1]][elem[0].indexes[0] +
                                      elem[0].offset:elem[0].indexes[0] + elem[0].n_subStr + elem[0].offset]
