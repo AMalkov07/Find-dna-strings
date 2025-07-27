@@ -363,12 +363,35 @@ class find_loops:
             print(key)
             print("\n")
 
-    def run(self):
-        self.self_search()
-        if len(self.my_dict.keys()) == 0:
-            return 1
+    def specific_pattern(self):
+        pattern = self.user_input_obj.pattern
+        n_pattern = len(pattern)
+        positions = []
+        min_gap = sys.maxsize
+        i = self.offset
+        while i < len(self.input_s) - n_pattern:
+            if self.input_s[i:i+n_pattern] == pattern:
+                if len(positions) > 0:
+                    min_gap = min(min_gap, i - positions[-1])
+                positions.append(i)
+                i += n_pattern
+            else:
+                i += 1
+        self.my_dict[pattern] = self_search_type(
+            n_pattern, positions, min_gap, False, self.offset)
 
-        self.expand_dict()
+    # start of actual stuff <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    def run(self):
+        if not self.user_input_obj.pattern:
+            self.self_search()
+            if len(self.my_dict.keys()) == 0:
+                return 1
+
+            self.expand_dict()
+        else:
+            print(">>>>>>>>>entering specific_pattern")
+            self.specific_pattern()
         if len(self.my_dict.keys()) == 0:
             return 1
 
@@ -377,6 +400,7 @@ class find_loops:
                 self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
                     key].extra_alignment_insertions_and_deletions = self.alignment(key)
         self.filter_same_length()
+        self.print_my_dict()
         return 0
 
 
@@ -666,6 +690,13 @@ class full_analysis:
     def run_full_analysis(self, all_chr_ends):
         all_find_loops_objects, no_loops_found_indexes = self.run_all_chr_ends(
             all_chr_ends)
+        # print("all_find_loops_objects<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+        # print(all_find_loops_objects[0].print_my_dict)
+        # for i in all_find_loops_objects:
+        # i.print_my_dict()
+        # print("no_loops_found_indexes<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+        # print(no_loops_found_indexes)
+        # breakpoint()
         if len(all_find_loops_objects) == 0:
             print("no loops of the minimum size were found")
             return []
@@ -701,7 +732,8 @@ class parse_fasta_file:
     # Function to extract the index from the header
     def get_index(self, header):
         # Use a regular expression to match digits at the end of the string
-        match = re.search(r'(\d+)([LR])?$', header)
+        # match = re.search(r'(\d+)([LR])?$', header)
+        match = re.search(r'_(\d+)([LR])', header)
         if match:
             index = int(match.group(1))  # Extract the matched number
             # >>>>>>>>>>>>>>>>NOTe: see if this works when I don't have an
@@ -1095,15 +1127,17 @@ if __name__ == "__main__":
     parser.add_argument("-me", "--maximum_ends", type=int, default=32,
                         help="changes the maximum number of chr ends that are expected (default is 32)")
     parser.add_argument("-is", "--ignore_sorting", action="store_true",
-                        help="stops the program not attempt to automatically sort the sequences from fasta file based on the sequence headers")
+                        help="stops the program from attempting to automatically sort the sequences from fasta file based on the sequence headers")
     parser.add_argument("-ia", "--ignore_alignment", action="store_true",
                         help="stops the program from attempting to find imperfecting alighments. This drastically decreases the runtime of the program")
     parser.add_argument("-or", "--original_reference",
                         help="Optional input file with the original reference. New chr ends will be compared against the original reference, and any identical prefixes will not be examined for repeat sequences")
     parser.add_argument("-sp", "--skip_prefix", type=int, default=0,
                         help="skips looking for repeating sequences for the specified number of base pairs in all chr's")
-    parser.add_argument(
-        "-gt", "--graph_title", help="optional input for graph title (must be used with --graph_output flag)")
+    parser.add_argument("-gt", "--graph_title",
+                        help="optional input for graph title (must be used with --graph_output flag)")
+    parser.add_argument("-p", "--pattern",
+                        help="used to specify the exact pattern to look for instead of the programming trying to find the circle pattern automatically")
     args = parser.parse_args()
 
     # Open the output file if provided
