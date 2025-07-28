@@ -86,7 +86,7 @@ class find_loops:
         self.aligner.match_score = 1  # Score for a match
         self.aligner.mismatch_score = -(1)  # Penalty for a mismatch
         self.aligner.open_gap_score = -(1)  # Penalty for opening a gap
-        self.aligner.extend_gap_score = -(.5)  # Penalty for extending a gap
+        self.aligner.extend_gap_score = -(1)  # Penalty for extending a gap
         # aligner.query_left_open_gap_score = 0
         # aligner.query_right_open_gap_score = 0
         # aligner.target_left_open_gap_score = 0
@@ -233,6 +233,107 @@ class find_loops:
         if len(list(self.my_dict.keys())) == 0:
             # print("no loops of the minimum length were found\n")
             return
+
+    def max_num_alignment(self, key):
+        my_dict_entry = self.my_dict[key]
+        alignments = my_dict_entry.indexes
+        key_n = len(key)
+        min_score = key_n - key_n//12
+
+        last_val = 0
+        str_dict = {}
+        queue = deque()
+        for alignment in alignments:
+            tmp = self.input_s[last_val:alignment]
+            str_dict[tmp] = [last_val, alignment]
+            queue.append(tmp)
+            last_val = alignment+key_n
+        # try to get the ends to work:
+        tmp = self.input_s[last_val:]
+        str_dict[tmp] = [last_val, len(self.input_s)]
+        queue.append(tmp)
+
+        good_alignment_arr = []
+        good_alignment_starting_pos = []
+        dict_insertions_and_deletions = {}
+        arr = []
+        counter = 0
+        while queue:
+            ri = min_score  # right index
+            li = 0  # min_index
+            full_str = queue.popleft()
+            while ri < len(full_str):
+                # print(f"li: {li}")
+                # print(f"ri: {ri}")
+                str = full_str[int(li):int(ri)]
+                alignments = self.aligner.align(str, key)
+                # try except block is necessary cause of overflow if there are too many optimal alignments
+                try:
+                    n_alignments = len(alignments)
+                except OverflowError:
+                    n_alignments = 1
+
+                # if statement is necessary because sometimes there arent any good alignments
+                if n_alignments > 0:
+                    score = alignments[0].score
+                else:
+                    ri += min_score//2  # note: not sure if this += sequence is correct but I think it is
+                    continue
+                # below if statement determines what qualifies as a good alignment score
+                if score >= min_score:
+                    counter += 1
+                    good_alignment_arr.append(alignments[0])
+
+                    alignment_start = alignments[0].coordinates[0][0]
+                    good_alignment_starting_pos.append(
+                        str_dict[full_str][0]+alignment_start+int(li))
+                    print(f"str_dict[full_str][0]: {str_dict[full_str][0]}")
+
+                    new_entry_start = str_dict[full_str][0] + int(li)
+                    new_entry_end = new_entry_start + alignment_start
+                    new_str = self.input_s[new_entry_start:new_entry_end+1]
+                    str_dict[new_str] = [new_entry_start, new_entry_end]
+
+                    # queue.append(new_str)
+
+                    # new_entry_start = str_dict[str][0] + alignments[0].coordinates[0][0] + key_n + 1
+                    # new_entry_start = str_dict[str][0] + \
+                    # alignments[0].coordinates[0][-1] + 1
+                    # new_entry_end = str_dict[str][1]
+                    # new_str = self.input_s[new_entry_start:new_entry_end]
+                    # str_dict[new_str] = [new_entry_start, new_entry_end]
+                    # queue.append(new_str)
+
+                    coordinates = alignments[0].coordinates
+                    insertions_indexes = []
+                    deletions_indexes = []
+
+                    for i in range(coordinates[1][0]):
+                        insertions_indexes.append(i+1)
+
+                    # Iterate over each alignment block in coordinates
+                    for i in range(1, len(coordinates[0])-2, 2):
+                        # Extract the end of the current block and the start of the next
+                        seq1_end, seq1_next = coordinates[0][i], coordinates[0][i+1]
+                        seq2_end, seq2_next = coordinates[1][i], coordinates[1][i+1]
+
+                        # Count gaps between alignment blocks
+                        if seq1_end != seq1_next:  # Deletion in seq2
+                            for i in range(seq1_next-seq1_end):
+                                deletions_indexes.append(seq2_end + i)
+                        if seq2_end != seq2_next:  # Insertion in seq1
+                            for i in range(seq2_next-seq2_end):
+                                insertions_indexes.append(seq2_end + i)
+
+                    dict_insertions_and_deletions[str_dict[full_str][0]+alignment_start+int(li)] = [
+                        insertions_indexes, deletions_indexes]
+
+                    arr.append(score)
+                    li = ri
+                    ri += min_score
+                else:
+                    ri += (min_score) - score
+        return (good_alignment_starting_pos, arr, dict_insertions_and_deletions)
 
     def alignment(self, key):
         my_dict_entry = self.my_dict[key]
@@ -395,10 +496,14 @@ class find_loops:
         if len(self.my_dict.keys()) == 0:
             return 1
 
+        self.print_my_dict()
+
         if not self.user_input_obj.ignore_alignment:
             for key in self.my_dict:
+                # self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
+                # key].extra_alignment_insertions_and_deletions = self.alignment(key)
                 self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
-                    key].extra_alignment_insertions_and_deletions = self.alignment(key)
+                    key].extra_alignment_insertions_and_deletions = self.max_num_alignment(key)
         self.filter_same_length()
         self.print_my_dict()
         return 0
