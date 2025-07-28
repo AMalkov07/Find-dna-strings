@@ -56,11 +56,46 @@ class self_search_type:
             # for i in range(len(self.extra_alignment_insertions_and_deletions[key][1])):
             # self.extra_alignment_insertions_and_deletions[key][i] += self.offset
 
+    # def __repr__(self):
+        # n = self.n_subStr
+        # perfect_alignment_indexes = self.indexes
+        # imperfect_alignment_indexes = self.extra_alignment_indexes
+        # return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.has_overlap}, number of extra alignments={len(self.extra_alignment_indexes)}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
+
     def __repr__(self):
-        n = self.n_subStr
-        # avg_dist = self.average_distance()
-        # return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.has_overlap}, number of extra alignments={self.n_extra_alignment}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
-        return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.has_overlap}, number of extra alignments={len(self.extra_alignment_indexes)}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
+        output = []
+        total_matches = len(self.indexes) + len(self.extra_alignment_indexes)
+        output.append(f"Total matches: {total_matches}")
+
+        # Two-pointer merge
+        i = j = 0
+        while i < len(self.indexes) and j < len(self.extra_alignment_indexes):
+            if self.indexes[i] <= self.extra_alignment_indexes[j]:
+                output.append(f"{self.indexes[i]} (perfect match)")
+                i += 1
+            else:
+                val = self.extra_alignment_indexes[j]
+                output.append(
+                    # f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
+                    f"{val} (imperfect match), insertions: {self.extra_alignment_insertions_and_deletions[val][0]}, deletions: {self.extra_alignment_insertions_and_deletions[val][1]}, mismatches: {self.extra_alignment_insertions_and_deletions[val][2]}")
+                # f"{self.extra_alignment_indexes[j]} (imperfect match)")
+                j += 1
+
+        # Remaining perfect matches
+        while i < len(self.indexes):
+            output.append(f"{self.indexes[i]} (perfect match)")
+            i += 1
+
+        # Remaining imperfect matches
+        while j < len(self.extra_alignment_indexes):
+            val = self.extra_alignment_indexes[j]
+            output.append(
+                # f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
+                f"{val} (imperfect match), insertions: {self.extra_alignment_insertions_and_deletions[val][0]}, deletions: {self.extra_alignment_insertions_and_deletions[val][1]}, mismatches: {self.extra_alignment_insertions_and_deletions[val][2]}")
+            # f"{self.extra_alignment_indexes[j]} (imperfect match)")
+            j += 1
+
+        return "\n".join(output)
 
 
 class user_input:
@@ -83,10 +118,17 @@ class find_loops:
 
         # Local (Smith-Waterman) alignment; use 'global' for global (Needleman-Wunsch)
         self.aligner.mode = 'local'
+        # self.aligner.match_score = 1  # Score for a match
         self.aligner.match_score = 1  # Score for a match
-        self.aligner.mismatch_score = -(1)  # Penalty for a mismatch
-        self.aligner.open_gap_score = -(1)  # Penalty for opening a gap
-        self.aligner.extend_gap_score = -(1)  # Penalty for extending a gap
+        self.aligner.mismatch_score = -(0)  # Penalty for a mismatch
+        # self.aligner.open_gap_score = -(1)  # Penalty for opening a gap
+        # self.aligner.extend_gap_score = -(1)  # Penalty for extending a gap
+        self.aligner.query_left_open_gap_score = -1
+        self.aligner.query_internal_open_gap_score = -1
+        self.aligner.query_right_open_gap_score = -1
+        self.aligner.query_left_extend_gap_score = -1
+        self.aligner.query_internal_extend_gap_score = -1
+        self.aligner.query_right_extend_gap_score = -1
         # aligner.query_left_open_gap_score = 0
         # aligner.query_right_open_gap_score = 0
         # aligner.target_left_open_gap_score = 0
@@ -238,7 +280,8 @@ class find_loops:
         my_dict_entry = self.my_dict[key]
         alignments = my_dict_entry.indexes
         key_n = len(key)
-        min_score = key_n - key_n//12 - 1
+        min_score = key_n - key_n//12
+        # min_score = 0 - key_n//12
 
         last_val = 0
         str_dict = {}
@@ -250,6 +293,9 @@ class find_loops:
             last_val = alignment+key_n
         # try to get the ends to work:
         tmp = self.input_s[last_val:]
+        x = False
+        if self.input_s == "GTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGTGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGGTGTGGTGTGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTG":
+            x = True
         str_dict[tmp] = [last_val, len(self.input_s)]
         queue.append(tmp)
 
@@ -259,7 +305,8 @@ class find_loops:
         arr = []
         counter = 0
         while queue:
-            ri = min_score  # right index
+            # ri = min_score  # right index
+            ri = key_n  # right index
             li = 0  # min_index
             full_str = queue.popleft()
             while ri < len(full_str):
@@ -280,6 +327,8 @@ class find_loops:
                     ri += min_score//2  # note: not sure if this += sequence is correct but I think it is
                     continue
                 # below if statement determines what qualifies as a good alignment score
+                # if x:
+                    # print(f"score: {score}")
                 if score >= min_score:
                     counter += 1
                     good_alignment_arr.append(alignments[0])
@@ -287,7 +336,6 @@ class find_loops:
                     alignment_start = alignments[0].coordinates[0][0]
                     good_alignment_starting_pos.append(
                         str_dict[full_str][0]+alignment_start+int(li))
-                    print(f"str_dict[full_str][0]: {str_dict[full_str][0]}")
 
                     new_entry_start = str_dict[full_str][0] + int(li)
                     new_entry_end = new_entry_start + alignment_start
@@ -303,6 +351,31 @@ class find_loops:
                     # new_str = self.input_s[new_entry_start:new_entry_end]
                     # str_dict[new_str] = [new_entry_start, new_entry_end]
                     # queue.append(new_str)
+
+                    # Get the aligned sequences as strings
+                    alignment = alignments[0]
+                    # Get the aligned sequences
+                    aligned_s1, aligned_s2 = alignment.sequences  # Original sequences
+                    aligned_coords = alignment.aligned  # Coordinates of aligned segments
+
+                    mismatches = []
+                    pos_s1 = 0  # Position in original s1
+                    pos_s2 = 0  # Position in original s2
+
+                    # Process aligned segments
+                    for (start1, end1), (start2, end2) in zip(aligned_coords[0], aligned_coords[1]):
+                        # Compare characters in the aligned segment
+                        for i in range(end1 - start1):
+                            char_s1 = aligned_s1[start1 + i]
+                            char_s2 = aligned_s2[start2 + i]
+                            if char_s1 != char_s2:
+                                mismatches.append(
+                                    # not sure if this should be pos_s1 or pos_s2
+                                    int(pos_s2))
+
+                        # Update positions to account for gaps between segments
+                        pos_s1 = end1
+                        pos_s2 = end2
 
                     coordinates = alignments[0].coordinates
                     insertions_indexes = []
@@ -320,19 +393,21 @@ class find_loops:
                         # Count gaps between alignment blocks
                         if seq1_end != seq1_next:  # Deletion in seq2
                             for i in range(seq1_next-seq1_end):
-                                deletions_indexes.append(seq2_end + i)
+                                deletions_indexes.append(int(seq2_end) + i)
                         if seq2_end != seq2_next:  # Insertion in seq1
                             for i in range(seq2_next-seq2_end):
-                                insertions_indexes.append(seq2_end + i)
+                                insertions_indexes.append(int(seq2_end) + i)
 
                     dict_insertions_and_deletions[str_dict[full_str][0]+alignment_start+int(li)] = [
-                        insertions_indexes, deletions_indexes]
+                        insertions_indexes, deletions_indexes, mismatches]
 
                     arr.append(score)
                     li = ri
-                    ri += min_score
+                    ri += key_n
                 else:
-                    ri += (min_score) - score
+                    ri += min_score - int(score)
+        # print(
+        #    f"dict_insertions_and_deletions: {dict_insertions_and_deletions}")
         return (good_alignment_starting_pos, arr, dict_insertions_and_deletions)
 
     def alignment(self, key):
@@ -491,12 +566,9 @@ class find_loops:
 
             self.expand_dict()
         else:
-            print(">>>>>>>>>entering specific_pattern")
             self.specific_pattern()
-        if len(self.my_dict.keys()) == 0:
-            return 1
-
-        self.print_my_dict()
+        # if len(self.my_dict.keys()) == 0:
+            # return 1
 
         if not self.user_input_obj.ignore_alignment:
             for key in self.my_dict:
@@ -504,8 +576,10 @@ class find_loops:
                 # key].extra_alignment_insertions_and_deletions = self.alignment(key)
                 self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
                     key].extra_alignment_insertions_and_deletions = self.max_num_alignment(key)
+                # print(
+                # f"extra indexes: {self.my_dict[key].extra_alignment_indexes} <<<<<<<<<<<<<<<<")
         self.filter_same_length()
-        self.print_my_dict()
+        # self.print_my_dict()
         return 0
 
 
@@ -677,7 +751,7 @@ class full_analysis:
 
             triangle = Polygon([[point + (tail_length+head_length) * sign, y_index],
                                 [point+(tail_length) * sign,
-                                 y_index-head_width/2],
+                               y_index-head_width/2],
                                 [point+(tail_length) * sign, y_index+head_width/2]],
                                closed=True, color=arrow_color)
             self.ax.add_patch(triangle)
@@ -720,7 +794,6 @@ class full_analysis:
             if not sequence:
                 all_find_loops_objects.append(None)
                 continue
-            # print(f"same prefix length {i} = {self.same_prefix_length[i]}")
             loop_obj = find_loops(
                 # Note: figure out why below line doesn't work correctly in all cases
                 sequence[self.same_prefix_length[i]:], self.user_input_obj, self.same_prefix_length[i])
@@ -940,7 +1013,7 @@ class parse_fasta_file:
             print("chr ends sequences detected\n")
         if is_whole_ref_sequence:
             if total_fasta_entries_counter > self.user_input_obj.maximum_ends//2:
-                print("error, the number of entries in the fasta file exeeds the number of maximum ends for a whole reference sequence. Please change the number of maximum ends withe the --maximum_ends flag")
+                # print("error, the number of entries in the fasta file exeeds the number of maximum ends for a whole reference sequence. Please change the number of maximum ends withe the --maximum_ends flag")
                 return [], []
             # note: add an edge case for there being entry numbers that exceed the half of the maximum_ends variable
             for i in range(total_fasta_entries_counter-1, -1, -1):
@@ -1115,11 +1188,11 @@ def mod_str(my_str, self_search_type_object):
                         "!" + my_str[curr_index + deletions[deletions_ptr]:]
                     deletions_ptr += 1
             while insertions_ptr < n_insertions:
-                my_str = my_str[:curr_index + insertions[insertions_ptr]] + \
+                my_str = my_str[:curr_index + insertions[insertions_ptr]] +\
                     "^" + my_str[curr_index + insertions[insertions_ptr]:]
                 insertions_ptr += 1
             while deletions_ptr < n_deletions:
-                my_str = my_str[:curr_index + deletions[deletions_ptr]] + \
+                my_str = my_str[:curr_index + deletions[deletions_ptr]] +\
                     "!" + my_str[curr_index + deletions[deletions_ptr]:]
                 deletions_ptr += 1
         my_str = my_str[:curr_index] + left_delimeter + my_str[curr_index:]
@@ -1141,19 +1214,19 @@ def mod_str(my_str, self_search_type_object):
         n_deletions = len(deletions)
         while insertions_ptr < n_insertions and deletions_ptr < n_deletions:
             if insertions[insertions_ptr] < deletions[deletions_ptr]:
-                my_str = my_str[:curr_index + insertions[insertions_ptr]] + \
+                my_str = my_str[:curr_index + insertions[insertions_ptr]] +\
                     "^" + my_str[curr_index + insertions[insertions_ptr]:]
                 insertions_ptr += 1
             else:
-                my_str = my_str[:curr_index + deletions[deletions_ptr]] + \
+                my_str = my_str[:curr_index + deletions[deletions_ptr]] +\
                     "!" + my_str[curr_index + deletions[deletions_ptr]:]
                 deletions_ptr += 1
         while insertions_ptr < n_insertions:
-            my_str = my_str[:curr_index + insertions[insertions_ptr]] + \
+            my_str = my_str[:curr_index + insertions[insertions_ptr]] +\
                 "^" + my_str[curr_index + insertions[insertions_ptr]:]
             insertions_ptr += 1
         while deletions_ptr < n_deletions:
-            my_str = my_str[:curr_index + deletions[deletions_ptr]] + \
+            my_str = my_str[:curr_index + deletions[deletions_ptr]] +\
                 "!" + my_str[curr_index + deletions[deletions_ptr]:]
             deletions_ptr += 1
         my_str = my_str[:curr_index] + "{" + my_str[curr_index:]
@@ -1202,16 +1275,18 @@ def main(args):
             # print(f"chr{convert_num_to_chr_end(elem[1])}")
             elem[0].add_offset()
             print(elem[0])
-            moded_str = mod_str(all_chr_ends[elem[1]], elem[0])
-            print(f"{moded_str}\n")
+            # moded_str = mod_str(all_chr_ends[elem[1]], elem[0])
+            # print(f"{moded_str}\n")
+            print(all_chr_ends[elem[1]])
+            print("\n")
             best_repeat_sequence_arr_ptr += 1
         elif no_loops_found_indexes_ptr < n_no_loops_found_indexes and i == no_loops_found_indexes[no_loops_found_indexes_ptr]:
-            print(f"{all_chr_headers[i]}\nno loops of the minimum length were found in {
-                  all_chr_headers[i]}\n")
+            print(
+                f"{all_chr_headers[i]}\nno loops of the minimum length were found\n")
             no_loops_found_indexes_ptr += 1
         else:
-            print(f"{all_chr_headers[i]}\nthe repeated sequence was not found in {
-                  all_chr_headers[i]}\n")
+            print(
+                f"{all_chr_headers[i]}\nthe repeated sequence was not found\n")
     return
 
 
