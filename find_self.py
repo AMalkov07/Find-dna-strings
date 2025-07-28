@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Polygon
 from contextlib import redirect_stdout
 
+global_test = False
+
 
 def is_circular_rearrangement(s1, s2):
     if len(s1) != len(s2):
@@ -76,8 +78,8 @@ class self_search_type:
             else:
                 val = self.extra_alignment_indexes[j]
                 output.append(
-                    # f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
-                    f"{val} (imperfect match), insertions: {self.extra_alignment_insertions_and_deletions[val][0]}, deletions: {self.extra_alignment_insertions_and_deletions[val][1]}, mismatches: {self.extra_alignment_insertions_and_deletions[val][2]}")
+                    f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
+                # f"{val} (imperfect match), insertions: {self.extra_alignment_insertions_and_deletions[val][0]}, deletions: {self.extra_alignment_insertions_and_deletions[val][1]}, mismatches: {self.extra_alignment_insertions_and_deletions[val][2]}")
                 # f"{self.extra_alignment_indexes[j]} (imperfect match)")
                 j += 1
 
@@ -90,8 +92,8 @@ class self_search_type:
         while j < len(self.extra_alignment_indexes):
             val = self.extra_alignment_indexes[j]
             output.append(
-                # f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
-                f"{val} (imperfect match), insertions: {self.extra_alignment_insertions_and_deletions[val][0]}, deletions: {self.extra_alignment_insertions_and_deletions[val][1]}, mismatches: {self.extra_alignment_insertions_and_deletions[val][2]}")
+                f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
+            # f"{val} (imperfect match), insertions: {self.extra_alignment_insertions_and_deletions[val][0]}, deletions: {self.extra_alignment_insertions_and_deletions[val][1]}, mismatches: {self.extra_alignment_insertions_and_deletions[val][2]}")
             # f"{self.extra_alignment_indexes[j]} (imperfect match)")
             j += 1
 
@@ -294,10 +296,15 @@ class find_loops:
         # try to get the ends to work:
         tmp = self.input_s[last_val:]
         x = False
-        if self.input_s == "GTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGTGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGGTGTGGTGTGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTG":
-            x = True
+        # if self.input_s == "GTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGTGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGGTGTGGTGTGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTG":
+        # x = True
         str_dict[tmp] = [last_val, len(self.input_s)]
         queue.append(tmp)
+        global global_test
+        if global_test:
+            print(f"length of quque: {len(queue)}")
+            for q in queue:
+                print(q)
 
         good_alignment_arr = []
         good_alignment_starting_pos = []
@@ -306,12 +313,10 @@ class find_loops:
         counter = 0
         while queue:
             # ri = min_score  # right index
-            ri = key_n  # right index
+            ri = min_score  # right index
             li = 0  # min_index
             full_str = queue.popleft()
             while ri < len(full_str):
-                # print(f"li: {li}")
-                # print(f"ri: {ri}")
                 str = full_str[int(li):int(ri)]
                 alignments = self.aligner.align(str, key)
                 # try except block is necessary cause of overflow if there are too many optimal alignments
@@ -327,8 +332,8 @@ class find_loops:
                     ri += min_score//2  # note: not sure if this += sequence is correct but I think it is
                     continue
                 # below if statement determines what qualifies as a good alignment score
-                # if x:
-                    # print(f"score: {score}")
+                if global_test:
+                    print(f"score: {score}")
                 if score >= min_score:
                     counter += 1
                     good_alignment_arr.append(alignments[0])
@@ -403,11 +408,12 @@ class find_loops:
 
                     arr.append(score)
                     li = ri
-                    ri += key_n
+                    ri += min_score
                 else:
                     ri += min_score - int(score)
         # print(
         #    f"dict_insertions_and_deletions: {dict_insertions_and_deletions}")
+        global_test = False
         return (good_alignment_starting_pos, arr, dict_insertions_and_deletions)
 
     def alignment(self, key):
