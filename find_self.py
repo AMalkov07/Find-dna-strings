@@ -238,7 +238,7 @@ class find_loops:
         my_dict_entry = self.my_dict[key]
         alignments = my_dict_entry.indexes
         key_n = len(key)
-        min_score = key_n - key_n//12
+        min_score = key_n - key_n//12 - 1
 
         last_val = 0
         str_dict = {}
