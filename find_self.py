@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Polygon
 from contextlib import redirect_stdout
 
-global_test = False
+global_test = True
 
 
 def is_circular_rearrangement(s1, s2):
@@ -78,8 +78,8 @@ class self_search_type:
             else:
                 val = self.extra_alignment_indexes[j]
                 output.append(
-                    f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
-                # f"{val} (imperfect match), insertions: {self.extra_alignment_insertions_and_deletions[val][0]}, deletions: {self.extra_alignment_insertions_and_deletions[val][1]}, mismatches: {self.extra_alignment_insertions_and_deletions[val][2]}")
+                    # f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
+                    f"{val} (imperfect match), insertions: {self.extra_alignment_insertions_and_deletions[val][0]}, deletions: {self.extra_alignment_insertions_and_deletions[val][1]}, mismatches: {self.extra_alignment_insertions_and_deletions[val][2]}")
                 # f"{self.extra_alignment_indexes[j]} (imperfect match)")
                 j += 1
 
@@ -92,8 +92,8 @@ class self_search_type:
         while j < len(self.extra_alignment_indexes):
             val = self.extra_alignment_indexes[j]
             output.append(
-                f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
-            # f"{val} (imperfect match), insertions: {self.extra_alignment_insertions_and_deletions[val][0]}, deletions: {self.extra_alignment_insertions_and_deletions[val][1]}, mismatches: {self.extra_alignment_insertions_and_deletions[val][2]}")
+                # f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
+                f"{val} (imperfect match), insertions: {self.extra_alignment_insertions_and_deletions[val][0]}, deletions: {self.extra_alignment_insertions_and_deletions[val][1]}, mismatches: {self.extra_alignment_insertions_and_deletions[val][2]}")
             # f"{self.extra_alignment_indexes[j]} (imperfect match)")
             j += 1
 
@@ -123,8 +123,6 @@ class find_loops:
         # self.aligner.match_score = 1  # Score for a match
         self.aligner.match_score = 1  # Score for a match
         self.aligner.mismatch_score = -(0)  # Penalty for a mismatch
-        # self.aligner.open_gap_score = -(1)  # Penalty for opening a gap
-        # self.aligner.extend_gap_score = -(1)  # Penalty for extending a gap
         self.aligner.query_left_open_gap_score = -1
         self.aligner.query_internal_open_gap_score = -1
         self.aligner.query_right_open_gap_score = -1
@@ -278,12 +276,116 @@ class find_loops:
             # print("no loops of the minimum length were found\n")
             return
 
+    def extract_variants_from_coords(self, s1, s2, coords):
+        """
+        Extract variants directly from alignment coordinates.
+
+        Args:
+            s1, s2: Original sequences
+            coords: Alignment coordinates array (2D numpy array)
+
+        Returns:
+            dict: Dictionary with insertions, deletions, and mismatches
+        """
+        insertions = []    # Bases in s2 but not in s1
+        deletions = []     # Bases in s1 but not in s2
+        mismatches = []    # Different bases at same position
+
+        # Process each coordinate segment
+        for i in range(len(coords[0]) - 1):
+            start1, end1 = coords[0][i], coords[0][i + 1]
+            start2, end2 = coords[1][i], coords[1][i + 1]
+
+            len1 = end1 - start1
+            len2 = end2 - start2
+
+            if len1 == len2 and len1 > 0:
+                # Aligned region - check for mismatches
+                for j in range(len1):
+                    pos1 = start1 + j
+                    pos2 = start2 + j
+                    if s1[pos1] != s2[pos2]:
+                        mismatches.append(
+                            pos1
+                        )
+
+            elif len1 > len2:
+                # Deletion: bases in s1 missing from s2
+                # Handle any aligned portion first
+                if len2 > 0:
+                    for j in range(len2):
+                        pos1 = start1 + j
+                        pos2 = start2 + j
+                        if s1[pos1] != s2[pos2]:
+                            mismatches.append(
+                                pos1
+                            )
+
+                # Then handle the deletion
+                for j in range(len2, len1):
+                    deletions.append(
+                        start1 + j,
+                    )
+
+            elif len2 > len1:
+                # Insertion: bases in s2 missing from s1
+                # Handle any aligned portion first
+                if len1 > 0:
+                    for j in range(len1):
+                        pos1 = start1 + j
+                        pos2 = start2 + j
+                        if s1[pos1] != s2[pos2]:
+                            mismatches.append(
+                                pos1
+                            )
+
+                # Then handle the insertion
+                for j in range(len1, len2):
+                    insertions.append(
+                        end1
+                    )
+
+        # code for checking ends of alignment:
+        # s1_start, s1_end = coords[0][0], coords[0][-1]
+        # s2_start, s2_end = coords[1][0], coords[1][-1]
+        # if s1_start > 0:
+            # Unaligned prefix in s1 = deletion
+            # for i in range(s1_start):
+                # deletions.append(
+                    # i
+                # )
+
+        # if s2_start > 0:
+            # Unaligned prefix in s2 = insertion
+            # for i in range(s2_start):
+                # insertions.append(
+                    # 0
+                # )
+
+        # Suffix regions
+        # if s1_end < len(s1):
+            # Unaligned suffix in s1 = deletion
+            # for i in range(s1_end, len(s1)):
+                # deletions.append(
+                    # i
+                # )
+
+        # if s2_end < len(s2):
+            # Unaligned suffix in s2 = insertion
+            # for i in range(s2_end, len(s2)):
+                # insertions.append(
+                    # len(s1)
+                # )
+
+        return [
+            insertions, deletions, mismatches
+        ]
+
     def max_num_alignment(self, key):
         my_dict_entry = self.my_dict[key]
         alignments = my_dict_entry.indexes
         key_n = len(key)
         min_score = key_n - key_n//12
-        # min_score = 0 - key_n//12
 
         last_val = 0
         str_dict = {}
@@ -293,11 +395,8 @@ class find_loops:
             str_dict[tmp] = [last_val, alignment]
             queue.append(tmp)
             last_val = alignment+key_n
-        # try to get the ends to work:
         tmp = self.input_s[last_val:]
         x = False
-        # if self.input_s == "GTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGTGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGGTGTGGTGTGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTG":
-        # x = True
         str_dict[tmp] = [last_val, len(self.input_s)]
         queue.append(tmp)
         global global_test
@@ -312,9 +411,8 @@ class find_loops:
         arr = []
         counter = 0
         while queue:
-            # ri = min_score  # right index
             ri = min_score  # right index
-            li = 0  # min_index
+            li = 0
             full_str = queue.popleft()
             while ri < len(full_str):
                 str = full_str[int(li):int(ri)]
@@ -332,79 +430,79 @@ class find_loops:
                     ri += min_score//2  # note: not sure if this += sequence is correct but I think it is
                     continue
                 # below if statement determines what qualifies as a good alignment score
-                if global_test:
-                    print(f"score: {score}")
                 if score >= min_score:
                     counter += 1
                     good_alignment_arr.append(alignments[0])
 
                     alignment_start = alignments[0].coordinates[0][0]
+                    print(f"alignment_start: {alignment_start}")
                     good_alignment_starting_pos.append(
                         str_dict[full_str][0]+alignment_start+int(li))
 
-                    new_entry_start = str_dict[full_str][0] + int(li)
-                    new_entry_end = new_entry_start + alignment_start
-                    new_str = self.input_s[new_entry_start:new_entry_end+1]
-                    str_dict[new_str] = [new_entry_start, new_entry_end]
-
-                    # queue.append(new_str)
-
-                    # new_entry_start = str_dict[str][0] + alignments[0].coordinates[0][0] + key_n + 1
-                    # new_entry_start = str_dict[str][0] + \
-                    # alignments[0].coordinates[0][-1] + 1
-                    # new_entry_end = str_dict[str][1]
-                    # new_str = self.input_s[new_entry_start:new_entry_end]
+                    # new_entry_start = str_dict[full_str][0] + int(li)
+                    # new_entry_end = new_entry_start + alignment_start
+                    # new_str = self.input_s[new_entry_start:new_entry_end+1]
                     # str_dict[new_str] = [new_entry_start, new_entry_end]
-                    # queue.append(new_str)
 
+                    # below coad used for finding mismatches (might need work)
                     # Get the aligned sequences as strings
-                    alignment = alignments[0]
+                    # alignment = alignments[0]
                     # Get the aligned sequences
-                    aligned_s1, aligned_s2 = alignment.sequences  # Original sequences
-                    aligned_coords = alignment.aligned  # Coordinates of aligned segments
+                    # aligned_s1, aligned_s2 = alignment.sequences  # Original sequences
+                    # aligned_coords = alignment.aligned  # Coordinates of aligned segments
 
-                    mismatches = []
-                    pos_s1 = 0  # Position in original s1
-                    pos_s2 = 0  # Position in original s2
+                    # mismatches = []
+                    # pos_s1 = 0  # Position in original s1
+                    # pos_s2 = 0  # Position in original s2
 
                     # Process aligned segments
-                    for (start1, end1), (start2, end2) in zip(aligned_coords[0], aligned_coords[1]):
-                        # Compare characters in the aligned segment
-                        for i in range(end1 - start1):
-                            char_s1 = aligned_s1[start1 + i]
-                            char_s2 = aligned_s2[start2 + i]
-                            if char_s1 != char_s2:
-                                mismatches.append(
-                                    # not sure if this should be pos_s1 or pos_s2
-                                    int(pos_s2))
+                    # for (start1, end1), (start2, end2) in zip(aligned_coords[0], aligned_coords[1]):
+                    # Compare characters in the aligned segment
+                    # for i in range(end1 - start1):
+                    # char_s1 = aligned_s1[start1 + i]
+                    # char_s2 = aligned_s2[start2 + i]
+                    # if char_s1 != char_s2:
+                    # mismatches.append(
+                    # not sure if this should be pos_s1 or pos_s2
+                    # int(pos_s2))
 
-                        # Update positions to account for gaps between segments
-                        pos_s1 = end1
-                        pos_s2 = end2
+                    # Update positions to account for gaps between segments
+                    # pos_s1 = end1
+                    # pos_s2 = end2
 
-                    coordinates = alignments[0].coordinates
-                    insertions_indexes = []
-                    deletions_indexes = []
+                    # below code for finding insertions and deletions
+                    # coordinates = alignments[0].coordinates
+                    # insertions_indexes = []
+                    # deletions_indexes = []
 
-                    for i in range(coordinates[1][0]):
-                        insertions_indexes.append(i+1)
+                    # for i in range(coordinates[1][0]):
+                    # insertions_indexes.append(i+1)
 
                     # Iterate over each alignment block in coordinates
-                    for i in range(1, len(coordinates[0])-2, 2):
-                        # Extract the end of the current block and the start of the next
-                        seq1_end, seq1_next = coordinates[0][i], coordinates[0][i+1]
-                        seq2_end, seq2_next = coordinates[1][i], coordinates[1][i+1]
+                    # for i in range(1, len(coordinates[0])-2, 2):
+                    # Extract the end of the current block and the start of the next
+                    # seq1_end, seq1_next = coordinates[0][i], coordinates[0][i+1]
+                    # seq2_end, seq2_next = coordinates[1][i], coordinates[1][i+1]
 
-                        # Count gaps between alignment blocks
-                        if seq1_end != seq1_next:  # Deletion in seq2
-                            for i in range(seq1_next-seq1_end):
-                                deletions_indexes.append(int(seq2_end) + i)
-                        if seq2_end != seq2_next:  # Insertion in seq1
-                            for i in range(seq2_next-seq2_end):
-                                insertions_indexes.append(int(seq2_end) + i)
+                    # Count gaps between alignment blocks
+                    # if seq1_end != seq1_next:  # Deletion in seq2
+                    # for i in range(seq1_next-seq1_end):
+                    # deletions_indexes.append(int(seq2_end) + i)
+                    # if seq2_end != seq2_next:  # Insertion in seq1
+                    # for i in range(seq2_next-seq2_end):
+                    # insertions_indexes.append(int(seq2_end) + i)
 
-                    dict_insertions_and_deletions[str_dict[full_str][0]+alignment_start+int(li)] = [
-                        insertions_indexes, deletions_indexes, mismatches]
+                    extracted_variants_arr = self.extract_variants_from_coords(
+                        str, key, alignments[0].coordinates)
+
+                    # dict_insertions_and_deletions[str_dict[full_str][0]+alignment_start+int(li)] = [
+                    # insertions_indexes, deletions_indexes, mismatches]
+
+                    # dict_insertions_and_deletions[str_dict[full_str][0]+alignment_start+int(li)] = [
+                    # extracted_variants_dict["insertions"], extracted_variants_dict["deletions"], extracted_variants_dict["mismatches"]]
+
+                    dict_insertions_and_deletions[str_dict[full_str][0] +
+                                                  alignment_start+int(li)] = extracted_variants_arr
 
                     arr.append(score)
                     li = ri
