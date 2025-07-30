@@ -122,16 +122,18 @@ class find_loops:
         self.aligner = Align.PairwiseAligner()
 
         # Local (Smith-Waterman) alignment; use 'global' for global (Needleman-Wunsch)
-        self.aligner.mode = 'local'
+        self.aligner.mode = 'global'
         # self.aligner.match_score = 1  # Score for a match
-        self.aligner.match_score = 1  # Score for a match
-        self.aligner.mismatch_score = -(0)  # Penalty for a mismatch
-        self.aligner.query_left_open_gap_score = -1
-        self.aligner.query_internal_open_gap_score = -1
-        self.aligner.query_right_open_gap_score = -1
-        self.aligner.query_left_extend_gap_score = -1
-        self.aligner.query_internal_extend_gap_score = -1
-        self.aligner.query_right_extend_gap_score = -1
+        self.aligner.match_score = 2  # Score for a match
+        self.aligner.mismatch_score = -(1)  # Penalty for a mismatch
+        self.aligner.open_gap_score = -5
+        self.aligner.extend_gap_score = -2
+        #self.aligner.query_left_open_gap_score = -1
+        #self.aligner.query_internal_open_gap_score = -1
+        #self.aligner.query_right_open_gap_score = -1
+        #self.aligner.query_left_extend_gap_score = -1
+        #self.aligner.query_internal_extend_gap_score = -1
+        #self.aligner.query_right_extend_gap_score = -1
         # aligner.query_left_open_gap_score = 0
         # aligner.query_right_open_gap_score = 0
         # aligner.target_left_open_gap_score = 0
@@ -589,10 +591,16 @@ class find_loops:
         dict_insertions_and_deletions = {}
         arr = []
         counter = 0
+        extension_counter = -5
+        increasing = True
         while queue:
-            ri = min_score  # right index
-            li = 0
             full_str = queue.popleft()
+            #if len(full_str) > min_score and len(full_str) < key_n * 1.8:
+                #ri = len(full_str) - 1
+            #else:
+            ri = key_n - 5
+            
+            li = 0
             while ri < len(full_str):
                 str = full_str[int(li):int(ri)]
                 alignments = self.aligner.align(str, key)
@@ -606,10 +614,20 @@ class find_loops:
                 if n_alignments > 0:
                     score = alignments[0].score
                 else:
-                    ri += min_score//2  # note: not sure if this += sequence is correct but I think it is
+                    ri += 10  # note: not sure if this += sequence is correct but I think it is
+                    li += 10
                     continue
                 # below if statement determines what qualifies as a good alignment score
-                if score >= min_score:
+
+                extracted_variants_arr = self.extract_variants_from_coords(
+                    str, key, alignments[0].coordinates)
+
+                total_variants = 0
+                for i in extracted_variants_arr:
+                    total_variants += len(i)
+
+                if total_variants <= key_n // 12:
+                    
                     counter += 1
                     good_alignment_arr.append(alignments[0])
 
@@ -670,8 +688,8 @@ class find_loops:
                     # for i in range(seq2_next-seq2_end):
                     # insertions_indexes.append(int(seq2_end) + i)
 
-                    extracted_variants_arr = self.extract_variants_from_coords(
-                        str, key, alignments[0].coordinates)
+                    #extracted_variants_arr = self.extract_variants_from_coords(
+                        #str, key, alignments[0].coordinates)
 
                     # dict_insertions_and_deletions[str_dict[full_str][0]+alignment_start+int(li)] = [
                     # insertions_indexes, deletions_indexes, mismatches]
@@ -684,12 +702,28 @@ class find_loops:
 
                     arr.append(score)
                     li = ri
-                    ri += min_score
+                    ri += (key_n - 5)
+                    extension_counter = -5
+                    increasing = True
                 else:
-                    ri += min_score - int(score)
+                    if increasing and extension_counter < 5:
+                        ri += 1
+                        extension_counter += 1
+                    elif increasing:
+                       increasing=False 
+                       li += 1
+                       extension_counter -= 1
+                    elif not increasing and extension_counter > -5:
+                        extension_counter -= 1
+                        li += 1
+                    else:
+                        increasing = True
+                        extension_counter += 1
+                        ri += 1
+                    #ri += total_variants - key_n // 12
+                    #li += total_variants - key_n // 12
         # print(
         #    f"dict_insertions_and_deletions: {dict_insertions_and_deletions}")
-        global_test = False
         return (good_alignment_starting_pos, arr, dict_insertions_and_deletions)
 
     def alignment(self, key):
@@ -856,10 +890,10 @@ class find_loops:
             for key in self.my_dict:
                 # self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
                 # key].extra_alignment_insertions_and_deletions = self.alignment(key)
-                #self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
-                    #key].extra_alignment_insertions_and_deletions = self.max_num_alignment(key)
                 self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
-                    key].extra_alignment_insertions_and_deletions = self.align_repeat_maker(key)
+                    key].extra_alignment_insertions_and_deletions = self.max_num_alignment(key)
+                #self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
+                    #key].extra_alignment_insertions_and_deletions = self.align_repeat_maker(key)
                 # print(
                 # f"extra indexes: {self.my_dict[key].extra_alignment_indexes} <<<<<<<<<<<<<<<<")
         self.filter_same_length()
@@ -1049,18 +1083,18 @@ class full_analysis:
                 deletions = insertions_and_deletions[insertions_and_deletions_key][1]
                 mismatches = insertions_and_deletions[insertions_and_deletions_key][2]
                 for i in insertions:
-                    i = i[0]
+                    #i = i[0]
                     # plt.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='blue', lw=1)  # Draw vertical line at midpoint
                     self.ax.plot([point+i*sign, point+i*sign], [y_index-.1,
                                  y_index+.1], color='gold', linestyle='-', lw=1)
                 for i in deletions:
-                    i = i[0]
+                    #i = i[0]
                     # plt.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='gold', lw=1)  # Draw vertical line at midpoint
                     self.ax.plot([point+i*sign, point+i*sign], [y_index-.1,
                                  y_index+.1], color='blue', linestyle='-', lw=1)
 
                 for i in mismatches:
-                    i = i[0]
+                    #i = i[0]
                     # plt.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='gold', lw=1)  # Draw vertical line at midpoint
                     self.ax.plot([point+i*sign, point+i*sign], [y_index-.1,
                                  y_index+.1], color='red', linestyle='-', lw=1)

@@ -30,11 +30,11 @@ AGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGGTGTGTGTGGG
 
 IT185_1R_consensus
 Total matches: 12
-1 (imperfect match), insertions: [], deletions: [], mismatches: []
+20 (imperfect match), insertions: [np.int64(85), np.int64(105), np.int64(105)], deletions: [np.int64(76), np.int64(78)], mismatches: [np.int64(74)]
 124 (perfect match)
 212 (perfect match)
 300 (perfect match)
-389 (imperfect match), insertions: [], deletions: [], mismatches: []
+388 (imperfect match), insertions: [], deletions: [], mismatches: []
 475 (perfect match)
 563 (perfect match)
 651 (perfect match)
@@ -49,7 +49,7 @@ IT185_2L_consensus
 Total matches: 8
 51 (perfect match)
 139 (perfect match)
-228 (imperfect match), insertions: [], deletions: [], mismatches: []
+227 (imperfect match), insertions: [], deletions: [np.int64(32), np.int64(35)], mismatches: []
 317 (perfect match)
 405 (perfect match)
 493 (perfect match)
@@ -62,19 +62,17 @@ None
 the repeated sequence was not found
 
 IT185_3L_consensus
-Total matches: 6
-1 (imperfect match), insertions: [], deletions: [], mismatches: []
+Total matches: 4
 168 (perfect match)
 256 (perfect match)
 344 (perfect match)
 432 (perfect match)
-521 (imperfect match), insertions: [], deletions: [], mismatches: []
 GTGTGTGGTGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGTGGGTGTGGGTGTGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGTGTGGGTGTGGTGTGGGTGTGTGTGTGTGGGTGTGGTGTGTGTGTGTGTGGGTGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTG
 
 
 IT185_3R_consensus
 Total matches: 1
-16 (imperfect match), insertions: [], deletions: [], mismatches: []
+23 (imperfect match), insertions: [np.int64(33), np.int64(61)], deletions: [np.int64(75)], mismatches: [np.int64(35), np.int64(78)]
 GTGTTAGGGTTAGTGGTGTGGTGTGTGGGTGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTG
 
 
@@ -97,14 +95,14 @@ AGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGG
 
 
 IT185_5R_consensus
-Total matches: 23
-41 (imperfect match), insertions: [], deletions: [], mismatches: [(5, 'A', 'G')]
+Total matches: 24
+40 (imperfect match), insertions: [], deletions: [], mismatches: [np.int64(45)]
 128 (perfect match)
 216 (perfect match)
 377 (perfect match)
 465 (perfect match)
 553 (perfect match)
-642 (imperfect match), insertions: [(77, 'G'), (78, 'T')], deletions: [], mismatches: []
+641 (imperfect match), insertions: [], deletions: [], mismatches: []
 744 (perfect match)
 832 (perfect match)
 972 (perfect match)
@@ -119,8 +117,9 @@ Total matches: 23
 1925 (perfect match)
 2013 (perfect match)
 2101 (perfect match)
-2190 (imperfect match), insertions: [(77, 'T')], deletions: [], mismatches: [(79, 'G', 'T')]
-2280 (imperfect match), insertions: [], deletions: [(14, 'G'), (14, 'T')], mismatches: []
+2189 (imperfect match), insertions: [np.int64(77), np.int64(79), np.int64(80)], deletions: [], mismatches: []
+2279 (imperfect match), insertions: [np.int64(26), np.int64(28)], deletions: [], mismatches: []
+2380 (imperfect match), insertions: [np.int64(45), np.int64(47), np.int64(48), np.int64(49), np.int64(49), np.int64(54)], deletions: [], mismatches: []
 AGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGG
 
 
@@ -143,8 +142,7 @@ GTGAGGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGG
 
 
 IT185_7L_consensus
-Total matches: 5
-1 (imperfect match), insertions: [], deletions: [], mismatches: []
+Total matches: 4
 168 (perfect match)
 256 (perfect match)
 344 (perfect match)
@@ -156,7 +154,7 @@ IT185_7R_consensus
 Total matches: 6
 40 (perfect match)
 128 (perfect match)
-217 (imperfect match), insertions: [], deletions: [], mismatches: []
+216 (imperfect match), insertions: [np.int64(65), np.int64(83), np.int64(84), np.int64(84)], deletions: [np.int64(56), np.int64(58)], mismatches: [np.int64(54)]
 326 (perfect match)
 414 (perfect match)
 551 (perfect match)
@@ -165,11 +163,11 @@ AGTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGG
 
 IT185_8L_consensus
 Total matches: 19
-40 (imperfect match), insertions: [], deletions: [], mismatches: [(5, 'A', 'G')]
+39 (imperfect match), insertions: [], deletions: [], mismatches: [np.int64(44)]
 127 (perfect match)
 215 (perfect match)
 303 (perfect match)
-392 (imperfect match), insertions: [], deletions: [], mismatches: []
+391 (imperfect match), insertions: [], deletions: [], mismatches: []
 478 (perfect match)
 566 (perfect match)
 654 (perfect match)
@@ -199,13 +197,14 @@ GTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGG
 
 
 IT185_9L_consensus
-Total matches: 11
+Total matches: 12
 55 (perfect match)
 143 (perfect match)
 304 (perfect match)
 392 (perfect match)
 480 (perfect match)
 568 (perfect match)
+656 (imperfect match), insertions: [np.int64(40), np.int64(41)], deletions: [np.int64(47)], mismatches: [np.int64(38)]
 743 (perfect match)
 831 (perfect match)
 919 (perfect match)
@@ -219,8 +218,8 @@ the repeated sequence was not found
 
 IT185_10L_consensus
 Total matches: 13
-2 (imperfect match), insertions: [], deletions: [], mismatches: []
-217 (imperfect match), insertions: [], deletions: [(8, 'T')], mismatches: [(4, 'T', 'G')]
+96 (imperfect match), insertions: [np.int64(107), np.int64(112), np.int64(114), np.int64(132), np.int64(142)], deletions: [], mismatches: [np.int64(136), np.int64(140)]
+216 (imperfect match), insertions: [np.int64(45)], deletions: [], mismatches: [np.int64(41)]
 303 (perfect match)
 391 (perfect match)
 479 (perfect match)
@@ -236,24 +235,26 @@ AGTTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGGTGTGGTGTGGTGTGGGTGTGGTGTGTGTG
 
 
 IT185_10R_consensus
-Total matches: 6
+Total matches: 8
 33 (perfect match)
 121 (perfect match)
-210 (imperfect match), insertions: [], deletions: [], mismatches: []
+209 (imperfect match), insertions: [np.int64(19), np.int64(19), np.int64(23), np.int64(25), np.int64(26), np.int64(27), np.int64(27)], deletions: [], mismatches: []
 354 (perfect match)
 442 (perfect match)
+530 (imperfect match), insertions: [np.int64(34), np.int64(39), np.int64(40)], deletions: [], mismatches: [np.int64(37)]
+613 (imperfect match), insertions: [np.int64(40), np.int64(69)], deletions: [], mismatches: []
 735 (perfect match)
 AGTGTTAGGGTAGTGTGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGGTGTGGGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTG
 
 
 IT185_11L_consensus
 Total matches: 12
-5 (imperfect match), insertions: [], deletions: [], mismatches: []
 94 (perfect match)
 182 (perfect match)
 270 (perfect match)
 358 (perfect match)
-481 (imperfect match), insertions: [(10, 'T'), (11, 'G'), (12, 'T'), (13, 'G'), (14, 'G')], deletions: [], mismatches: []
+446 (imperfect match), insertions: [np.int64(56), np.int64(56), np.int64(58), np.int64(64), np.int64(67), np.int64(67), np.int64(72)], deletions: [], mismatches: []
+537 (imperfect match), insertions: [np.int64(50), np.int64(51), np.int64(78), np.int64(80)], deletions: [np.int64(57)], mismatches: [np.int64(48)]
 622 (perfect match)
 710 (perfect match)
 798 (perfect match)
@@ -318,7 +319,7 @@ GTGTGTGGTGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGT
 
 IT185_13L_consensus
 Total matches: 2
-2 (imperfect match), insertions: [], deletions: [], mismatches: []
+34 (imperfect match), insertions: [np.int64(45), np.int64(50), np.int64(52)], deletions: [], mismatches: []
 119 (perfect match)
 AGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTG
 
@@ -329,7 +330,7 @@ Total matches: 9
 96 (perfect match)
 199 (perfect match)
 287 (perfect match)
-376 (imperfect match), insertions: [], deletions: [], mismatches: []
+375 (imperfect match), insertions: [], deletions: [], mismatches: []
 465 (perfect match)
 553 (perfect match)
 641 (perfect match)
@@ -338,12 +339,11 @@ GGGTAGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGG
 
 
 IT185_14L_polished_consensus_extended
-Total matches: 9
-3 (imperfect match), insertions: [], deletions: [], mismatches: []
+Total matches: 8
 109 (perfect match)
 197 (perfect match)
 285 (perfect match)
-374 (imperfect match), insertions: [], deletions: [], mismatches: []
+373 (imperfect match), insertions: [], deletions: [np.int64(32), np.int64(35)], mismatches: []
 463 (perfect match)
 551 (perfect match)
 639 (perfect match)
@@ -353,7 +353,7 @@ GTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGTGGGT
 
 IT185_14R_consensus
 Total matches: 12
-40 (imperfect match), insertions: [], deletions: [], mismatches: [(5, 'A', 'G')]
+39 (imperfect match), insertions: [], deletions: [], mismatches: [np.int64(44)]
 127 (perfect match)
 215 (perfect match)
 303 (perfect match)
@@ -375,19 +375,18 @@ AGGGTAGTGTTGTGTGTGTGTGGGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTG
 
 
 IT185_15R_consensus
-Total matches: 5
-4 (imperfect match), insertions: [], deletions: [], mismatches: []
+Total matches: 4
 110 (perfect match)
-199 (imperfect match), insertions: [], deletions: [], mismatches: []
+198 (imperfect match), insertions: [], deletions: [], mismatches: []
 280 (perfect match)
-369 (imperfect match), insertions: [(29, 'G'), (30, 'T')], deletions: [], mismatches: []
+368 (imperfect match), insertions: [], deletions: [np.int64(32), np.int64(35)], mismatches: []
 AGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTG
 
 
 IT185_16L_consensus
 Total matches: 6
 26 (perfect match)
-117 (imperfect match), insertions: [], deletions: [], mismatches: []
+114 (imperfect match), insertions: [np.int64(2)], deletions: [], mismatches: [np.int64(3)]
 201 (perfect match)
 289 (perfect match)
 377 (perfect match)
