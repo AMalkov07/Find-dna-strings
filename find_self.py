@@ -10,8 +10,11 @@ from Bio.Seq import Seq
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Polygon
 from contextlib import redirect_stdout
+import tempfile
+from pathlib import Path
+import subprocess
 
-global_test = True
+global_test = False
 
 
 def is_circular_rearrangement(s1, s2):
@@ -276,6 +279,214 @@ class find_loops:
             # print("no loops of the minimum length were found\n")
             return
 
+    def parse_repeatmasker_cat(self, file_path):
+        alignments = []
+        current = None
+        block_lines = []
+        in_alignment_block = False
+        skip = False
+
+        with open(file_path) as f:
+            for line in f:
+                line = line.rstrip("\n")
+
+                # Detect header line starting a new alignment
+                if re.match(r'^\s*\d+\s', line):
+                    if current and block_lines:
+                        current["aligned_lines"] = block_lines
+                        alignments.append(current)
+                        block_lines = []
+
+                    parts = line.strip().split()
+                    current = {
+                        "score": int(parts[0]),
+                        "query_name": parts[4],
+                        "query_start": int(parts[5]),
+                        "query_end": int(parts[6]),
+                        "target_name": parts[8],
+                        "target_start": int(parts[9]),
+                        "target_end": int(parts[10]),
+                        "aligned_lines": []
+                    }
+                    in_alignment_block = True
+
+                elif in_alignment_block and re.match(r'^\s*(query|target)', line):
+                    block_lines.append(line)
+
+            if current and block_lines:
+                current["aligned_lines"] = block_lines
+                alignments.append(current)
+
+        # Parse alignment blocks
+        for aln in alignments:
+            insertions = []
+            deletions = []
+            mismatches = []
+
+
+            q_pos = aln["query_start"]
+            t_pos = aln["target_start"]
+
+            i = 0
+            while i < len(aln["aligned_lines"]):
+                try:
+                    q_line = aln["aligned_lines"][i]
+                    t_line = aln["aligned_lines"][i + 1]
+                    i += 2
+                except IndexError:
+                    break
+
+                # Extract components using regex
+                q_match = re.match(
+                    r'^\s*query\s+(\d+)\s+([ACGTNacgtn\-]+)', q_line)
+                t_match = re.match(
+                    r'^\s*target\s+(\d+)\s+([ACGTNacgtn\-]+)', t_line)
+
+
+                if not q_match or not t_match:
+                    continue
+
+                q_pos = int(q_match.group(1))
+                q_seq = q_match.group(2)
+                t_pos = int(t_match.group(1))
+                t_seq = t_match.group(2)
+
+                q_idx = q_pos
+                t_idx = t_pos
+
+                q_start = aln["query_start"] #subtracting this will essentially make it 0 indexed
+
+
+                for q_char, t_char in zip(q_seq, t_seq):
+                    if q_char == '-' and t_char != '-':
+                        deletions.append((q_idx-q_start, t_char))
+                        t_idx += 1
+                    elif t_char == '-' and q_char != '-':
+                        insertions.append((q_idx-q_start, q_char))
+                        q_idx += 1
+                    else:
+                        if q_char != t_char and q_char in 'ACGTNacgtn' and t_char in 'ACGTNacgtn':
+                            mismatches.append((q_idx-q_start, q_char, t_char))
+                        q_idx += 1
+                        t_idx += 1
+
+            aln["insertions"] = insertions
+            aln["deletions"] = deletions
+            aln["mismatches"] = mismatches
+
+        return alignments
+
+    def filter_overlapping_alignments(self, alignments, key):
+        n_key = len(key)
+        min_key = n_key - n_key//12
+        # Step 1: Compute total mistakes for each alignment
+        for aln in alignments:
+            aln["mistake_count"] = len(
+                aln["insertions"]) + len(aln["deletions"]) + len(aln["mismatches"])
+
+        # Step 2: Sort a copy by mistake count (ascending), then by score (descending)
+        sorted_alignments = sorted(
+            alignments, key=lambda x: (x["mistake_count"], -x["score"]))
+
+        # Step 3: Greedy selection of non-overlapping alignments
+        kept_ids = set()
+        occupied = set()
+
+        for aln in sorted_alignments:
+            # Step 3a: Skip if target coverage is below threshold
+            target_coverage = (aln["target_end"] - aln["target_start"] + 1)
+            if target_coverage < min_key:
+                continue 
+            
+            overlap = False
+            for pos in range(aln["query_start"], aln["query_end"] + 1):
+                if pos in occupied:
+                    overlap = True
+                    break
+
+            if not overlap:
+                kept_ids.add(id(aln))  # Track alignment by unique ID
+                for pos in range(aln["query_start"], aln["query_end"] + 1):
+                    occupied.add(pos)
+
+        # Step 4: Return original list order, filtering by kept alignments
+        return [aln for aln in alignments if id(aln) in kept_ids]
+
+    def align_repeat_maker(self, key, repeatmasker_path="RepeatMasker"):
+        tmp_path = Path(__file__).parent / "tmp_repeatmasker"
+        tmp_path.mkdir(exist_ok=True)
+        target_fa = tmp_path / "target.fa"
+        query_fa = tmp_path / "query.fa"
+
+        my_dict_entry = self.my_dict[key]
+        alignments = my_dict_entry.indexes
+        key_n = len(key)
+        min_score = key_n - key_n//12
+
+        last_val = 0
+        str_dict = {}
+        queue = deque()
+        for alignment in alignments:
+            tmp = self.input_s[last_val:alignment]
+            str_dict[tmp] = [last_val, alignment]
+            queue.append(tmp)
+            last_val = alignment+key_n
+        tmp = self.input_s[last_val:]
+        x = False
+        str_dict[tmp] = [last_val, len(self.input_s)]
+        queue.append(tmp)
+        global global_test
+
+        good_alignment_arr = []
+        good_alignment_starting_pos = []
+        dict_insertions_and_deletions = {}
+        arr = []
+        counter = 0
+        while queue:
+            my_str = queue.popleft()
+            if len(my_str) < min_score:
+                continue
+            with open(query_fa, 'w') as fq:
+                fq.write(f">query\n{my_str}\n")
+            with open(target_fa, 'w') as ft:
+                ft.write(f">target\n{key}\n")
+            cmd = [
+                repeatmasker_path,
+                "-dir", str(tmp_path),
+                #"-pa", "1",           # use 1 thread for simplicity
+                "-lib", str(target_fa),
+                "-no_is",             # ignore internal simple repeats
+                #"-xsmall",            # lowercase masking (optional)
+                "-s",                 # use sensitive mode
+                "q",
+                str(query_fa)
+            ]
+
+            subprocess.run(cmd, check=True)
+
+            cat_file = tmp_path / "query.fa.cat"
+            if not cat_file.exists():
+                raise FileNotFoundError(
+                    "RepeatMasker did not produce a .cat file")
+
+            alignments = self.parse_repeatmasker_cat(cat_file)
+            filtered = self.filter_overlapping_alignments(alignments, key)
+
+
+            for aln in filtered:
+                good_alignment_starting_pos.append(aln['query_start'] + str_dict[my_str][0])
+                mistakes = [aln['insertions'], aln['deletions'], aln['mismatches']]
+                dict_insertions_and_deletions[aln['query_start'] + str_dict[my_str][0]] = mistakes
+                #for tup in aln['insertions']:
+                    #dict_insertions_and_deletions[0].append(tup[0])
+                #for tup in aln['deletions']:
+                    #dict_insertions_and_deletions[1].append(tup[0])
+                #for tup in aln['mismatches']:
+                    #dict_insertions_and_deletions[2].append(tup[0])
+
+
+        return (good_alignment_starting_pos, arr, dict_insertions_and_deletions)
+
     def extract_variants_from_coords(self, s1, s2, coords):
         """
         Extract variants directly from alignment coordinates.
@@ -345,38 +556,6 @@ class find_loops:
                         end1
                     )
 
-        # code for checking ends of alignment:
-        # s1_start, s1_end = coords[0][0], coords[0][-1]
-        # s2_start, s2_end = coords[1][0], coords[1][-1]
-        # if s1_start > 0:
-            # Unaligned prefix in s1 = deletion
-            # for i in range(s1_start):
-                # deletions.append(
-                    # i
-                # )
-
-        # if s2_start > 0:
-            # Unaligned prefix in s2 = insertion
-            # for i in range(s2_start):
-                # insertions.append(
-                    # 0
-                # )
-
-        # Suffix regions
-        # if s1_end < len(s1):
-            # Unaligned suffix in s1 = deletion
-            # for i in range(s1_end, len(s1)):
-                # deletions.append(
-                    # i
-                # )
-
-        # if s2_end < len(s2):
-            # Unaligned suffix in s2 = insertion
-            # for i in range(s2_end, len(s2)):
-                # insertions.append(
-                    # len(s1)
-                # )
-
         return [
             insertions, deletions, mismatches
         ]
@@ -435,7 +614,6 @@ class find_loops:
                     good_alignment_arr.append(alignments[0])
 
                     alignment_start = alignments[0].coordinates[0][0]
-                    print(f"alignment_start: {alignment_start}")
                     good_alignment_starting_pos.append(
                         str_dict[full_str][0]+alignment_start+int(li))
 
@@ -678,8 +856,10 @@ class find_loops:
             for key in self.my_dict:
                 # self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
                 # key].extra_alignment_insertions_and_deletions = self.alignment(key)
+                #self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
+                    #key].extra_alignment_insertions_and_deletions = self.max_num_alignment(key)
                 self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
-                    key].extra_alignment_insertions_and_deletions = self.max_num_alignment(key)
+                    key].extra_alignment_insertions_and_deletions = self.align_repeat_maker(key)
                 # print(
                 # f"extra indexes: {self.my_dict[key].extra_alignment_indexes} <<<<<<<<<<<<<<<<")
         self.filter_same_length()
@@ -830,6 +1010,8 @@ class full_analysis:
                     insertions_and_deletions[insertions_and_deletions_key][0])
                 n_deletions = len(
                     insertions_and_deletions[insertions_and_deletions_key][1])
+                #n_mismatches = len(
+                    #insertions_and_deletions[insertions_and_deletions_key][2])
                 arrow_distance += (n_deletions - n_insertions)
 
             end_point = point+arrow_distance*sign
@@ -865,14 +1047,23 @@ class full_analysis:
                     all_points[i] - offset * sign)
                 insertions = insertions_and_deletions[insertions_and_deletions_key][0]
                 deletions = insertions_and_deletions[insertions_and_deletions_key][1]
+                mismatches = insertions_and_deletions[insertions_and_deletions_key][2]
                 for i in insertions:
+                    i = i[0]
                     # plt.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='blue', lw=1)  # Draw vertical line at midpoint
                     self.ax.plot([point+i*sign, point+i*sign], [y_index-.1,
-                                 y_index+.1], color='blue', linestyle='-', lw=1)
+                                 y_index+.1], color='gold', linestyle='-', lw=1)
                 for i in deletions:
+                    i = i[0]
                     # plt.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='gold', lw=1)  # Draw vertical line at midpoint
                     self.ax.plot([point+i*sign, point+i*sign], [y_index-.1,
-                                 y_index+.1], color='gold', linestyle='-', lw=1)
+                                 y_index+.1], color='blue', linestyle='-', lw=1)
+
+                for i in mismatches:
+                    i = i[0]
+                    # plt.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='gold', lw=1)  # Draw vertical line at midpoint
+                    self.ax.plot([point+i*sign, point+i*sign], [y_index-.1,
+                                 y_index+.1], color='red', linestyle='-', lw=1)
 
             # if previous_end_point is not None and abs(point - previous_end_point) > 1:
             if previous_end_point is not None and abs(point - previous_end_point) > offset_offset+1:
@@ -881,7 +1072,7 @@ class full_analysis:
                              y_index, y_index], linewidth=2, color='red', linestyle='-')
             previous_end_point = end_point
             offset += offset_offset
-        return max_x, min_x
+        return max_x, min_x, arrow_distance_orig
 
     def save_graph(self, max_x, min_x):
 
@@ -994,11 +1185,11 @@ class full_analysis:
             max_x = 0
             min_x = 0
             for elem in best_repeat_sequence_arr:
-                max_x_output, min_x_output = self.graph_output(
+                max_x_output, min_x_output, arrow_distance_orig = self.graph_output(
                     elem[0], elem[1])
                 max_x = max(max_x, max_x_output)
                 min_x = min(min_x, min_x_output)
-            self.save_graph(max_x, min_x)
+            self.save_graph(max_x + arrow_distance_orig * 1.5, min_x - arrow_distance_orig * 1.5)
         return best_repeat_sequence_arr, no_loops_found_indexes
 
 
@@ -1029,8 +1220,7 @@ class parse_fasta_file:
 
             if 1 <= index <= 32:
                 return index - 1  # Convert to 0-based indexing
-        raise ValueError(f"Invalid header format: {
-                         header}, no sorting will be performed")
+        raise ValueError(f"Invalid header format: {header}, no sorting will be performed")
 
     def read_fasta_to_dict(self, file_path):
         fasta_dict = {record.id: str(record.seq)
