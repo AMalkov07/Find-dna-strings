@@ -697,8 +697,10 @@ class find_loops:
                     # dict_insertions_and_deletions[str_dict[full_str][0]+alignment_start+int(li)] = [
                     # extracted_variants_dict["insertions"], extracted_variants_dict["deletions"], extracted_variants_dict["mismatches"]]
 
+                    converted = [[int(value) for value in sublist] for sublist in extracted_variants_arr]
+
                     dict_insertions_and_deletions[str_dict[full_str][0] +
-                                                  alignment_start+int(li)] = extracted_variants_arr
+                                                  alignment_start+int(li)] = converted
 
                     arr.append(score)
                     li = ri
