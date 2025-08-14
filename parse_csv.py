@@ -154,6 +154,9 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
                     # f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
                     f"{val} (imperfect match), insertions: {insertions_arr}, deletions: {deletions_arr}, mismatches: {mismatches_arr}")
                 if print_comparison:
+                    if k >= len(given_data_grouped_by_chr_dict[j]):
+                        output.append("More alignments in the mutagenic area then in Ivan's data")
+                        continue
                     given_insertions_arr = given_data_grouped_by_chr_dict[j][k]["insertions"]
                     given_deletions_arr = given_data_grouped_by_chr_dict[j][k]["deletions"]
                     given_mismatches_arr = given_data_grouped_by_chr_dict[j][k]["mismatches"]

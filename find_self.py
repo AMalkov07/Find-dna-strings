@@ -2317,6 +2317,9 @@ def main(args):
     if not os.path.isfile(user_input_obj.file):
         print(f"Error: The file '{user_input_obj.file}' does not exist.")
         return
+
+    print(user_input_obj.file)
+
     parse_fasta_file_obj = parse_fasta_file(user_input_obj)
     # all_chr_headers, all_chr_ends = parse_fasta_file_obj.run("AAAAAallFiles_145_modified.txt")
     parse_fasta_file_obj.run()

@@ -1,110 +1,179 @@
+survivors/IT130_consensus_telomere_ends 3.fasta
 whole reference detected
 
 multiple valid sequences were found in index 20
-IT130_1L_consensus
-Total matches: 8
-78 (imperfect match), insertions: [[14, 'G'], [19, 'T'], [106, 'G'], [106, 'G'], [109, 'T']], deletions: [[22, 'T']], mismatches: []
-443 (imperfect match), insertions: [[27, 'G'], [27, 'T'], [27, 'G'], [60, 'T'], [62, 'G'], [62, 'G'], [111, 'T']], deletions: [[38, 'G'], [91, 'G']], mismatches: []
+______________________________________________________________
+1L:
+different number of mutagenic zones found in this chromosome end. Comparison will not be made
+Total matches: 10
+77 (imperfect match), insertions: [(14, 'G')], deletions: [(108, 'T')], mismatches: [(20, 'G', 'T'), (22, 'T', 'G'), (111, 'G', 'T')]
+gap: 28 bp
+217 (imperfect match), insertions: [(27, 'G'), (27, 'T'), (27, 'G'), (60, 'T'), (62, 'G'), (62, 'G')], deletions: [(38, 'G'), (104, 'T')], mismatches: [(111, 'G', 'T')]
+gap: 108 bp
+441 (imperfect match), insertions: [(27, 'G'), (27, 'T'), (27, 'G'), (60, 'T'), (62, 'G'), (62, 'G')], deletions: [(38, 'G'), (91, 'G')], mismatches: []
+gap: 37 bp
 594 (perfect match)
 706 (perfect match)
 818 (perfect match)
 930 (perfect match)
 1042 (perfect match)
 1154 (perfect match)
-AGTGTTGAGGTAGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGGGTGTGGTTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGT
+1266 (imperfect match), insertions: [(31, 'G'), (66, 'G'), (69, 'G'), (69, 'T'), (69, 'G'), (96, 'T'), (102, 'T')], deletions: [(49, 'G')], mismatches: [(104, 'T', 'G')]
 
 
-None
-the repeated sequence was not found
-
-IT130_2L_consensus
+______________________________________________________________
+2L:
 Total matches: 1
-118 (imperfect match), insertions: [[3, 'G'], [10, 'T'], [20, 'T'], [43, 'T']], deletions: [[47, 'G'], [48, 'T'], [49, 'G']], mismatches: [[16, 14, 'G', 'T']]
-GTGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGT
+113 (imperfect match), insertions: [(14, 'G'), (33, 'T'), (37, 'G'), (44, 'T'), (49, 'G'), (49, 'T')], deletions: [], mismatches: []
+comparison: (Ivans Data -> output data): Insertions: [(85, 'T')] -> [(14, 'G'), (33, 'T'), (37, 'G'), (44, 'T'), (49, 'G'), (49, 'T')]   deletions: [(9, 'G'), (89, 'G'), (90, 'T'), (91, 'G')] -> []   mismatches: [(111, 'G', 'T')] -> []
 
 
-IT130_2R_consensus_labeled
+______________________________________________________________
+2R:
 Total matches: 8
 117 (perfect match)
-288 (imperfect match), insertions: [[111, 'T']], deletions: [], mismatches: []
+gap: 59 bp
+288 (imperfect match), insertions: [], deletions: [], mismatches: [(112, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(62, 'G'), (62, 'T'), (62, 'G'), (62, 'G')] -> []   deletions: [(32, 'G'), (36, 'G'), (37, 'T'), (38, 'G')] -> []   
+gap: 35 bp
 435 (perfect match)
 547 (perfect match)
 659 (perfect match)
 771 (perfect match)
 883 (perfect match)
 995 (perfect match)
-ATTGTGTTAGGGTGTGTGGGTGTGTGTGTGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGT
 
 
-None
-the repeated sequence was not found
+______________________________________________________________
+3R:
+Total matches: 12
+170 (imperfect match), insertions: [(4, 'G'), (4, 'T'), (16, 'G'), (16, 'G'), (20, 'T')], deletions: [(38, 'G'), (66, 'T'), (104, 'T')], mismatches: [(111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(3, 'G'), (10, 'T'), (31, 'G')] -> [(4, 'G'), (4, 'T'), (16, 'G'), (16, 'G'), (20, 'T')]   deletions: [(49, 'G'), (69, 'T')] -> [(38, 'G'), (66, 'T'), (104, 'T')]   mismatches: [(14, 'T', 'G')] -> [(111, 'G', 'T')]
+gap: 84 bp
+368 (imperfect match), insertions: [(60, 'T'), (62, 'G'), (62, 'G')], deletions: [(88, 'T'), (91, 'G')], mismatches: [(86, 'G', 'T'), (111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(60, 'T'), (62, 'G'), (62, 'G'), (85, 'T')] -> [(60, 'T'), (62, 'G'), (62, 'G')]   deletions: [(89, 'G'), (90, 'T'), (91, 'G')] -> [(88, 'T'), (91, 'G')]   mismatches: [(111, 'G', 'T')] -> [(86, 'G', 'T'), (111, 'G', 'T')]
+gap: 26 bp
+507 (imperfect match), insertions: [(10, 'T')], deletions: [], mismatches: [(14, 'T', 'G')]
+comparison: (Ivans Data -> output data): Insertions: [(53, 'G'), (53, 'T'), (53, 'G'), (67, 'T')] -> [(10, 'T')]   deletions: [(28, 'G'), (29, 'T')] -> []   mismatches: [(10, 'G', 'T'), (66, 'T', 'G')] -> [(14, 'T', 'G')]
+gap: 56 bp
+676 (imperfect match), insertions: [(14, 'G')], deletions: [(108, 'T')], mismatches: [(111, 'G', 'T')]
+alignment matches perfectly with Ivan's data 
+gap: 29 bp
+817 (imperfect match), insertions: [(27, 'G'), (27, 'T'), (27, 'G'), (60, 'T'), (62, 'G'), (62, 'G')], deletions: [(38, 'G')], mismatches: [(111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(9, 'T'), (62, 'G'), (62, 'T'), (62, 'G'), (62, 'G')] -> [(27, 'G'), (27, 'T'), (27, 'G'), (60, 'T'), (62, 'G'), (62, 'G')]   deletions: [(16, 'T'), (19, 'G'), (20, 'G')] -> [(38, 'G')]   
+gap: 29 bp
+963 (imperfect match), insertions: [(14, 'G')], deletions: [(108, 'T')], mismatches: [(111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(14, 'G'), (33, 'T')] -> [(14, 'G')]   deletions: [(43, 'G'), (44, 'G'), (48, 'T'), (54, 'G'), (62, 'T')] -> [(108, 'T')]   mismatches: [(27, 'T', 'G')] -> [(111, 'G', 'T')]
+gap: 12 bp
+1087 (imperfect match), insertions: [(4, 'G'), (4, 'T'), (14, 'G')], deletions: [(108, 'T')], mismatches: [(111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(14, 'G'), (14, 'G'), (14, 'G'), (20, 'T')] -> [(4, 'G'), (4, 'T'), (14, 'G')]   deletions: [(107, 'G'), (108, 'T'), (109, 'G')] -> [(108, 'T')]   mismatches: [(82, 'T', 'G'), (83, 'G', 'T')] -> [(111, 'G', 'T')]
+gap: 237 bp
+1438 (imperfect match), insertions: [(14, 'G')], deletions: [(26, 'G'), (27, 'T'), (73, 'T'), (91, 'G')], mismatches: [(112, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(14, 'G'), (54, 'T')] -> [(14, 'G')]   deletions: [(32, 'G'), (60, 'G'), (108, 'T')] -> [(26, 'G'), (27, 'T'), (73, 'T'), (91, 'G')]   mismatches: [(64, 'T', 'G'), (79, 'T', 'G'), (80, 'G', 'T'), (111, 'G', 'T')] -> [(112, 'G', 'T')]
+gap: 88 bp
+1635 (imperfect match), insertions: [], deletions: [], mismatches: [(104, 'T', 'G'), (111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(14, 'G')] -> []   deletions: [(26, 'G'), (27, 'T'), (73, 'T'), (91, 'G')] -> []   mismatches: [(112, 'G', 'T')] -> [(104, 'T', 'G'), (111, 'G', 'T')]
+gap: 7 bp
+1754 (imperfect match), insertions: [(80, 'G'), (80, 'T'), (91, 'G'), (91, 'T')], deletions: [], mismatches: []
+comparison: (Ivans Data -> output data): Insertions: [] -> [(80, 'G'), (80, 'T'), (91, 'G'), (91, 'T')]   mismatches: [(104, 'T', 'G'), (111, 'G', 'T')] -> []
+gap: 36 bp
+1906 (imperfect match), insertions: [(14, 'G'), (31, 'G'), (66, 'G'), (69, 'G'), (69, 'T'), (69, 'G')], deletions: [(49, 'G')], mismatches: [(112, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(80, 'G'), (80, 'T'), (91, 'G'), (91, 'T')] -> [(14, 'G'), (31, 'G'), (66, 'G'), (69, 'G'), (69, 'T'), (69, 'G')]   deletions: [] -> [(49, 'G')]   mismatches: [] -> [(112, 'G', 'T')]
+gap: 9 bp
+2032 (imperfect match), insertions: [], deletions: [], mismatches: [(104, 'T', 'G'), (111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(4, 'G'), (4, 'T'), (14, 'G'), (49, 'G'), (49, 'T')] -> []   deletions: [(26, 'G'), (27, 'T')] -> []   mismatches: [] -> [(104, 'T', 'G'), (111, 'G', 'T')]
 
-IT130_3R_consensus_labeled
-Total matches: 10
-216 (imperfect match), insertions: [[9, 'T'], [19, 'T'], [24, 'G'], [73, 'G'], [111, 'T']], deletions: [[6, 'T'], [62, 'T'], [91, 'G']], mismatches: [[17, 16, 'G', 'T']]
-334 (imperfect match), insertions: [[14, 'G'], [31, 'G'], [66, 'G'], [69, 'G'], [69, 'T'], [69, 'G'], [111, 'T']], deletions: [[49, 'G'], [91, 'G']], mismatches: []
-500 (imperfect match), insertions: [[9, 'T'], [14, 'G'], [14, 'G'], [14, 'T'], [14, 'G'], [14, 'T'], [14, 'G'], [14, 'G']], deletions: [], mismatches: []
-682 (imperfect match), insertions: [[14, 'G'], [106, 'G'], [106, 'G'], [109, 'T']], deletions: [[1, 'T'], [2, 'G'], [3, 'T'], [4, 'G'], [5, 'G']], mismatches: []
-1093 (imperfect match), insertions: [[14, 'G'], [104, 'G'], [104, 'T'], [104, 'G'], [104, 'G']], deletions: [[1, 'T'], [2, 'G'], [4, 'G']], mismatches: []
-1442 (imperfect match), insertions: [[14, 'G'], [111, 'T']], deletions: [[26, 'G'], [27, 'T'], [73, 'T'], [91, 'G']], mismatches: []
-1556 (imperfect match), insertions: [[14, 'G'], [42, 'G'], [60, 'T'], [62, 'G'], [62, 'G'], [111, 'T']], deletions: [[35, 'T'], [38, 'G'], [91, 'G']], mismatches: []
-1680 (imperfect match), insertions: [[75, 'T'], [111, 'T']], deletions: [[16, 'T'], [19, 'G'], [20, 'G'], [91, 'G']], mismatches: [[62, 62, 'G', 'T']]
-1907 (imperfect match), insertions: [[14, 'G'], [31, 'G'], [66, 'G'], [69, 'G'], [69, 'T'], [69, 'G'], [111, 'T']], deletions: [[49, 'G']], mismatches: []
-2079 (imperfect match), insertions: [], deletions: [[112, 'G']], mismatches: [[104, 104, 'G', 'T'], [111, 111, 'T', 'G']]
-AGTGTTAGGGTTAGTGGTGTGGTGTGTGGGTGTGTGGGTGTGGGTGTGGTGTGGATGTGGTGTGGGTGTGGATGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGGTGTGTGGTGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGGTGTGTGGGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGGTGTGGTGTGTGGTGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGGTGTGGT
+
+______________________________________________________________
+5L:
+Total matches: 3
+117 (imperfect match), insertions: [(14, 'G'), (14, 'G'), (31, 'G')], deletions: [(4, 'G'), (49, 'G'), (69, 'T')], mismatches: []
+alignment matches perfectly with Ivan's data 
+gap: 108 bp
+337 (imperfect match), insertions: [(48, 'G'), (55, 'T'), (57, 'G'), (60, 'T')], deletions: [], mismatches: [(64, 'T', 'G')]
+comparison: (Ivans Data -> output data): Insertions: [] -> [(48, 'G'), (55, 'T'), (57, 'G'), (60, 'T')]   deletions: [(26, 'G'), (27, 'T'), (43, 'G'), (44, 'G'), (54, 'G'), (55, 'G'), (62, 'T')] -> []   mismatches: [(48, 'T', 'G')] -> [(64, 'T', 'G')]
+gap: 5 bp
+458 (imperfect match), insertions: [], deletions: [(46, 'T'), (49, 'G')], mismatches: [(44, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(48, 'G'), (64, 'G'), (64, 'T'), (64, 'G'), (64, 'G')] -> []   deletions: [(54, 'G')] -> [(46, 'T'), (49, 'G')]   mismatches: [] -> [(44, 'G', 'T')]
 
 
-None
-the repeated sequence was not found
-
-None
-the repeated sequence was not found
-
-IT130_5L_consensus_labeled
-Total matches: 4
-120 (imperfect match), insertions: [[14, 'G'], [14, 'G'], [31, 'G']], deletions: [[4, 'G'], [49, 'G'], [69, 'T']], mismatches: []
-232 (imperfect match), insertions: [], deletions: [[26, 'G'], [27, 'T'], [43, 'G'], [44, 'G'], [54, 'G'], [55, 'G'], [62, 'T']], mismatches: [[48, 48, 'G', 'T']]
-337 (imperfect match), insertions: [[54, 'T'], [64, 'G'], [64, 'T'], [64, 'G'], [64, 'G']], deletions: [[51, 'T']], mismatches: []
-453 (imperfect match), insertions: [[60, 'T'], [62, 'G'], [62, 'G'], [85, 'T'], [90, 'G'], [90, 'T'], [90, 'G'], [97, 'T'], [111, 'T']], deletions: [], mismatches: []
-AGTGTGGGTGTGGTGTGTGGGTGTGTGGGTGTGGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGTGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGGTGTGTGGGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGG
-
-
-None
-the repeated sequence was not found
-
-IT130_6L_consensus_labled
+______________________________________________________________
+6L:
 Total matches: 1
-135 (imperfect match), insertions: [[0, 'T'], [0, 'G'], [0, 'G'], [0, 'G'], [43, 'T']], deletions: [[47, 'G'], [48, 'T'], [49, 'G']], mismatches: []
-GTGTGTGGGTGTGGGTGGTGTGTGGGTGTGGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTG
+137 (imperfect match), insertions: [], deletions: [(46, 'T'), (49, 'G')], mismatches: [(44, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(43, 'T')] -> []   deletions: [(47, 'G'), (48, 'T'), (49, 'G')] -> [(46, 'T'), (49, 'G')]   mismatches: [] -> [(44, 'G', 'T')]
 
 
-IT130_6R_consensus_labeled
-Total matches: 7
-532 (imperfect match), insertions: [[3, 'G'], [10, 'T'], [20, 'T'], [73, 'G'], [111, 'T']], deletions: [[62, 'T'], [91, 'G']], mismatches: [[16, 14, 'G', 'T']]
-722 (imperfect match), insertions: [[3, 'G'], [10, 'T'], [20, 'T'], [73, 'G'], [111, 'T']], deletions: [[62, 'T'], [91, 'G']], mismatches: [[16, 14, 'G', 'T']]
-877 (imperfect match), insertions: [], deletions: [[26, 'G'], [27, 'T'], [43, 'G'], [44, 'G'], [54, 'G'], [55, 'G'], [62, 'T']], mismatches: [[48, 48, 'G', 'T']]
-982 (imperfect match), insertions: [[54, 'T'], [64, 'G'], [64, 'T'], [64, 'G'], [64, 'G']], deletions: [[51, 'T']], mismatches: []
-1098 (imperfect match), insertions: [[60, 'T'], [62, 'G'], [62, 'G'], [85, 'T'], [90, 'G'], [90, 'T'], [90, 'G'], [97, 'T'], [111, 'T']], deletions: [], mismatches: []
-1351 (imperfect match), insertions: [[14, 'G'], [31, 'G'], [66, 'G'], [69, 'G'], [69, 'T'], [69, 'G'], [111, 'T']], deletions: [[49, 'G'], [91, 'G']], mismatches: []
-1576 (imperfect match), insertions: [[14, 'G'], [31, 'G']], deletions: [[49, 'G'], [50, 'G'], [51, 'T'], [52, 'G'], [53, 'T'], [54, 'G'], [55, 'G']], mismatches: []
-GTGAGGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGTGTGGGTGTGGGTGTGGGTGTGGGTGTGGGTGTGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGGGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGGTGTGTGGGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGA
+______________________________________________________________
+6R:
+Total matches: 9
+154 (imperfect match), insertions: [], deletions: [(108, 'T')], mismatches: [(79, 'T', 'G'), (80, 'G', 'T'), (111, 'G', 'T')]
+comparison: (Ivans Data -> output data): deletions: [] -> [(108, 'T')]   mismatches: [(77, 'T', 'G'), (78, 'G', 'T'), (108, 'T', 'G'), (110, 'G', 'T'), (112, 'G', 'T')] -> [(79, 'T', 'G'), (80, 'G', 'T'), (111, 'G', 'T')]
+gap: 151 bp
+416 (imperfect match), insertions: [(14, 'G')], deletions: [(108, 'T')], mismatches: [(79, 'T', 'G'), (80, 'G', 'T'), (111, 'G', 'T')]
+comparison: (Ivans Data -> output data): mismatches: [(77, 'T', 'G'), (78, 'G', 'T'), (111, 'G', 'T')] -> [(79, 'T', 'G'), (80, 'G', 'T'), (111, 'G', 'T')]
+gap: 5 bp
+533 (imperfect match), insertions: [(73, 'G')], deletions: [(16, 'T'), (19, 'G'), (20, 'G'), (62, 'T'), (91, 'G')], mismatches: [(112, 'G', 'T')]
+alignment matches perfectly with Ivan's data 
+gap: 40 bp
+681 (imperfect match), insertions: [(14, 'G')], deletions: [(26, 'G'), (27, 'T'), (104, 'T')], mismatches: [(3, 'T', 'G'), (4, 'G', 'T'), (111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(3, 'G'), (10, 'T'), (31, 'G')] -> [(14, 'G')]   deletions: [(49, 'G'), (69, 'T')] -> [(26, 'G'), (27, 'T'), (104, 'T')]   mismatches: [(14, 'T', 'G')] -> [(3, 'T', 'G'), (4, 'G', 'T'), (111, 'G', 'T')]
+gap: 79 bp
+870 (imperfect match), insertions: [], deletions: [(26, 'G'), (27, 'T'), (43, 'G'), (44, 'G'), (54, 'G'), (55, 'G'), (62, 'T')], mismatches: [(48, 'T', 'G')]
+alignment matches perfectly with Ivan's data 
+gap: 7 bp
+982 (imperfect match), insertions: [(48, 'G'), (55, 'T'), (57, 'G'), (60, 'T')], deletions: [], mismatches: [(64, 'T', 'G')]
+comparison: (Ivans Data -> output data): Insertions: [(48, 'G'), (64, 'G'), (64, 'T'), (64, 'G'), (64, 'G')] -> [(48, 'G'), (55, 'T'), (57, 'G'), (60, 'T')]   deletions: [(54, 'G')] -> []   mismatches: [] -> [(64, 'T', 'G')]
+gap: 43 bp
+1141 (imperfect match), insertions: [], deletions: [(46, 'T'), (49, 'G')], mismatches: [(44, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(60, 'T'), (62, 'G'), (62, 'G'), (85, 'T')] -> []   deletions: [(89, 'G'), (90, 'T'), (91, 'G')] -> [(46, 'T'), (49, 'G')]   mismatches: [(111, 'G', 'T')] -> [(44, 'G', 'T')]
+gap: 179 bp
+1430 (imperfect match), insertions: [], deletions: [(46, 'T'), (49, 'G')], mismatches: [(44, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(91, 'G'), (91, 'T')] -> []   deletions: [(74, 'G'), (82, 'T'), (107, 'G'), (108, 'T'), (109, 'G')] -> [(46, 'T'), (49, 'G')]   mismatches: [(69, 'T', 'G'), (86, 'G', 'T')] -> [(44, 'G', 'T')]
+gap: 30 bp
+1570 (imperfect match), insertions: [(14, 'G')], deletions: [(34, 'G'), (35, 'T'), (36, 'G'), (37, 'T'), (43, 'G'), (51, 'T')], mismatches: [(55, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(43, 'T')] -> [(14, 'G')]   deletions: [(47, 'G'), (48, 'T'), (49, 'G')] -> [(34, 'G'), (35, 'T'), (36, 'G'), (37, 'T'), (43, 'G'), (51, 'T')]   mismatches: [] -> [(55, 'G', 'T')]
 
 
-IT130_7L_consensus_labeled
-Total matches: 7
-97 (imperfect match), insertions: [[75, 'T'], [111, 'T']], deletions: [[16, 'T'], [19, 'G'], [20, 'G'], [91, 'G']], mismatches: [[62, 62, 'G', 'T']]
-329 (imperfect match), insertions: [[110, 'T'], [110, 'G'], [110, 'T'], [110, 'G'], [110, 'T']], deletions: [], mismatches: [[104, 104, 'G', 'T']]
+______________________________________________________________
+7L:
+Total matches: 10
+0 (imperfect match), insertions: [], deletions: [(4, 'G')], mismatches: [(1, 'T', 'A'), (104, 'T', 'G')]
+comparison: (Ivans Data -> output data): deletions: [] -> [(4, 'G')]   mismatches: [(2, 'G', 'A'), (3, 'T', 'G'), (4, 'G', 'T'), (104, 'T', 'G'), (111, 'G', 'T')] -> [(1, 'T', 'A'), (104, 'T', 'G')]
+gap: 59 bp
+170 (imperfect match), insertions: [(66, 'G'), (69, 'G'), (69, 'T'), (69, 'G')], deletions: [(108, 'T')], mismatches: [(111, 'G', 'T')]
+alignment matches perfectly with Ivan's data 
+gap: 44 bp
+329 (imperfect match), insertions: [], deletions: [], mismatches: [(104, 'T', 'G'), (111, 'G', 'T')]
+alignment matches perfectly with Ivan's data 
+gap: 7 bp
 448 (perfect match)
-689 (imperfect match), insertions: [[12, 'G'], [12, 'T'], [12, 'G'], [111, 'T']], deletions: [[4, 'G'], [26, 'G'], [27, 'T'], [91, 'G']], mismatches: []
-1029 (imperfect match), insertions: [[3, 'G'], [10, 'T'], [20, 'T'], [75, 'T'], [111, 'T']], deletions: [[91, 'G']], mismatches: [[16, 14, 'G', 'T'], [65, 62, 'G', 'T']]
-1245 (imperfect match), insertions: [[53, 'G'], [53, 'T'], [53, 'G'], [67, 'T'], [111, 'T']], deletions: [[1, 'T'], [2, 'G']], mismatches: [[69, 66, 'G', 'T']]
-1418 (imperfect match), insertions: [[14, 'G'], [104, 'G'], [104, 'T'], [104, 'G'], [104, 'G']], deletions: [[1, 'T'], [2, 'G'], [4, 'G']], mismatches: []
-GTGTTAGGGTAGTGTGTGGGTGTGGGTGTGGTGTGTGGTGTGGGTGTGTGGGTAGTGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGGTGTGGTGTGTGGTGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGGTGTGGTGTGTGGTGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGGTGTGGTGTGTGGTGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGGTGTGGTG
+gap: 59 bp
+619 (imperfect match), insertions: [(38, 'G'), (38, 'T'), (67, 'T'), (80, 'G'), (80, 'T')], deletions: [(108, 'T')], mismatches: [(66, 'T', 'G'), (111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(12, 'G'), (12, 'T'), (12, 'G'), (60, 'T'), (62, 'G'), (62, 'G')] -> [(38, 'G'), (38, 'T'), (67, 'T'), (80, 'G'), (80, 'T')]   deletions: [(4, 'G'), (108, 'T')] -> [(108, 'T')]   mismatches: [(111, 'G', 'T')] -> [(66, 'T', 'G'), (111, 'G', 'T')]
+gap: 49 bp
+784 (imperfect match), insertions: [(4, 'G'), (4, 'T'), (14, 'G'), (54, 'T'), (60, 'T')], deletions: [(26, 'G'), (27, 'T')], mismatches: [(62, 'T', 'G')]
+alignment matches perfectly with Ivan's data 
+gap: 91 bp
+990 (imperfect match), insertions: [], deletions: [(12, 'T'), (26, 'G'), (27, 'T')], mismatches: [(10, 'G', 'T'), (104, 'T', 'G'), (111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(4, 'G'), (4, 'T'), (14, 'G')] -> []   deletions: [(26, 'G'), (27, 'T'), (107, 'G'), (108, 'T'), (109, 'G')] -> [(12, 'T'), (26, 'G'), (27, 'T')]   mismatches: [] -> [(10, 'G', 'T'), (104, 'T', 'G'), (111, 'G', 'T')]
+gap: 29 bp
+1128 (imperfect match), insertions: [(4, 'G'), (4, 'T'), (14, 'G')], deletions: [(26, 'G'), (27, 'T')], mismatches: []
+alignment matches perfectly with Ivan's data 
+gap: 2 bp
+1243 (imperfect match), insertions: [(53, 'G'), (53, 'T'), (53, 'G'), (67, 'T')], deletions: [], mismatches: [(66, 'T', 'G'), (112, 'G', 'T')]
+alignment matches perfectly with Ivan's data 
+gap: 53 bp
+1412 (imperfect match), insertions: [(4, 'G'), (4, 'T'), (14, 'G')], deletions: [(108, 'T')], mismatches: [(111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(4, 'G'), (4, 'T'), (14, 'G'), (104, 'G'), (104, 'T'), (104, 'G'), (104, 'G')] -> [(4, 'G'), (4, 'T'), (14, 'G')]   deletions: [] -> [(108, 'T')]   mismatches: [] -> [(111, 'G', 'T')]
 
 
-IT130_7R_consensus_labeled
+______________________________________________________________
+7R:
 Total matches: 14
-8 (imperfect match), insertions: [[0, 'T'], [0, 'G'], [1, 'G'], [85, 'T']], deletions: [[74, 'G'], [82, 'T']], mismatches: [[72, 69, 'G', 'T']]
+9 (imperfect match), insertions: [(75, 'T')], deletions: [(79, 'T'), (85, 'G')], mismatches: [(1, 'T', 'G'), (69, 'T', 'G')]
+alignment matches perfectly with Ivan's data 
+gap: 2 bp
 122 (perfect match)
 234 (perfect match)
 346 (perfect match)
@@ -118,46 +187,64 @@ Total matches: 14
 1242 (perfect match)
 1354 (perfect match)
 1466 (perfect match)
-AGTGTGGGTGTGGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGT
 
 
-None
-the repeated sequence was not found
-
-IT130_8R_consensus_labeled
-Total matches: 0
-TGGATGGGTGGGTGGTGTGTGGTGGTGGTGGTTGTGTGATGGTGGTGGTGGATGATGGTGGTGGTTGTGGGGTGGTGGTGGTGGTGGTGGTGGTGGTGTTGTGTTGTTGTGGTGGTGTGTGTGTGTGGTGGTGGTTGTTGTGGTGGTTGTAGTGGTGGTGATGGTG
-
-
-None
-the repeated sequence was not found
-
-IT130_9R_consensus_labeled
+______________________________________________________________
+8R:
 Total matches: 8
-335 (imperfect match), insertions: [[4, 'G'], [4, 'T'], [14, 'G'], [14, 'G'], [14, 'T'], [14, 'G'], [14, 'T'], [14, 'G'], [14, 'G']], deletions: [], mismatches: []
-456 (imperfect match), insertions: [[110, 'T'], [110, 'G'], [110, 'T'], [110, 'G'], [110, 'T']], deletions: [], mismatches: []
-607 (imperfect match), insertions: [[14, 'G'], [20, 'G'], [20, 'T'], [20, 'G'], [20, 'T'], [20, 'G'], [20, 'G'], [20, 'T']], deletions: [], mismatches: []
-782 (imperfect match), insertions: [[60, 'T'], [62, 'G'], [62, 'G'], [71, 'G'], [71, 'G'], [74, 'T'], [79, 'G'], [111, 'T']], deletions: [], mismatches: []
-935 (imperfect match), insertions: [[3, 'G'], [10, 'T'], [20, 'T']], deletions: [], mismatches: [[16, 14, 'G', 'T']]
-1050 (imperfect match), insertions: [[110, 'T'], [110, 'G'], [110, 'T'], [110, 'G'], [110, 'T']], deletions: [], mismatches: []
-1243 (imperfect match), insertions: [[14, 'G'], [20, 'G'], [20, 'T'], [20, 'G'], [20, 'T'], [20, 'G'], [20, 'G'], [20, 'T']], deletions: [], mismatches: [[119, 111, 'T', 'G']]
-1402 (imperfect match), insertions: [[14, 'G'], [20, 'G'], [20, 'T'], [20, 'G'], [20, 'T'], [20, 'G'], [20, 'G'], [20, 'T']], deletions: [], mismatches: [[119, 111, 'T', 'G']]
-AGTGTGGTGTGTGGGTGTGGGTGTGGATGTGGTGTGGATGTGGTGTGGGTGTGGATGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGGGTGTGGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGGTGTGTGGGTGTGGTGTG
+39 (perfect match)
+151 (perfect match)
+263 (perfect match)
+375 (perfect match)
+487 (perfect match)
+599 (perfect match)
+711 (perfect match)
+823 (imperfect match), insertions: [], deletions: [(75, 'G'), (76, 'G'), (77, 'T'), (78, 'G'), (79, 'T')], mismatches: [(111, 'G', 'T')]
+comparison: (Ivans Data -> output data): deletions: [(75, 'G'), (76, 'G'), (77, 'T'), (78, 'G'), (79, 'T'), (111, 'G'), (112, 'G')] -> [(75, 'G'), (76, 'G'), (77, 'T'), (78, 'G'), (79, 'T')]   mismatches: [] -> [(111, 'G', 'T')]
 
 
-IT130_10L_consensus_labeled
+______________________________________________________________
+9R:
+Total matches: 8
+177 (imperfect match), insertions: [], deletions: [(6, 'T'), (27, 'T'), (108, 'T')], mismatches: [(10, 'G', 'T'), (12, 'T', 'G'), (111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(3, 'G')] -> []   deletions: [(11, 'G'), (12, 'T'), (27, 'T'), (108, 'T')] -> [(6, 'T'), (27, 'T'), (108, 'T')]   mismatches: [(111, 'G', 'T')] -> [(10, 'G', 'T'), (12, 'T', 'G'), (111, 'G', 'T')]
+gap: 56 bp
+342 (imperfect match), insertions: [(3, 'G'), (10, 'T')], deletions: [], mismatches: [(14, 'T', 'G')]
+alignment matches perfectly with Ivan's data 
+456 (imperfect match), insertions: [], deletions: [], mismatches: [(111, 'G', 'T')]
+alignment matches perfectly with Ivan's data 
+gap: 47 bp
+615 (imperfect match), insertions: [], deletions: [(16, 'T'), (19, 'G'), (20, 'G')], mismatches: []
+alignment matches perfectly with Ivan's data 
+gap: 170 bp
+894 (imperfect match), insertions: [(3, 'G'), (10, 'T')], deletions: [], mismatches: [(14, 'T', 'G'), (111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(60, 'T'), (62, 'G'), (62, 'G'), (71, 'G'), (71, 'G'), (74, 'T'), (79, 'G')] -> [(3, 'G'), (10, 'T')]   mismatches: [(112, 'G', 'T')] -> [(14, 'T', 'G'), (111, 'G', 'T')]
+gap: 42 bp
+1050 (imperfect match), insertions: [], deletions: [], mismatches: [(111, 'G', 'T')]
+comparison: (Ivans Data -> output data): deletions: [(16, 'T'), (19, 'G'), (20, 'G')] -> []   mismatches: [] -> [(111, 'G', 'T')]
+gap: 89 bp
+1251 (imperfect match), insertions: [], deletions: [(16, 'T'), (19, 'G'), (20, 'G')], mismatches: [(111, 'G', 'T')]
+comparison: (Ivans Data -> output data): deletions: [] -> [(16, 'T'), (19, 'G'), (20, 'G')]   
+gap: 50 bp
+1410 (imperfect match), insertions: [], deletions: [(16, 'T'), (19, 'G'), (20, 'G')], mismatches: [(111, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(14, 'G')] -> []   deletions: [(26, 'G'), (27, 'T')] -> [(16, 'T'), (19, 'G'), (20, 'G')]   mismatches: [(3, 'T', 'G'), (4, 'G', 'T'), (111, 'G', 'T')] -> [(111, 'G', 'T')]
+
+
+______________________________________________________________
+10L:
 Total matches: 1
-65 (imperfect match), insertions: [[33, 'G'], [33, 'T']], deletions: [[1, 'T'], [2, 'G'], [3, 'T'], [4, 'G'], [5, 'G']], mismatches: []
-AGTTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGT
+60 (imperfect match), insertions: [(33, 'G'), (33, 'T')], deletions: [], mismatches: []
+alignment matches perfectly with Ivan's data 
 
 
-None
-the repeated sequence was not found
-
-IT130_11L_consensus
+______________________________________________________________
+11L:
 Total matches: 27
 117 (perfect match)
-288 (imperfect match), insertions: [[111, 'T']], deletions: [], mismatches: []
+gap: 59 bp
+288 (imperfect match), insertions: [], deletions: [], mismatches: [(112, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(14, 'G'), (62, 'G'), (62, 'T'), (62, 'G'), (62, 'G')] -> []   deletions: [(31, 'G'), (36, 'G'), (37, 'T'), (38, 'G')] -> []   mismatches: [] -> [(112, 'G', 'T')]
+gap: 35 bp
 435 (perfect match)
 547 (perfect match)
 659 (perfect match)
@@ -183,97 +270,100 @@ Total matches: 27
 2899 (perfect match)
 3011 (perfect match)
 3123 (perfect match)
-ATTGTGTTAGGGTGTGTGGGTGTGTGTGTGGTGTGTGTGGGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGT
 
 
-IT130_11R_consensus_labeled
+______________________________________________________________
+11R:
 Total matches: 2
-83 (imperfect match), insertions: [[14, 'G'], [19, 'T'], [27, 'G'], [111, 'T']], deletions: [[1, 'T'], [2, 'G'], [4, 'G'], [25, 'G'], [91, 'G']], mismatches: []
-322 (imperfect match), insertions: [[4, 'T'], [14, 'G'], [31, 'G'], [53, 'G'], [53, 'T'], [53, 'G'], [60, 'T']], deletions: [[3, 'T']], mismatches: [[69, 62, 'G', 'T']]
-AGGGTAGTGTTAGGGTTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGG
+177 (imperfect match), insertions: [(4, 'G'), (4, 'T'), (14, 'G')], deletions: [(26, 'G'), (27, 'T')], mismatches: []
+comparison: (Ivans Data -> output data): Insertions: [(4, 'G'), (4, 'T'), (14, 'G'), (19, 'T')] -> [(4, 'G'), (4, 'T'), (14, 'G')]   deletions: [(91, 'G')] -> [(26, 'G'), (27, 'T')]   mismatches: [(26, 'G', 'T'), (27, 'T', 'G'), (112, 'G', 'T')] -> []
+gap: 13 bp
+303 (imperfect match), insertions: [(14, 'G'), (31, 'G')], deletions: [], mismatches: []
+comparison: (Ivans Data -> output data): Insertions: [(4, 'G'), (4, 'T'), (14, 'G'), (31, 'G'), (53, 'G'), (53, 'T'), (53, 'G'), (60, 'T')] -> [(14, 'G'), (31, 'G')]   mismatches: [(62, 'T', 'G')] -> []
 
 
-None
-the repeated sequence was not found
-
-None
-the repeated sequence was not found
-
-None
-the repeated sequence was not found
-
-IT130_13R_consensus_labeled
-Total matches: 11
-93 (imperfect match), insertions: [[0, 'T'], [0, 'G'], [0, 'G'], [0, 'G'], [4, 'T'], [20, 'T'], [24, 'G']], deletions: [[18, 'T']], mismatches: []
+______________________________________________________________
+13R:
+Total matches: 5
+97 (imperfect match), insertions: [(4, 'T'), (24, 'G')], deletions: [], mismatches: [(18, 'T', 'G'), (20, 'G', 'T')]
+alignment matches perfectly with Ivan's data 
 211 (perfect match)
 323 (perfect match)
 435 (perfect match)
 547 (perfect match)
-659 (imperfect match), insertions: [[95, 'G']], deletions: [], mismatches: []
-855 (imperfect match), insertions: [[79, 'G'], [79, 'T'], [79, 'G']], deletions: [[1, 'T'], [2, 'G'], [3, 'T'], [4, 'G'], [5, 'G'], [84, 'T']], mismatches: []
-979 (imperfect match), insertions: [[3, 'G'], [49, 'G'], [49, 'T']], deletions: [[10, 'G'], [11, 'G'], [12, 'T'], [26, 'G'], [27, 'T'], [38, 'G']], mismatches: []
-1088 (perfect match)
-1200 (imperfect match), insertions: [[32, 'G'], [32, 'T'], [32, 'T'], [40, 'G'], [44, 'T']], deletions: [[37, 'T']], mismatches: [[52, 47, 'A', 'G']]
-1316 (imperfect match), insertions: [[29, 'G'], [29, 'T'], [29, 'G'], [29, 'G']], deletions: [], mismatches: []
-AGGGTAGTGTTAGGGTGTGGGTGTGGTGTGTGTGTGTGGGTGTGGTGTGTGTGTGGGTGTGGTGTGTGTGGGTGTGGTGTGTGTGTGGGTGTGTGGGTGTGTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGTGGGTGGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGTTGGTGGGTGGTGGTGTATGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGTGGTGTGGTGTGTGGGTGTGGTGGTGTGGTGTGGTGTGGTGTGTGGTGTGTGGTGTGTGGTGTGTAGGTGTGTGGTGTGGTGGTGGTGTGGG
 
 
-None
-the repeated sequence was not found
-
-IT130_14R_consensus_labeled
+______________________________________________________________
+14R:
 Total matches: 1
-78 (imperfect match), insertions: [[3, 'G'], [43, 'T'], [111, 'T']], deletions: [[47, 'G'], [48, 'T'], [49, 'G'], [91, 'G']], mismatches: []
-TGTGAAATGTGTGTGTGTGTGGGTGTGTGGGTGTGGGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGTGGTGTGGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGA
+75 (imperfect match), insertions: [(3, 'G')], deletions: [(46, 'T'), (49, 'G'), (91, 'G')], mismatches: [(44, 'G', 'T'), (112, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(48, 'G'), (55, 'T'), (84, 'G'), (84, 'T'), (84, 'G')] -> [(3, 'G')]   deletions: [(62, 'T'), (68, 'G'), (69, 'T')] -> [(46, 'T'), (49, 'G'), (91, 'G')]   mismatches: [] -> [(44, 'G', 'T'), (112, 'G', 'T')]
 
 
-IT130_15L_consensus_labeled
-Total matches: 3
-354 (imperfect match), insertions: [[9, 'T'], [33, 'T']], deletions: [[1, 'T'], [2, 'G'], [19, 'G']], mismatches: []
-465 (imperfect match), insertions: [[86, 'G'], [86, 'T']], deletions: [], mismatches: []
-707 (imperfect match), insertions: [[110, 'T'], [110, 'G'], [110, 'T'], [110, 'G'], [110, 'T']], deletions: [[12, 'T']], mismatches: [[10, 10, 'T', 'G']]
-CTGGCGCTGGTGGGTGTGGTGTGTGTGTGTGGTGTGTGGGTGTGTGGTGGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGGGGGTGTGGGTGTGTGTGTGGTGTGGTGTGGTGTGGGTGTGGTGGTGTGTGGTGGGTGGGGTGGGTGTGGTGTGGTGGGTGTGTGTGTGGTGTGTGGTGTGGTGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGTGGTGTGGTGCGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGTGGTGTGGTGTGTGGTGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGG
+______________________________________________________________
+15L:
+15L chromosome end is not in the Ivan's data, comparison will be ignored
+Total matches: 12
+99 (perfect match)
+211 (perfect match)
+323 (perfect match)
+435 (perfect match)
+547 (perfect match)
+659 (perfect match)
+771 (perfect match)
+883 (perfect match)
+995 (perfect match)
+1107 (perfect match)
+1219 (perfect match)
+1331 (perfect match)
 
 
-IT130_15R_consensus_labeled
-Total matches: 7
-3 (imperfect match), insertions: [[4, 'G'], [4, 'G'], [4, 'T'], [12, 'G'], [12, 'T'], [12, 'G'], [12, 'T'], [12, 'G'], [12, 'G']], deletions: [], mismatches: []
-124 (imperfect match), insertions: [[69, 'G'], [69, 'T'], [69, 'G'], [85, 'T'], [111, 'T']], deletions: [[66, 'T'], [91, 'G']], mismatches: []
-425 (imperfect match), insertions: [[14, 'G'], [20, 'G'], [20, 'T'], [20, 'G'], [20, 'T'], [20, 'G'], [20, 'G'], [20, 'T']], deletions: [], mismatches: []
+______________________________________________________________
+15R:
+Total matches: 8
+19 (imperfect match), insertions: [], deletions: [(1, 'T'), (2, 'G'), (3, 'T'), (4, 'G'), (5, 'G'), (11, 'G'), (12, 'T')], mismatches: []
+comparison: (Ivans Data -> output data): Insertions: [(3, 'G')] -> []   deletions: [] -> [(1, 'T'), (2, 'G'), (3, 'T'), (4, 'G'), (5, 'G'), (11, 'G'), (12, 'T')]   mismatches: [(10, 'G', 'T'), (12, 'T', 'G')] -> []
+123 (imperfect match), insertions: [(67, 'T'), (69, 'G'), (85, 'T')], deletions: [(91, 'G')], mismatches: [(66, 'T', 'G'), (112, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(69, 'G'), (69, 'T'), (69, 'G'), (85, 'T')] -> [(67, 'T'), (69, 'G'), (85, 'T')]   deletions: [(66, 'T'), (91, 'G')] -> [(91, 'G')]   mismatches: [(112, 'G', 'T')] -> [(66, 'T', 'G'), (112, 'G', 'T')]
+gap: 33 bp
+270 (imperfect match), insertions: [(66, 'G'), (69, 'G'), (69, 'T'), (69, 'G')], deletions: [(26, 'G'), (27, 'T'), (49, 'G')], mismatches: [(111, 'G', 'T')]
+alignment matches perfectly with Ivan's data 
+gap: 50 bp
+433 (imperfect match), insertions: [], deletions: [(16, 'T'), (19, 'G'), (20, 'G')], mismatches: []
+alignment matches perfectly with Ivan's data 
+gap: 3 bp
 545 (perfect match)
-737 (imperfect match), insertions: [[14, 'G'], [19, 'T'], [24, 'G'], [24, 'T'], [24, 'G'], [27, 'G'], [27, 'T'], [27, 'G']], deletions: [], mismatches: []
+gap: 34 bp
+691 (imperfect match), insertions: [], deletions: [(108, 'T')], mismatches: [(111, 'G', 'T')]
+comparison: (Ivans Data -> output data): deletions: [(12, 'T'), (26, 'G'), (27, 'T')] -> [(108, 'T')]   mismatches: [(10, 'G', 'T')] -> [(111, 'G', 'T')]
+gap: 55 bp
 857 (perfect match)
+gap: 5 bp
 974 (perfect match)
-GTGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGA
 
 
-IT130_16L_consensus_labeled
-Total matches: 19
+______________________________________________________________
+16L:
+Total matches: 9
 102 (perfect match)
 214 (perfect match)
 326 (perfect match)
 438 (perfect match)
 550 (perfect match)
-662 (imperfect match), insertions: [[110, 'T'], [110, 'G'], [110, 'T'], [110, 'G'], [110, 'T']], deletions: [], mismatches: []
-780 (imperfect match), insertions: [[14, 'G']], deletions: [[28, 'G'], [29, 'T'], [30, 'G'], [31, 'T'], [32, 'G'], [33, 'G']], mismatches: []
+662 (imperfect match), insertions: [], deletions: [], mismatches: [(111, 'G', 'T')]
+alignment matches perfectly with Ivan's data 
+gap: 113 bp
 887 (perfect match)
 999 (perfect match)
 1111 (perfect match)
-1223 (perfect match)
-1335 (perfect match)
-1447 (perfect match)
-1612 (imperfect match), insertions: [[14, 'G'], [31, 'G']], deletions: [[49, 'G'], [50, 'G'], [51, 'T'], [52, 'G'], [53, 'T'], [54, 'G'], [55, 'G']], mismatches: []
-1828 (perfect match)
-1979 (imperfect match), insertions: [[0, 'T'], [0, 'G'], [0, 'T'], [0, 'G'], [0, 'G'], [0, 'G'], [14, 'G'], [19, 'T']], deletions: [], mismatches: []
-2191 (perfect match)
-2303 (perfect match)
-2415 (perfect match)
-GTGTGTGGGTGTGGGTGTGGGTGTGTGGGTGTGTGGGTGTGTGGATGTGGGTGTGTGGGTGTGGGTGTGGTGTGGGTGTGTGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTA
 
 
-IT130_16R_consensus_labeled
+______________________________________________________________
+16R:
 Total matches: 25
-8 (imperfect match), insertions: [[0, 'T'], [0, 'G'], [1, 'G'], [85, 'T']], deletions: [[74, 'G'], [82, 'T']], mismatches: []
+9 (imperfect match), insertions: [(75, 'T')], deletions: [(79, 'T'), (85, 'G')], mismatches: [(1, 'T', 'G')]
+alignment matches perfectly with Ivan's data 
+gap: 2 bp
 122 (perfect match)
 234 (perfect match)
 346 (perfect match)
@@ -298,6 +388,5 @@ Total matches: 25
 2474 (perfect match)
 2586 (perfect match)
 2698 (perfect match)
-AGTGTGGGTGTGGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGTGTGGGTGTGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGTGTGTGGGTGTGGTGTGGGTGTGGTGTGGGTGTGGTGTGTGGGGTGTGGTGTGGGTGTGTGTGGGTGTGGTGTGTGGGTGTGGTGTG
 
 
