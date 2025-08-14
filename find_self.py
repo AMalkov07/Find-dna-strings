@@ -14,6 +14,9 @@ import tempfile
 from pathlib import Path
 import subprocess
 import csv
+import parasail_functions
+import parse_csv
+import parasail_seedHit
 
 import json
 
@@ -159,8 +162,9 @@ class self_search_type:
     def add_offset(self):
         for i in range(len(self.indexes)):
             self.indexes[i] += self.offset
-        for i in range(len(self.extra_alignment_indexes)):
-            self.extra_alignment_indexes[i] += self.offset
+        if self.extra_alignment_indexes:
+            for i in range(len(self.extra_alignment_indexes)):
+                self.extra_alignment_indexes[i] += self.offset
         # for key in self.extra_alignment_insertions_and_deletions.keys():
             # for i in range(len(self.extra_alignment_insertions_and_deletions[key])):
             # for j in range(len(self.extra_alignment_insertions_and_deletions[key][i])):
@@ -175,9 +179,77 @@ class self_search_type:
         # imperfect_alignment_indexes = self.extra_alignment_indexes
         # return f"substring length={self.n_subStr}, number of matches={len(self.indexes)}, min_gap={self.min_gap}, overlap={self.has_overlap}, number of extra alignments={len(self.extra_alignment_indexes)}\nstarting indexes: {self.indexes}\nextra alignemtn indexes: {self.extra_alignment_indexes}\n"
 
+    #def __repr__(self):
+        #if not self.extra_alignment_indexes:
+            #self.extra_alignment_indexes = []
+        #output = []
+        #total_alignments = 0
+        #if self.extra_alignment_indexes:
+            #print(f"extra_alignment_indexes: {self.extra_alignment_indexes}")
+            #for group in self.extra_alignment_indexes:
+                #total_alignments += len(group)
+            #total_matches = len(self.indexes) + total_alignments
+        #else:
+            #total_matches = len(self.indexes)
+        #output.append(f"Total matches: {total_matches}")
+
+        ## Two-pointer merge
+        #i = j = 0
+        #while i < len(self.indexes) and j < len(self.extra_alignment_indexes):
+            #curr_group = self.extra_alignment_indexes[j]
+            #if self.indexes[i] <= curr_group[0]:
+                #output.append(f"{self.indexes[i]} (perfect match)")
+                #i += 1
+            #else:
+                #for k in range(len(curr_group)):
+                    #val = curr_group[k]
+                    ##insertions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][0]]
+                    #insertions_arr = self.extra_alignment_insertions_and_deletions[val][0]
+                    ##deletions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][1]]
+                    #deletions_arr = self.extra_alignment_insertions_and_deletions[val][1]
+                    ##mismatches_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][2]]
+                    #mismatches_arr = self.extra_alignment_insertions_and_deletions[val][2]
+
+                    #output.append(
+                        ## f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
+                        #f"{val} (imperfect match), insertions: {insertions_arr}, deletions: {deletions_arr}, mismatches: {mismatches_arr}")
+                    ## f"{self.extra_alignment_indexes[j]} (imperfect match)")
+                #j += 1
+
+        ## Remaining perfect matches
+        #while i < len(self.indexes):
+            #output.append(f"{self.indexes[i]} (perfect match)")
+            #i += 1
+
+        ## Remaining imperfect matches
+        #while j < len(self.extra_alignment_indexes):
+            #curr_group = self.extra_alignment_indexes[j]
+            #for k in range(len(curr_group)):
+                #val = curr_group[k]
+                ##insertions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][0]]
+                ##deletions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][1]]
+                ##mismatches_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][2]]
+                #insertions_arr = self.extra_alignment_insertions_and_deletions[val][0]
+                ##deletions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][1]]
+                #deletions_arr = self.extra_alignment_insertions_and_deletions[val][1]
+                ##mismatches_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][2]]
+                #mismatches_arr = self.extra_alignment_insertions_and_deletions[val][2]
+                #output.append(
+                    ## f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
+                    #f"{val} (imperfect match), insertions: {insertions_arr}, deletions: {deletions_arr}, mismatches: {mismatches_arr}")
+                ## f"{self.extra_alignment_indexes[j]} (imperfect match)")
+            #j += 1
+
+        #return "\n".join(output)
+
     def __repr__(self):
+        if not self.extra_alignment_indexes:
+            self.extra_alignment_indexes = []
         output = []
-        total_matches = len(self.indexes) + len(self.extra_alignment_indexes)
+        if self.extra_alignment_indexes:
+            total_matches = len(self.indexes) + len(self.extra_alignment_indexes)
+        else:
+            total_matches = len(self.indexes)
         output.append(f"Total matches: {total_matches}")
 
         # Two-pointer merge
@@ -188,12 +260,12 @@ class self_search_type:
                 i += 1
             else:
                 val = self.extra_alignment_indexes[j]
-                insertions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][0]]
-                #insertions_arr = self.extra_alignment_insertions_and_deletions[val][0]
-                deletions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][1]]
-                #deletions_arr = self.extra_alignment_insertions_and_deletions[val][1]
-                mismatches_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][2]]
-                #mismatches_arr = self.extra_alignment_insertions_and_deletions[val][2]
+                #insertions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][0]]
+                insertions_arr = self.extra_alignment_insertions_and_deletions[val][0]
+                #deletions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][1]]
+                deletions_arr = self.extra_alignment_insertions_and_deletions[val][1]
+                #mismatches_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][2]]
+                mismatches_arr = self.extra_alignment_insertions_and_deletions[val][2]
 
                 output.append(
                     # f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
@@ -209,9 +281,14 @@ class self_search_type:
         # Remaining imperfect matches
         while j < len(self.extra_alignment_indexes):
             val = self.extra_alignment_indexes[j]
-            insertions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][0]]
-            deletions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][1]]
-            mismatches_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][2]]
+            #insertions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][0]]
+            #deletions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][1]]
+            #mismatches_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][2]]
+            insertions_arr = self.extra_alignment_insertions_and_deletions[val][0]
+            #deletions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][1]]
+            deletions_arr = self.extra_alignment_insertions_and_deletions[val][1]
+            #mismatches_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][2]]
+            mismatches_arr = self.extra_alignment_insertions_and_deletions[val][2]
             output.append(
                 # f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
                 f"{val} (imperfect match), insertions: {insertions_arr}, deletions: {deletions_arr}, mismatches: {mismatches_arr}")
@@ -798,6 +875,99 @@ class find_loops:
 
         #return (relative_start, relative_end, mistakes, target_length)
         return (alignment["query_start"], alignment["query_end_offset"], mistakes)
+
+    def best_alignments_parasail(self, key):
+        my_dict_entry = self.my_dict[key]
+        alignments = my_dict_entry.indexes
+
+        key_n = len(key)
+        #min_score = key_n - key_n//12
+        max_mistakes = key_n//12
+        str_dict = {}
+        queue = deque()
+
+        if len(alignments) < 1:
+            tmp = self.input_s
+            str_dict[tmp] = [0, len(tmp)]
+            queue.append(tmp)
+            
+        else:
+
+            #alignment = alignments[0]
+            #if alignment > key_n - max_mistakes:
+                #li = alignment - key_n
+                #if li < 0:
+                    #li = 0
+                #tmp = self.input_s[li:alignment]
+                #str_dict[tmp] = [li, alignment]
+                #queue.append(tmp)
+
+
+            #last_val = alignments[0] + key_n
+            last_val = 0
+            for i in range(0, len(alignments)):
+                alignment = alignments[i]
+                tmp = self.input_s[last_val:alignment]
+                str_dict[tmp] = [last_val, alignment]
+                queue.append(tmp)
+                last_val = alignment+key_n
+            tmp = self.input_s[last_val:]
+            x = False
+            str_dict[tmp] = [last_val, len(self.input_s)]
+            queue.append(tmp)
+
+        good_alignment_arr = []
+        good_alignment_starting_pos = []
+        dict_insertions_and_deletions = {}
+        arr = []
+        #counter = 0
+        while queue:
+            full_str = queue.popleft()
+
+            if len(full_str) < key_n - 5:
+                continue
+
+            #all_hits = parasail_functions.recursive_find_alignments(key, full_str)
+            all_hits = parasail_seedHit.seed_and_extend_pipeline(key, full_str,
+                                        k=15,
+                                        flank=80,
+                                        match=2,
+                                        mismatch=-2,
+                                        gap_open=4,
+                                        gap_extend=2,
+                                        min_identity=0.90,
+                                        offset_tolerance=6,
+                                        min_seeds=2)
+        
+            if not all_hits:
+                all_hits = []
+
+            #for hit in all_hits:
+                #parasail_functions.print_report(hit)
+                #print("\n")
+
+            if all_hits:
+        
+                for hit in all_hits:
+                
+                    #good_alignment_starting_pos.append(hit['beg_ref']+str_dict[full_str][0])
+                    good_alignment_starting_pos.append(hit['ref_start']+str_dict[full_str][0])
+
+                    total_variants = [hit['insertions'], hit['deletions'], hit['mismatches']]
+
+                    #dict_insertions_and_deletions[hit['beg_ref']+str_dict[full_str][0]] = total_variants
+                    dict_insertions_and_deletions[hit['ref_start']+str_dict[full_str][0]] = total_variants
+
+                    #print(f"good_algignment starting positions: {good_alignment_starting_pos}")
+                    #print(f"dict_insertions_and_deletion: {dict_insertions_and_deletions}")
+
+        if len(good_alignment_starting_pos) > 1:
+            good_alignment_starting_pos = sorted(good_alignment_starting_pos)
+                            
+        #print(f"good_algignment starting positions: {good_alignment_starting_pos}")
+        #print(f"dict_insertions_and_deletion: {dict_insertions_and_deletions}")
+
+        return (good_alignment_starting_pos, [] , dict_insertions_and_deletions)
 
     
     def both_alignments(self, key):
@@ -1450,8 +1620,10 @@ class find_loops:
                     #key].extra_alignment_insertions_and_deletions = self.max_num_alignment(key)
                 #self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
                     #key].extra_alignment_insertions_and_deletions = self.align_repeat_maker(key)
+                #self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
+                    #key].extra_alignment_insertions_and_deletions = self.both_alignments(key)
                 self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
-                    key].extra_alignment_insertions_and_deletions = self.both_alignments(key)
+                    key].extra_alignment_insertions_and_deletions = self.best_alignments_parasail(key)
                 # print(
                 # f"extra indexes: {self.my_dict[key].extra_alignment_indexes} <<<<<<<<<<<<<<<<")
         self.filter_same_length()
@@ -1540,6 +1712,8 @@ class full_analysis:
         offset_offset = arrow_distance_orig//2
         set1 = copy.deepcopy(curr_sequence.indexes)
         set2 = copy.deepcopy(curr_sequence.extra_alignment_indexes)
+        if not set2:
+            set2 = []
         set2.sort()
         insertions_and_deletions = copy.deepcopy(
             curr_sequence.extra_alignment_insertions_and_deletions)
@@ -1642,24 +1816,24 @@ class full_analysis:
                 deletions = insertions_and_deletions[insertions_and_deletions_key][1]
                 mismatches = insertions_and_deletions[insertions_and_deletions_key][2]
                 for i in insertions:
-                    #i = i[0]
+                    i = i[0]
                     #i = i['query_pos']
-                    i = i['pos']
+                    #i = i['pos']
                     # plt.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='blue', lw=1)  # Draw vertical line at midpoint
                     self.ax.plot([point+i*sign, point+i*sign], [y_index-.1,
                                  y_index+.1], color='gold', linestyle='-', lw=1)
                 for i in deletions:
-                    #i = i[0]
+                    i = i[0]
                     #i = i['query_pos']
-                    i = i['pos']
+                    #i = i['pos']
                     # plt.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='gold', lw=1)  # Draw vertical line at midpoint
                     self.ax.plot([point+i*sign, point+i*sign], [y_index-.1,
                                  y_index+.1], color='blue', linestyle='-', lw=1)
 
                 for i in mismatches:
-                    #i = i[0]
+                    i = i[0]
                     #i = i['query_pos']
-                    i = i['pos']
+                    #i = i['pos']
                     # plt.plot([point+i*sign, point+i*sign], [y_index-.1, y_index+.1], color='gold', lw=1)  # Draw vertical line at midpoint
                     self.ax.plot([point+i*sign, point+i*sign], [y_index-.1,
                                  y_index+.1], color='red', linestyle='-', lw=1)
@@ -1862,6 +2036,7 @@ class parse_fasta_file:
 
     def read_fasta_flexible(self):
         file_path = self.user_input_obj.file
+        #print(self.user_input_obj.maximum_ends)
         self.sequences_headers = [None] * self.user_input_obj.maximum_ends
         self.sequences_data = [None] * self.user_input_obj.maximum_ends
         total_fasta_entries_counter = 0
@@ -1881,6 +2056,7 @@ class parse_fasta_file:
                         try:
                             # Extract index from header
                             index = self.get_index(Sequence.id)
+                            #print(f"index: {index}, sequence: {Sequence.id}")
                             self.sequences_headers[index] = str(
                                 Sequence.id)  # Assign sequence to the array
                             # Assign sequence to the array
@@ -1905,7 +2081,9 @@ class parse_fasta_file:
         else:
             print("chr ends sequences detected\n")
         if is_whole_ref_sequence:
-            if total_fasta_entries_counter > self.user_input_obj.maximum_ends//2:
+            #if total_fasta_entries_counter > self.user_input_obj.maximum_ends//2:
+            # <<<<<<<<<<<check this>>>>>>>>>>>>>>>>
+            if True:
                 # print("error, the number of entries in the fasta file exeeds the number of maximum ends for a whole reference sequence. Please change the number of maximum ends withe the --maximum_ends flag")
                 return [], []
             # note: add an edge case for there being entry numbers that exceed the half of the maximum_ends variable
@@ -1917,6 +2095,7 @@ class parse_fasta_file:
                 else:
                     first_half_sequence = None
                     second_half_sequence = None
+                print(f"i: {i}")
                 first_half_header = self.sequences_headers[i] + "_L"
                 second_half_header = self.sequences_headers[i] + "_R"
                 self.sequences_data[i*2+1] = second_half_sequence
@@ -2165,24 +2344,30 @@ def main(args):
         # if elem[1] == i:
         if best_repeat_sequence_arr_ptr < n_best_repeat_sequences_arr and best_repeat_sequence_arr[best_repeat_sequence_arr_ptr][1] == i:
             elem = best_repeat_sequence_arr[best_repeat_sequence_arr_ptr]
-            print(all_chr_headers[elem[1]])
+            #print(all_chr_headers[elem[1]])
             # print(f"chr{convert_num_to_chr_end(elem[1])}")
             elem[0].add_offset()
-            print(elem[0])
-            arr_for_csv_comparison.append(elem[0])
+            #print(elem[0])
+            arr_for_csv_comparison.append((all_chr_headers[elem[1]], elem[0]))
             # moded_str = mod_str(all_chr_ends[elem[1]], elem[0])
             # print(f"{moded_str}\n")
-            print(all_chr_ends[elem[1]])
-            print("\n")
+            #print(all_chr_ends[elem[1]])
+            #print("\n")
             best_repeat_sequence_arr_ptr += 1
         elif no_loops_found_indexes_ptr < n_no_loops_found_indexes and i == no_loops_found_indexes[no_loops_found_indexes_ptr]:
-            print(
-                f"{all_chr_headers[i]}\nno loops of the minimum length were found\n")
+            #print(
+                #f"{all_chr_headers[i]}\nno loops of the minimum length were found\n")
             no_loops_found_indexes_ptr += 1
-        else:
-            print(
-                f"{all_chr_headers[i]}\nthe repeated sequence was not found\n")
+        #else:
+            #print(
+                #f"{all_chr_headers[i]}\nthe repeated sequence was not found\n")
 #    print(compare_alignment_data_smart("Test_csv_input.csv", arr_for_csv_comparison))
+    #:w
+    # jfor elem in arr_for_csv_comparison:
+        #print(elem[0])
+    #parse_csv.compare_outputs("181_Ivan_data.csv", arr_for_csv_comparison)
+    #print(f"arr for csv comparison: {arr_for_csv_comparison}")
+    parse_csv.compare_outputs("csv_files/181.csv", arr_for_csv_comparison)
     return
 
 
