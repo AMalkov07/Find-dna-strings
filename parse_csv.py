@@ -111,13 +111,39 @@ def parse_new_data(new_data):
     new_data_grouped_by_chr_dict = group_new_data(new_data_grouped_by_chr_dict)
     return new_data_grouped_by_chr_dict
 
+def count_tuples(arr, mode):
+    if not arr:
+        return 0
+    
+    count = 1  # start by counting the first tuple
+    prev_first = arr[0][0]
+
+    for i in range(1, len(arr)):
+        current_first = arr[i][0]
+        condition = False
+        # Only increment if not same and not consecutive
+        if mode == "insertions":
+            condition = (current_first == prev_first)
+        elif mode == "deletions":
+            condition = (current_first == prev_first + 1)
+            
+        if not (condition):
+            count += 1
+        prev_first = current_first
+
+    return count
+
 
 #note: self is just cuz I'm too lazy to change the variable name, it's not actually an object function
 def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
     if not self.extra_alignment_indexes:
         self.extra_alignment_indexes = []
+    all_imperfect_alignments = []
     output = []
     total_alignments = 0
+    if_matching_number_of_alignment = True
+    total_number_alignments_compared_in_chr = 0
+    total_number_perfect_alignment_matches_in_chr = 0
     if self.extra_alignment_indexes:
         for group in self.extra_alignment_indexes:
             total_alignments += len(group)
@@ -131,31 +157,38 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
     last_end = None
     while i < len(self.indexes) and j < len(self.extra_alignment_indexes):
         curr_group = self.extra_alignment_indexes[j]
+        # perfect match
         if self.indexes[i] <= curr_group[0]:
             if last_end and last_end < self.indexes[i]:
-                output.append(f"gap: {self.indexes[i] - last_end} bp")
+                output.append(f"gap: {self.indexes[i] - last_end - 1} bp")
             last_end = self.indexes[i] + self.n_subStr
             output.append(f"{self.indexes[i]} (perfect match)")
             i += 1
+        # imperfect match
         else:
+            should_output_extra_alignment_error_message = True
             for k in range(len(curr_group)):
                 val = curr_group[k]
-                #insertions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][0]]
                 insertions_arr = self.extra_alignment_insertions_and_deletions[val][0]
-                #deletions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][1]]
                 deletions_arr = self.extra_alignment_insertions_and_deletions[val][1]
-                #mismatches_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][2]]
                 mismatches_arr = self.extra_alignment_insertions_and_deletions[val][2]
                 if last_end and last_end < val:
-                    output.append(f"gap: {val - last_end} bp")
+                    output.append(f"gap: {val - last_end - 1} bp") # check this makes sense
                 last_end = val + self.n_subStr + len(insertions_arr) - len(deletions_arr)
 
+                if print_comparison and should_output_extra_alignment_error_message:
+                    if len(curr_group) != len(given_data_grouped_by_chr_dict[j]):
+                        output.append("alignments number mismatch in current mutagenic area. No further comparison will be made for chr end")
+                        if_matching_number_of_alignment = False
+                        output.append(f"Ivans number of alignments: {len(given_data_grouped_by_chr_dict[j])}, output number of alignmnets: {len(curr_group)}")
+                        should_output_extra_alignment_error_message = False
+
                 output.append(
-                    # f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
                     f"{val} (imperfect match), insertions: {insertions_arr}, deletions: {deletions_arr}, mismatches: {mismatches_arr}")
-                if print_comparison:
+                if print_comparison and if_matching_number_of_alignment:
+                    total_number_alignments_compared_in_chr += 1
                     if k >= len(given_data_grouped_by_chr_dict[j]):
-                        output.append("More alignments in the mutagenic area then in Ivan's data")
+                        output.append("ERROR More alignments in the mutagenic area then in Ivan's data")
                         continue
                     given_insertions_arr = given_data_grouped_by_chr_dict[j][k]["insertions"]
                     given_deletions_arr = given_data_grouped_by_chr_dict[j][k]["deletions"]
@@ -163,6 +196,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
 
                     if given_insertions_arr == insertions_arr and given_deletions_arr == deletions_arr and given_mismatches_arr == mismatches_arr:
                         output.append("alignment matches perfectly with Ivan's data ")
+                        total_number_perfect_alignment_matches_in_chr +=  1
                     
                     else:
                         tmp = []
@@ -172,9 +206,14 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
                         if deletions_arr != given_deletions_arr:
                             tmp.append(f"deletions: {given_deletions_arr} -> {deletions_arr}   ")
                         if mismatches_arr != given_mismatches_arr:
-                            tmp.append(f"mismatches: {given_mismatches_arr} -> {mismatches_arr}")
+                            tmp.append(f"mismatches: {given_mismatches_arr} -> {mismatches_arr}   ")
+                        ivans_events = count_tuples(given_insertions_arr, "insertions") + count_tuples(given_deletions_arr, "deletions") + count_tuples(given_mismatches_arr, "mismatches")
+                        output_events = count_tuples(insertions_arr, "insertions") + count_tuples(deletions_arr, "deletions") + count_tuples(mismatches_arr, "mismatches")
+                        tmp.append(f"number of events: {ivans_events} -> {output_events}")
+
 
                         output.append("".join(tmp))
+                        all_imperfect_alignments.append("".join(tmp))
 
                 # f"{self.extra_alignment_indexes[j]} (imperfect match)")
             j += 1
@@ -182,7 +221,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
     # Remaining perfect matches
     while i < len(self.indexes):
         if last_end and last_end < self.indexes[i]:
-            output.append(f"gap: {self.indexes[i] - last_end} bp")
+            output.append(f"gap: {self.indexes[i] - last_end - 1} bp")
         last_end = self.indexes[i] + self.n_subStr
         output.append(f"{self.indexes[i]} (perfect match)")
         i += 1
@@ -190,23 +229,29 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
     # Remaining imperfect matches
     while j < len(self.extra_alignment_indexes):
         curr_group = self.extra_alignment_indexes[j]
+        should_output_extra_alignment_error_message = True
         for k in range(len(curr_group)):
             val = curr_group[k]
-            #insertions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][0]]
-            #deletions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][1]]
-            #mismatches_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][2]]
             insertions_arr = self.extra_alignment_insertions_and_deletions[val][0]
-            #deletions_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][1]]
             deletions_arr = self.extra_alignment_insertions_and_deletions[val][1]
-            #mismatches_arr = [list(d.values()) for d in self.extra_alignment_insertions_and_deletions[val][2]]
             mismatches_arr = self.extra_alignment_insertions_and_deletions[val][2]
             if last_end and last_end < val:
-                output.append(f"gap: {val - last_end} bp")
+                output.append(f"gap: {val - last_end - 1} bp") # check this makes sense
             last_end = val + self.n_subStr + len(insertions_arr) - len(deletions_arr)
+
+            if print_comparison and should_output_extra_alignment_error_message:
+                if len(curr_group) != len(given_data_grouped_by_chr_dict[j]):
+                    output.append("alignments number mismatch in current mutagenic area. No further comparison will be made for chr end")
+                    if_matching_number_of_alignment = False
+                    output.append(f"Ivans number of alignments: {len(given_data_grouped_by_chr_dict[j])}, output number of alignmnets: {len(curr_group)}")
+                should_output_extra_alignment_error_message = False
+                
+
             output.append(
                 # f"{val} (imperfect match), insertions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][0]]}, deletions: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][1]]}, mismatches: {[x + int(val) for x in self.extra_alignment_insertions_and_deletions[val][2]]}")
                 f"{val} (imperfect match), insertions: {insertions_arr}, deletions: {deletions_arr}, mismatches: {mismatches_arr}")
-            if print_comparison:
+            if print_comparison and if_matching_number_of_alignment:
+                total_number_alignments_compared_in_chr += 1
                 if k >= len(given_data_grouped_by_chr_dict[j]):
                     output.append("More alignments in the mutagenic area then in Ivan's data")
                     continue
@@ -216,6 +261,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
 
                 if given_insertions_arr == insertions_arr and given_deletions_arr == deletions_arr and given_mismatches_arr == mismatches_arr:
                     output.append("alignment matches perfectly with Ivan's data ")
+                    total_number_perfect_alignment_matches_in_chr +=  1
                 
                 else:
                     tmp = []
@@ -226,22 +272,54 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
                         tmp.append(f"deletions: {given_deletions_arr} -> {deletions_arr}   ")
                     if mismatches_arr != given_mismatches_arr:
                         tmp.append(f"mismatches: {given_mismatches_arr} -> {mismatches_arr}")
+                    ivans_events = count_tuples(given_insertions_arr, "insertions") + count_tuples(given_deletions_arr, "deletions") + count_tuples(given_mismatches_arr, "mismatches")
+                    output_events = count_tuples(insertions_arr, "insertions") + count_tuples(deletions_arr, "deletions") + count_tuples(mismatches_arr, "mismatches")
+                    tmp.append(f"number of events: {ivans_events} -> {output_events}")
 
                     output.append("".join(tmp))
+                    all_imperfect_alignments.append("".join(tmp))
             # f"{self.extra_alignment_indexes[j]} (imperfect match)")
         j += 1
 
     final_string = "\n".join(output)
     print(final_string)
 
+    return if_matching_number_of_alignment, total_number_alignments_compared_in_chr, total_number_perfect_alignment_matches_in_chr, ("\n".join(all_imperfect_alignments))
 
-def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict):
+
+def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename):
+
+    total_matching_number_of_gaps = 0
+    total_matching_number_of_alignments = 0 # the number of times that the number of alignments is the same inside of a mutagenic area
+    total_number_alignments_compared = 0
+    total_number_perfect_alignment_matches = 0
+    total_chr_ends_compared = 0
+    total_no_mutagenic_zones = 0
+    total_chr_ends_with_mutagenic_zone = 0
+    total_exact_match_for_entire_chr_end = 0
+
+    mismatch_gap_number_indexes = []
+    mismatch_alignment_number_indexes = []
+    all_imperfect_alignments = []
+
+
     for key in new_data_grouped_by_chr_dict.keys():
+        total_chr_ends_compared += 1
+        if len(new_data_grouped_by_chr_dict[key].extra_alignment_indexes) > 0 or (key in given_data_grouped_by_chr_dict and len(given_data_grouped_by_chr_dict[key]) > 0):
+            total_chr_ends_with_mutagenic_zone += 1
         print_comparison = True
         print("______________________________________________________________")
         print(f"{key}:")
         if key not in given_data_grouped_by_chr_dict:
-            print(f"{key} chromosome end is not in the Ivan's data, comparison will be ignored")
+            if len(new_data_grouped_by_chr_dict[key].extra_alignment_indexes) > 0:
+                total_alignments = 0
+                for elem in new_data_grouped_by_chr_dict[key].extra_alignment_indexes:
+                    total_alignments += len(elem)
+                print(f"number of mutagenic zones mismatch. No alignments were found in Ivans Data. Comparison will not be made\nIvans data: 0 alignments, Output data: {total_alignments} alignments")
+                mismatch_gap_number_indexes.append(key)
+            #else:
+                #total_matching_number_of_gaps += 1
+                #total_no_mutagenic_zones += 1
             print_comparison = False
         if print_comparison:
             alignments_groups_found = new_data_grouped_by_chr_dict[key].extra_alignment_indexes
@@ -249,13 +327,54 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
             n_alignments_groups_found = len(alignments_groups_found)
             n_alignments_groups_given = len(alignment_groups_given)
             if n_alignments_groups_found != n_alignments_groups_given:
-                print("different number of mutagenic zones found in this chromosome end. Comparison will not be made")
+                print(f"number of mutagenic zones mismatch. Comparison will not be made")
+                mismatch_gap_number_indexes.append(key)
+                total_alignments_found = 0
+                total_alignments_given = 0
+                for elem in new_data_grouped_by_chr_dict[key].extra_alignment_indexes:
+                    total_alignments_found += len(elem)
+                for elem in alignment_groups_given:
+                    total_alignments_given += len(elem)
+                print(f"Ivan mutagenic zones: {n_alignments_groups_given}, output mutagenic zones: {n_alignments_groups_found}, Ivan total alignments: {total_alignments_given}, Output total alignments: {total_alignments_found}")
                 print_comparison = False
+            else:
+                total_matching_number_of_gaps += 1
         if print_comparison:
-            custom_object_print(new_data_grouped_by_chr_dict[key], given_data_grouped_by_chr_dict[key], print_comparison)
+            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments = custom_object_print(new_data_grouped_by_chr_dict[key], given_data_grouped_by_chr_dict[key], print_comparison)
+            if if_matching_number_of_alignments and len(tmp_imperfect_alignments) == 0:
+                total_exact_match_for_entire_chr_end += 1
+            else:
+                all_imperfect_alignments.append(tmp_imperfect_alignments)
+            if if_matching_number_of_alignments:
+                total_matching_number_of_alignments += 1
+            else:
+                mismatch_alignment_number_indexes.append(key)
+            total_number_alignments_compared += total_number_alignments_compared_in_chr
+            total_number_perfect_alignment_matches += total_number_perfect_alignment_alignmen_in_chr
         else:
             custom_object_print(new_data_grouped_by_chr_dict[key], [], print_comparison)
         print("\n")
+
+    # check if key is in Ivans data but not in my output data:
+    for key in given_data_grouped_by_chr_dict:
+        if key not in new_data_grouped_by_chr_dict.keys():
+            total_chr_ends_compared += 1
+            total_chr_ends_with_mutagenic_zone += 1
+            print(f"{key}:")
+            print(f"chr end present in Ivan's output but not present in program output")
+            print("\n")
+
+    print(f"total chr ends with mutagenic zone found: {total_chr_ends_with_mutagenic_zone}", file=stats_filename)
+    print(f"total chr ends with matching number of mutagenic areas: {total_matching_number_of_gaps}", file=stats_filename)
+    print(f"total chr ends with matching number of alignments: {total_matching_number_of_alignments}", file=stats_filename)
+    print(f"total chr ends with exact same call as Ivans data: {total_exact_match_for_entire_chr_end}", file=stats_filename)
+    print(f"{total_number_perfect_alignment_matches} alignments matched perfectly out of {total_number_alignments_compared} that were compared", file=stats_filename)
+    print("\nchr ends with mutagenic zone number mismatch:", file=stats_filename)
+    print("\n".join(mismatch_gap_number_indexes), file=stats_filename)
+    print("\nchr ends with alignment number mismatch:", file=stats_filename)
+    print("\n".join(mismatch_alignment_number_indexes), file=stats_filename)
+    print("\nall Alignment mismatches:", file=stats_filename)        
+    print("\n\n".join(all_imperfect_alignments), file=stats_filename)
         
             
 
@@ -265,12 +384,12 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
     
         
 
-def compare_outputs(previous_data_csvfile, new_data):
+def compare_outputs(previous_data_csvfile, new_data, stats_filename):
     with open(previous_data_csvfile, newline='', encoding="utf-8-sig") as csvfile:
         reader = csv.reader(csvfile)
         given_data_grouped_by_chr_dict = run_csv_parser(reader) # structure of this dict: {"1L": [[dict1], [d2], [d3, d4, d5 d6]], "2L": ...}
         new_data_grouped_by_chr_dict = parse_new_data(new_data) # structure of this dict: {"1L": self_search_obj(1L), "2L": self_search_obj(2L), ...}
-        print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict)
+        print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename)
         for key in new_data_grouped_by_chr_dict.keys():
             if key not in given_data_grouped_by_chr_dict:
                 print(f"{key} key missing from Ivan's data")

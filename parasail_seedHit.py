@@ -334,8 +334,8 @@ def cluster_hits_by_offset(hits, offset_tolerance=8, min_seeds=2):
     for off in offsets_sorted:
         placed = False
         for cl in clusters:
-            cluster_mean = statistics.median(cl["offsets"])
-            if abs(cluster_mean - off) <= offset_tolerance: #<<<<<Note: try a different value other than [-1]
+            #cluster_mean = statistics.median(cl["offsets"]) #<<<<<<<<note: figure out if the mean is actually the metric that should be used to measure distance from
+            if abs(cl["offsets"][0] - off) <= offset_tolerance: 
                 cl['offsets'].append(off)
                 placed = True
                 break
@@ -346,7 +346,7 @@ def cluster_hits_by_offset(hits, offset_tolerance=8, min_seeds=2):
     for cl in clusters:
         off_vals = set(cl['offsets'])
         supporting = [(q, r) for (q, r) in hits if (r - q) in off_vals]
-        if len(supporting) < min_seeds:
+        if len(supporting) < min_seeds: #min_seeds determines the minimum number of kmer's that have to be close enough to eachother for us to consider the cluster. To my understanding, if the kmer size is 4 and min_seed is 2, then a single substring match of 5 bp would qualify as a valid cluster
             continue
         q_positions = [q for q, _ in supporting]
         r_positions = [r for _, r in supporting]
@@ -368,8 +368,8 @@ def extend_cluster(query,
                    flank=60,
                    match=2,
                    mismatch=-2,
-                   gap_open=5,
-                   gap_extend=1,
+                   gap_open=20,
+                   gap_extend=.5,
                    min_identity=0.90):
     """
     Extract a ref window around the cluster and run a semi-global alignment (extension).
@@ -417,12 +417,6 @@ def extend_cluster(query,
     beg_query = getattr(res, 'beg_query', None)
     matches_count = getattr(res, 'matches', None)
 
-    #print(f"beg_ref: {beg_ref}")
-    #print(f"beg_query: {beg_query}")
-    #print(f"end_ref: {end_ref}")
-    #print(f"end_query: {end_query}")
-    #print(f"matches_count: {matches_count}")
-
     cigar_str = parasail_functions.try_get_cigar_string(res)
     if cigar_str is None:
         raise RuntimeError("Could not obtain CIGAR string from parasail result. Ensure you used a *_trace_* semi-global function.")
@@ -437,10 +431,6 @@ def extend_cluster(query,
         end_query=end_query
     )
 
-    #print(f"insertions: {analysis['insertions']}")
-    #print(f"deletions: {analysis['deletions']}")
-    #print(f"mismatches: {analysis['mismatches']}")
-    
 
     # If Parasail produced a CIGAR (trace variant), try to decode and compute query-consumed length.
     # Some parasail versions give .cigar.decode attribute; we'll try to be flexible.
@@ -504,13 +494,14 @@ def extend_cluster(query,
             'matches': getattr(aln, 'matches', None),
             'aligned_length': getattr(aln, 'length', None),
             'identity': round(identity, 4),
-            'ref_start': aln_ref_start,
+            'ref_start': analysis['beg_ref'],
             'ref_end': aln_ref_end,
             'cigar': cigar_str,
             'n_seeds': cluster.get('n_seeds', 0),
             'mismatches': analysis['mismatches'],
             'insertions': analysis['insertions'],
-            'deletions': analysis['deletions']
+            'deletions': analysis['deletions'],
+            'analysis_end': analysis['end_ref']
         }
 
     # If we get here, we have query_consumed (an integer)
@@ -559,13 +550,15 @@ def extend_cluster(query,
         'matches': matches,
         'aligned_length': getattr(aln, 'length', None),
         'identity': round(identity, 4),
-        'ref_start': aln_ref_start,
+        'ref_start': analysis['beg_ref'],
         'ref_end': aln_ref_end,
+        #'ref_end': analysis['end_ref'],
         'cigar': cigar_str,
         'n_seeds': cluster.get('n_seeds', 0),
         'mismatches': analysis['mismatches'],
         'insertions': analysis['insertions'],
-        'deletions': analysis['deletions']
+        'deletions': analysis['deletions'],
+        'analysis_end': analysis['end_ref']
     }
 
 
@@ -578,7 +571,7 @@ def seed_and_extend_pipeline(query,
                              gap_open=5,
                              gap_extend=1,
                              min_identity=0.90,
-                             offset_tolerance=8,
+                             offset_tolerance=6,
                              min_seeds=2):
     """
     Full pipeline:
@@ -600,11 +593,15 @@ def seed_and_extend_pipeline(query,
     clusters = cluster_hits_by_offset(hits,
                                       offset_tolerance=offset_tolerance,
                                       min_seeds=min_seeds)
+
+    print("_____________________________________________________________")
+
     if not clusters:
         return []
 
     results = []
     for cl in clusters:
+        print(cl)
         aln = extend_cluster(query,
                              reference,
                              cl,
@@ -614,6 +611,8 @@ def seed_and_extend_pipeline(query,
                              gap_open=gap_open,
                              gap_extend=gap_extend,
                              min_identity=min_identity)
+        print(aln)
+
         if aln:
             # attach cluster info
             aln['cluster_offset'] = cl['offset']

@@ -3,14 +3,15 @@ whole reference detected
 
 ______________________________________________________________
 1L:
-1L chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 1
 17 (imperfect match), insertions: [(24, 'G')], deletions: [(4, 'G'), (10, 'G'), (39, 'G'), (40, 'G'), (41, 'T')], mismatches: [(14, 'T', 'G')]
+alignment matches perfectly with Ivan's data 
 
 
 ______________________________________________________________
 1R:
-different number of mutagenic zones found in this chromosome end. Comparison will not be made
+number of mutagenic zones mismatch. Comparison will not be made
+Ivan mutagenic zones: 1, output mutagenic zones: 0, Ivan total alignments: 1, Output total alignments: 0
 Total matches: 0
 
 
@@ -31,7 +32,6 @@ alignment matches perfectly with Ivan's data
 
 ______________________________________________________________
 3L:
-3L chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 4
 168 (perfect match)
 256 (perfect match)
@@ -44,7 +44,7 @@ ______________________________________________________________
 Total matches: 5
 25 (perfect match)
 113 (imperfect match), insertions: [(5, 'T')], deletions: [(1, 'T'), (2, 'G')], mismatches: []
-comparison: (Ivans Data -> output data): Insertions: [(53, 'G')] -> [(5, 'T')]   deletions: [(10, 'G'), (38, 'G')] -> [(1, 'T'), (2, 'G')]   mismatches: [(14, 'T', 'G'), (57, 'G', 'T')] -> []
+alignment matches perfectly with Ivan's data 
 200 (perfect match)
 288 (perfect match)
 376 (perfect match)
@@ -52,10 +52,9 @@ comparison: (Ivans Data -> output data): Insertions: [(53, 'G')] -> [(5, 'T')]  
 
 ______________________________________________________________
 4L:
-4L chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 3
 15 (perfect match)
-gap: 80 bp
+gap: 79 bp
 183 (perfect match)
 271 (perfect match)
 
@@ -65,14 +64,14 @@ ______________________________________________________________
 Total matches: 2
 30 (perfect match)
 118 (imperfect match), insertions: [(72, 'G'), (72, 'T')], deletions: [], mismatches: []
-comparison: (Ivans Data -> output data): Insertions: [] -> [(72, 'G'), (72, 'T')]   deletions: [(79, 'T'), (80, 'G'), (81, 'T'), (82, 'G'), (83, 'T'), (84, 'G'), (85, 'G'), (86, 'G'), (87, 'T'), (88, 'G')] -> []   
+alignment matches perfectly with Ivan's data 
 
 
 ______________________________________________________________
 5R:
-different number of mutagenic zones found in this chromosome end. Comparison will not be made
 Total matches: 18
 39 (imperfect match), insertions: [], deletions: [], mismatches: [(6, 'G', 'A')]
+alignment matches perfectly with Ivan's data 
 127 (perfect match)
 215 (perfect match)
 303 (perfect match)
@@ -85,18 +84,19 @@ Total matches: 18
 919 (perfect match)
 1007 (perfect match)
 1095 (perfect match)
-gap: 36 bp
+gap: 35 bp
 1219 (perfect match)
 1307 (perfect match)
 1395 (perfect match)
 1483 (imperfect match), insertions: [(77, 'G'), (77, 'T')], deletions: [], mismatches: []
-gap: 14 bp
+comparison: (Ivans Data -> output data): Insertions: [] -> [(77, 'G'), (77, 'T')]   mismatches: [(85, 'G', 'T'), (87, 'T', 'G')] -> []number of events: 2 -> 1
+gap: 13 bp
 1587 (imperfect match), insertions: [], deletions: [(24, 'T')], mismatches: [(18, 'T', 'G'), (20, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(24, 'G')] -> []   deletions: [(11, 'G'), (12, 'T')] -> [(24, 'T')]   mismatches: [] -> [(18, 'T', 'G'), (20, 'G', 'T')]number of events: 2 -> 3
 
 
 ______________________________________________________________
 6L:
-6L chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 7
 29 (perfect match)
 117 (perfect match)
@@ -109,11 +109,10 @@ Total matches: 7
 
 ______________________________________________________________
 6R:
-6R chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 9
 60 (perfect match)
 148 (perfect match)
-gap: 36 bp
+gap: 35 bp
 272 (perfect match)
 360 (perfect match)
 448 (perfect match)
@@ -125,22 +124,23 @@ gap: 36 bp
 
 ______________________________________________________________
 7L:
-7L chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 1
 24 (imperfect match), insertions: [(5, 'T'), (24, 'G'), (77, 'G'), (77, 'T')], deletions: [(16, 'T'), (50, 'G'), (51, 'T')], mismatches: []
+alignment matches perfectly with Ivan's data 
 
 
 ______________________________________________________________
 7R:
-different number of mutagenic zones found in this chromosome end. Comparison will not be made
+number of mutagenic zones mismatch. Comparison will not be made
+Ivan mutagenic zones: 2, output mutagenic zones: 1, Ivan total alignments: 2, Output total alignments: 1
 Total matches: 6
 39 (perfect match)
 127 (perfect match)
 215 (imperfect match), insertions: [(62, 'T'), (81, 'G')], deletions: [], mismatches: [(55, 'T', 'G'), (57, 'G', 'T'), (64, 'T', 'G'), (85, 'G', 'T')]
-gap: 20 bp
+gap: 19 bp
 325 (perfect match)
 413 (perfect match)
-gap: 49 bp
+gap: 48 bp
 550 (perfect match)
 
 
@@ -153,7 +153,7 @@ alignment matches perfectly with Ivan's data
 215 (perfect match)
 303 (perfect match)
 391 (imperfect match), insertions: [], deletions: [(83, 'T')], mismatches: [(85, 'G', 'T')]
-comparison: (Ivans Data -> output data): Insertions: [(81, 'G')] -> []   deletions: [(87, 'T'), (88, 'G')] -> [(83, 'T')]   
+comparison: (Ivans Data -> output data): Insertions: [(81, 'G')] -> []   deletions: [(87, 'T'), (88, 'G')] -> [(83, 'T')]   number of events: 3 -> 2
 478 (perfect match)
 566 (perfect match)
 654 (perfect match)
@@ -162,7 +162,6 @@ comparison: (Ivans Data -> output data): Insertions: [(81, 'G')] -> []   deletio
 
 ______________________________________________________________
 8R:
-8R chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 6
 74 (perfect match)
 162 (perfect match)
@@ -174,20 +173,16 @@ Total matches: 6
 
 ______________________________________________________________
 9R:
-9R chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 1
 33 (perfect match)
 
 
 ______________________________________________________________
 10L:
-Total matches: 6
-90 (imperfect match), insertions: [], deletions: [(12, 'T'), (13, 'G'), (14, 'T'), (38, 'G'), (51, 'T')], mismatches: [(45, 'T', 'G'), (49, 'G', 'T')]
-comparison: (Ivans Data -> output data): deletions: [(9, 'T')] -> [(12, 'T'), (13, 'G'), (14, 'T'), (38, 'G'), (51, 'T')]   mismatches: [(5, 'G', 'T')] -> [(45, 'T', 'G'), (49, 'G', 'T')]
-gap: 41 bp
+Total matches: 5
 214 (imperfect match), insertions: [], deletions: [(9, 'T')], mismatches: [(5, 'G', 'T')]
-More alignments in the mutagenic area then in Ivan's data
-gap: 1 bp
+alignment matches perfectly with Ivan's data 
+gap: 0 bp
 302 (perfect match)
 390 (perfect match)
 478 (perfect match)
@@ -196,12 +191,11 @@ gap: 1 bp
 
 ______________________________________________________________
 10R:
-different number of mutagenic zones found in this chromosome end. Comparison will not be made
 Total matches: 10
 32 (perfect match)
 120 (perfect match)
 208 (perfect match)
-gap: 64 bp
+gap: 63 bp
 360 (perfect match)
 448 (perfect match)
 536 (perfect match)
@@ -213,36 +207,37 @@ gap: 64 bp
 
 ______________________________________________________________
 11L:
-different number of mutagenic zones found in this chromosome end. Comparison will not be made
 Total matches: 7
 12 (imperfect match), insertions: [(16, 'G'), (16, 'G'), (19, 'T')], deletions: [(25, 'G')], mismatches: []
-gap: 1 bp
+alignment matches perfectly with Ivan's data 
+gap: 0 bp
 103 (perfect match)
 191 (perfect match)
 279 (perfect match)
-gap: 39 bp
+gap: 38 bp
+alignments number mismatch in current mutagenic area. No further comparison will be made for chr end
+Ivans number of alignments: 2, output number of alignmnets: 1
 406 (imperfect match), insertions: [], deletions: [(9, 'T')], mismatches: [(5, 'G', 'T')]
-gap: 50 bp
+gap: 49 bp
 543 (perfect match)
 631 (perfect match)
 
 
 ______________________________________________________________
 11R:
-11R chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 12
 32 (perfect match)
-gap: 36 bp
+gap: 35 bp
 156 (perfect match)
 244 (perfect match)
 332 (perfect match)
 420 (perfect match)
-gap: 72 bp
+gap: 71 bp
 580 (perfect match)
 668 (perfect match)
 756 (perfect match)
 844 (perfect match)
-gap: 36 bp
+gap: 35 bp
 968 (perfect match)
 1056 (perfect match)
 1144 (perfect match)
@@ -250,19 +245,21 @@ gap: 36 bp
 
 ______________________________________________________________
 12L:
-12L chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 14
 15 (imperfect match), insertions: [], deletions: [(12, 'T'), (13, 'G'), (14, 'T')], mismatches: []
-gap: 3 bp
+alignment matches perfectly with Ivan's data 
+gap: 2 bp
 103 (perfect match)
 191 (perfect match)
 279 (imperfect match), insertions: [], deletions: [(41, 'T')], mismatches: [(33, 'G', 'T'), (35, 'T', 'G'), (39, 'G', 'T')]
+comparison: (Ivans Data -> output data): Insertions: [(25, 'G'), (25, 'T')] -> []   deletions: [(39, 'G'), (40, 'G'), (41, 'T')] -> [(41, 'T')]   mismatches: [] -> [(33, 'G', 'T'), (35, 'T', 'G'), (39, 'G', 'T')]   number of events: 2 -> 4
 366 (perfect match)
 454 (perfect match)
 542 (perfect match)
-gap: 1 bp
+gap: 0 bp
 631 (imperfect match), insertions: [], deletions: [(12, 'T')], mismatches: [(1, 'T', 'G'), (5, 'G', 'T')]
-gap: 1 bp
+comparison: (Ivans Data -> output data): Insertions: [(10, 'T'), (12, 'G'), (12, 'G')] -> []   deletions: [(1, 'T'), (2, 'G')] -> [(12, 'T')]   mismatches: [] -> [(1, 'T', 'G'), (5, 'G', 'T')]   number of events: 3 -> 3
+gap: 0 bp
 719 (perfect match)
 807 (perfect match)
 895 (perfect match)
@@ -276,7 +273,7 @@ ______________________________________________________________
 Total matches: 5
 26 (perfect match)
 114 (imperfect match), insertions: [(5, 'T')], deletions: [(1, 'T'), (2, 'G')], mismatches: []
-comparison: (Ivans Data -> output data): Insertions: [] -> [(5, 'T')]   deletions: [(12, 'T'), (13, 'G'), (14, 'T')] -> [(1, 'T'), (2, 'G')]   
+comparison: (Ivans Data -> output data): deletions: [] -> [(1, 'T'), (2, 'G')]   number of events: 1 -> 2
 201 (perfect match)
 289 (perfect match)
 377 (perfect match)
@@ -284,13 +281,12 @@ comparison: (Ivans Data -> output data): Insertions: [] -> [(5, 'T')]   deletion
 
 ______________________________________________________________
 13R:
-different number of mutagenic zones found in this chromosome end. Comparison will not be made
 Total matches: 8
 87 (perfect match)
 175 (perfect match)
 263 (perfect match)
 351 (perfect match)
-gap: 52 bp
+gap: 51 bp
 491 (perfect match)
 579 (perfect match)
 667 (perfect match)
@@ -337,17 +333,17 @@ alignment matches perfectly with Ivan's data
 
 ______________________________________________________________
 15L:
-15L chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 1
 64 (perfect match)
 
 
 ______________________________________________________________
 15R:
-different number of mutagenic zones found in this chromosome end. Comparison will not be made
+number of mutagenic zones mismatch. Comparison will not be made
+Ivan mutagenic zones: 2, output mutagenic zones: 1, Ivan total alignments: 2, Output total alignments: 1
 Total matches: 3
 109 (perfect match)
-gap: 82 bp
+gap: 81 bp
 279 (perfect match)
 367 (imperfect match), insertions: [(25, 'G'), (25, 'T')], deletions: [], mismatches: []
 
@@ -366,10 +362,11 @@ alignment matches perfectly with Ivan's data
 
 ______________________________________________________________
 16R:
-16R chromosome end is not in the Ivan's data, comparison will be ignored
+number of mutagenic zones mismatch. No alignments were found in Ivans Data. Comparison will not be made
+Ivans data: 0 alignments, Output data: 1 alignments
 Total matches: 10
 5 (imperfect match), insertions: [(4, 'G'), (4, 'T'), (9, 'G')], deletions: [(38, 'G'), (51, 'T')], mismatches: [(45, 'T', 'G'), (49, 'G', 'T')]
-gap: 2 bp
+gap: 1 bp
 96 (perfect match)
 184 (perfect match)
 272 (perfect match)
@@ -381,4 +378,3 @@ gap: 2 bp
 800 (perfect match)
 
 
-1L key missing from Ivan's data

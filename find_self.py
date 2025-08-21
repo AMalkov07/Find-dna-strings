@@ -20,6 +20,8 @@ import parasail_seedHit
 
 import json
 
+stats_filename_global = ""
+
 #def parse_alignment_csv_line(line):
     #parts = line.strip().split(",", 3)  # splits into 4 parts max
     #alignment_name = parts[0]
@@ -877,6 +879,7 @@ class find_loops:
         return (alignment["query_start"], alignment["query_end_offset"], mistakes)
 
     def best_alignments_parasail(self, key):
+        print("|||||||||||||||||||||||||||||||||||||||||||||||")
         my_dict_entry = self.my_dict[key]
         alignments = my_dict_entry.indexes
 
@@ -885,6 +888,8 @@ class find_loops:
         max_mistakes = key_n//12
         str_dict = {}
         queue = deque()
+
+        added_first_alignment = True
 
         if len(alignments) < 1:
             tmp = self.input_s
@@ -907,6 +912,8 @@ class find_loops:
             last_val = 0
             for i in range(0, len(alignments)):
                 alignment = alignments[i]
+                if last_val == 0 and alignment > 0:
+                    added_first_alignment = True
                 tmp = self.input_s[last_val:alignment]
                 str_dict[tmp] = [last_val, alignment]
                 queue.append(tmp)
@@ -921,6 +928,8 @@ class find_loops:
         dict_insertions_and_deletions = {}
         arr = []
         #counter = 0
+        first = True
+        n_queue = len(queue)
         while queue:
             full_str = queue.popleft()
 
@@ -938,9 +947,34 @@ class find_loops:
                                         min_identity=0.90,
                                         offset_tolerance=6,
                                         min_seeds=2)
+
+            # following logic is to make sure first mutagenic arrow is only included if directly followed by non mutagenic arrow
+            if str_dict[full_str][0] == 0 and n_queue > 1:
+                if all_hits:
+                    end_str = len(full_str) - 1
+                    for hit in all_hits:
+                        print(f"hit ref_start: {hit['ref_start']}")
+                        if not hit['aligned_length']:
+                            print("ERROR, no aligned length")
+                            continue
+                        if hit['ref_start'] + hit['aligned_length'] >= end_str - 2:
+                            good_alignment_starting_pos.append(hit['ref_start']+str_dict[full_str][0])
+
+                            total_variants = [hit['insertions'], hit['deletions'], hit['mismatches']]
+
+                            #dict_insertions_and_deletions[hit['beg_ref']+str_dict[full_str][0]] = total_variants
+                            dict_insertions_and_deletions[hit['ref_start']+str_dict[full_str][0]] = total_variants
+
+                        
+                continue
+
+
+
         
             if not all_hits:
                 all_hits = []
+
+                
 
             #for hit in all_hits:
                 #parasail_functions.print_report(hit)
@@ -2310,7 +2344,7 @@ def mod_str(my_str, self_search_type_object):
     return my_str
 
 
-def main(args):
+def main(args, stats_filename):
     # converts args to a dictionary and pass it to the user_input class
     user_input_obj = user_input(**vars(args))
     # Check if the file exists
@@ -2370,7 +2404,7 @@ def main(args):
         #print(elem[0])
     #parse_csv.compare_outputs("181_Ivan_data.csv", arr_for_csv_comparison)
     #print(f"arr for csv comparison: {arr_for_csv_comparison}")
-    parse_csv.compare_outputs("csv_files/181.csv", arr_for_csv_comparison)
+    parse_csv.compare_outputs("csv_files/181.csv", arr_for_csv_comparison, stats_filename)
     return
 
 
@@ -2407,5 +2441,11 @@ if __name__ == "__main__":
     # Open the output file if provided
     with open(args.output, 'w') if args.output else sys.stdout as output:
         # Redirect all prints within main
+        if args.output:
+            base, ext = os.path.splitext(args.output)
+            stats_filename = f"{base}_stats{ext or '.txt'}"
+            stats_output = open(stats_filename, 'w')
+        else:
+            stats_filename = "error_testing_stats_file.txt"
         with redirect_stdout(output):
-            main(args)
+            main(args, stats_output)

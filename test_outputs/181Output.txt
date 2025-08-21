@@ -23,16 +23,16 @@ alignment matches perfectly with Ivan's data
 alignment matches perfectly with Ivan's data 
 2025 (imperfect match), insertions: [(88, 'G'), (88, 'T'), (88, 'G'), (88, 'T'), (122, 'G'), (122, 'T')], deletions: [], mismatches: []
 alignment matches perfectly with Ivan's data 
-gap: 31 bp
+gap: 30 bp
 2198 (imperfect match), insertions: [(101, 'T')], deletions: [(108, 'G')], mismatches: [(103, 'T', 'G')]
 alignment matches perfectly with Ivan's data 
 2334 (imperfect match), insertions: [(122, 'G'), (122, 'T')], deletions: [(133, 'G')], mismatches: []
 alignment matches perfectly with Ivan's data 
-gap: 124 bp
+gap: 123 bp
 2595 (perfect match)
 2731 (perfect match)
 2867 (perfect match)
-gap: 104 bp
+gap: 103 bp
 3107 (perfect match)
 3243 (perfect match)
 
@@ -42,7 +42,7 @@ ______________________________________________________________
 Total matches: 22
 56 (imperfect match), insertions: [(4, 'G'), (4, 'T'), (33, 'T'), (39, 'T'), (52, 'T')], deletions: [(8, 'G'), (16, 'G'), (17, 'T')], mismatches: [(54, 'T', 'G')]
 alignment matches perfectly with Ivan's data 
-gap: 3 bp
+gap: 2 bp
 197 (perfect match)
 333 (perfect match)
 469 (perfect match)
@@ -52,11 +52,11 @@ gap: 3 bp
 1013 (perfect match)
 1149 (perfect match)
 1285 (imperfect match), insertions: [(122, 'G'), (122, 'T')], deletions: [(133, 'G')], mismatches: []
-comparison: (Ivans Data -> output data): deletions: [(134, 'G')] -> [(133, 'G')]   
-gap: 19 bp
+comparison: (Ivans Data -> output data): deletions: [(134, 'G')] -> [(133, 'G')]   number of events: 2 -> 2
+gap: 18 bp
 1441 (imperfect match), insertions: [], deletions: [(133, 'G')], mismatches: []
-comparison: (Ivans Data -> output data): deletions: [] -> [(133, 'G')]   mismatches: [(134, 'G', 'T'), (135, 'T', 'G')] -> []
-gap: 29 bp
+comparison: (Ivans Data -> output data): deletions: [] -> [(133, 'G')]   mismatches: [(134, 'G', 'T'), (135, 'T', 'G')] -> []   number of events: 2 -> 1
+gap: 28 bp
 1605 (perfect match)
 1741 (perfect match)
 1877 (perfect match)
@@ -76,16 +76,16 @@ Total matches: 6
 46 (perfect match)
 182 (perfect match)
 318 (imperfect match), insertions: [(113, 'G'), (122, 'T')], deletions: [], mismatches: [(117, 'G', 'T'), (121, 'T', 'G')]
-comparison: (Ivans Data -> output data): Insertions: [(122, 'G'), (122, 'G'), (122, 'T')] -> [(113, 'G'), (122, 'T')]   deletions: [(115, 'T')] -> []   mismatches: [(117, 'G', 'T')] -> [(117, 'G', 'T'), (121, 'T', 'G')]
-gap: 11 bp
+comparison: (Ivans Data -> output data): Insertions: [(122, 'G'), (122, 'G'), (122, 'T')] -> [(113, 'G'), (122, 'T')]   deletions: [(115, 'T')] -> []   mismatches: [(117, 'G', 'T')] -> [(117, 'G', 'T'), (121, 'T', 'G')]number of events: 3 -> 4
+gap: 10 bp
 467 (imperfect match), insertions: [(51, 'G'), (54, 'G'), (54, 'T'), (54, 'G'), (54, 'G'), (83, 'T'), (87, 'G')], deletions: [], mismatches: [(75, 'G', 'T'), (77, 'T', 'G')]
 alignment matches perfectly with Ivan's data 
-gap: 16 bp
+gap: 15 bp
 626 (imperfect match), insertions: [(8, 'T'), (14, 'G'), (19, 'G'), (19, 'G')], deletions: [], mismatches: []
 alignment matches perfectly with Ivan's data 
-gap: 2 bp
+gap: 1 bp
 768 (imperfect match), insertions: [], deletions: [(1, 'T'), (2, 'G'), (133, 'G')], mismatches: []
-comparison: (Ivans Data -> output data): deletions: [(133, 'G')] -> [(1, 'T'), (2, 'G'), (133, 'G')]   
+comparison: (Ivans Data -> output data): deletions: [(133, 'G')] -> [(1, 'T'), (2, 'G'), (133, 'G')]   number of events: 1 -> 2
 
 
 ______________________________________________________________
@@ -93,7 +93,7 @@ ______________________________________________________________
 Total matches: 5
 50 (imperfect match), insertions: [(33, 'T'), (39, 'T'), (43, 'G'), (43, 'G')], deletions: [(8, 'G'), (16, 'G'), (17, 'T')], mismatches: []
 alignment matches perfectly with Ivan's data 
-gap: 3 bp
+gap: 2 bp
 190 (perfect match)
 326 (perfect match)
 462 (perfect match)
@@ -102,19 +102,17 @@ gap: 3 bp
 
 ______________________________________________________________
 3L:
-3L chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 1
 77 (perfect match)
 
 
 ______________________________________________________________
 3R:
-different number of mutagenic zones found in this chromosome end. Comparison will not be made
-Total matches: 3
-29 (imperfect match), insertions: [(8, 'T'), (26, 'T')], deletions: [(39, 'G'), (40, 'G'), (41, 'T')], mismatches: [(5, 'T', 'G'), (23, 'T', 'G')]
-gap: 104 bp
+Total matches: 2
 268 (perfect match)
-gap: 111 bp
+gap: 110 bp
+alignments number mismatch in current mutagenic area. No further comparison will be made for chr end
+Ivans number of alignments: 4, output number of alignmnets: 1
 515 (imperfect match), insertions: [], deletions: [(120, 'G'), (121, 'T'), (122, 'G')], mismatches: []
 
 
@@ -138,7 +136,7 @@ ______________________________________________________________
 4R:
 Total matches: 5
 26 (imperfect match), insertions: [(15, 'T'), (17, 'G'), (17, 'G'), (26, 'T')], deletions: [], mismatches: [(3, 'T', 'G'), (10, 'G', 'T'), (23, 'T', 'G')]
-comparison: (Ivans Data -> output data): Insertions: [(8, 'T')] -> [(15, 'T'), (17, 'G'), (17, 'G'), (26, 'T')]   deletions: [(17, 'T'), (22, 'G'), (23, 'T'), (24, 'G'), (25, 'T'), (26, 'G')] -> []   mismatches: [] -> [(3, 'T', 'G'), (10, 'G', 'T'), (23, 'T', 'G')]
+comparison: (Ivans Data -> output data): Insertions: [(8, 'T')] -> [(15, 'T'), (17, 'G'), (17, 'G'), (26, 'T')]   deletions: [(17, 'T'), (22, 'G'), (23, 'T'), (24, 'G'), (25, 'T'), (26, 'G')] -> []   mismatches: [] -> [(3, 'T', 'G'), (10, 'G', 'T'), (23, 'T', 'G')]   number of events: 3 -> 6
 166 (perfect match)
 302 (perfect match)
 438 (perfect match)
@@ -149,15 +147,14 @@ ______________________________________________________________
 5L:
 Total matches: 2
 179 (imperfect match), insertions: [(3, 'G'), (33, 'T'), (56, 'G')], deletions: [(8, 'G'), (45, 'T'), (51, 'T')], mismatches: [(21, 'T', 'G'), (47, 'G', 'T'), (75, 'G', 'T')]
-comparison: (Ivans Data -> output data): Insertions: [(33, 'T'), (56, 'G')] -> [(3, 'G'), (33, 'T'), (56, 'G')]   deletions: [(3, 'T'), (8, 'G'), (45, 'T'), (51, 'T')] -> [(8, 'G'), (45, 'T'), (51, 'T')]   
-gap: 17 bp
+comparison: (Ivans Data -> output data): Insertions: [(33, 'T'), (56, 'G')] -> [(3, 'G'), (33, 'T'), (56, 'G')]   deletions: [(3, 'T'), (8, 'G'), (45, 'T'), (51, 'T')] -> [(8, 'G'), (45, 'T'), (51, 'T')]   number of events: 9 -> 9
+gap: 16 bp
 332 (imperfect match), insertions: [(8, 'T'), (14, 'G'), (19, 'G'), (19, 'G'), (33, 'T'), (133, 'T')], deletions: [(53, 'G'), (54, 'T')], mismatches: [(128, 'G', 'T')]
-comparison: (Ivans Data -> output data): Insertions: [(10, 'T'), (19, 'G'), (19, 'G'), (33, 'T'), (133, 'T')] -> [(8, 'T'), (14, 'G'), (19, 'G'), (19, 'G'), (33, 'T'), (133, 'T')]   deletions: [(14, 'T'), (53, 'G'), (54, 'T')] -> [(53, 'G'), (54, 'T')]   
+comparison: (Ivans Data -> output data): Insertions: [(10, 'T'), (19, 'G'), (19, 'G'), (33, 'T'), (133, 'T')] -> [(8, 'T'), (14, 'G'), (19, 'G'), (19, 'G'), (33, 'T'), (133, 'T')]   deletions: [(14, 'T'), (53, 'G'), (54, 'T')] -> [(53, 'G'), (54, 'T')]   number of events: 7 -> 7
 
 
 ______________________________________________________________
 6L:
-6L chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 0
 
 
@@ -166,27 +163,26 @@ ______________________________________________________________
 Total matches: 8
 26 (imperfect match), insertions: [(3, 'G'), (14, 'G'), (25, 'A'), (43, 'G'), (67, 'T')], deletions: [(54, 'T')], mismatches: [(9, 'G', 'T'), (23, 'T', 'G'), (27, 'G', 'T'), (47, 'G', 'T'), (69, 'T', 'G')]
 alignment matches perfectly with Ivan's data 
-gap: 1 bp
+gap: 0 bp
 167 (perfect match)
 303 (perfect match)
 439 (perfect match)
 575 (perfect match)
 711 (perfect match)
-gap: 111 bp
+gap: 110 bp
 958 (imperfect match), insertions: [], deletions: [(120, 'G'), (121, 'T'), (122, 'G')], mismatches: []
 alignment matches perfectly with Ivan's data 
-gap: 54 bp
+gap: 53 bp
 1145 (imperfect match), insertions: [(14, 'G'), (26, 'T'), (39, 'T'), (45, 'G'), (45, 'T'), (45, 'G'), (52, 'G'), (52, 'T')], deletions: [], mismatches: [(3, 'T', 'G'), (10, 'G', 'T'), (23, 'T', 'G')]
 alignment matches perfectly with Ivan's data 
 
 
 ______________________________________________________________
 7R:
-7R chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 6
 85 (perfect match)
 221 (perfect match)
-gap: 70 bp
+gap: 69 bp
 427 (perfect match)
 563 (perfect match)
 699 (perfect match)
@@ -195,10 +191,7 @@ gap: 70 bp
 
 ______________________________________________________________
 8L:
-8L chromosome end is not in the Ivan's data, comparison will be ignored
-Total matches: 4
-32 (imperfect match), insertions: [(3, 'G'), (8, 'T'), (39, 'T'), (51, 'G'), (56, 'G')], deletions: [(26, 'G')], mismatches: [(21, 'T', 'G'), (47, 'G', 'T')]
-gap: 46 bp
+Total matches: 3
 218 (perfect match)
 354 (perfect match)
 490 (perfect match)
@@ -243,7 +236,7 @@ ______________________________________________________________
 Total matches: 10
 10 (imperfect match), insertions: [], deletions: [(8, 'G'), (25, 'T')], mismatches: [(1, 'T', 'A'), (3, 'T', 'G'), (27, 'G', 'T')]
 alignment matches perfectly with Ivan's data 
-gap: 2 bp
+gap: 1 bp
 146 (perfect match)
 282 (perfect match)
 418 (perfect match)
@@ -257,20 +250,21 @@ gap: 2 bp
 
 ______________________________________________________________
 11L:
-different number of mutagenic zones found in this chromosome end. Comparison will not be made
-Total matches: 8
-94 (imperfect match), insertions: [], deletions: [(133, 'G')], mismatches: []
-gap: 29 bp
+Total matches: 7
 258 (perfect match)
 394 (perfect match)
 530 (imperfect match), insertions: [(113, 'G'), (122, 'T')], deletions: [], mismatches: [(117, 'G', 'T'), (121, 'T', 'G')]
-gap: 11 bp
+comparison: (Ivans Data -> output data): Insertions: [(122, 'G'), (122, 'G'), (122, 'T')] -> [(113, 'G'), (122, 'T')]   deletions: [(115, 'T')] -> []   mismatches: [(117, 'G', 'T')] -> [(117, 'G', 'T'), (121, 'T', 'G')]   number of events: 3 -> 4
+gap: 10 bp
 679 (imperfect match), insertions: [(51, 'G'), (54, 'G'), (54, 'T'), (54, 'G'), (54, 'G'), (83, 'T'), (87, 'G')], deletions: [], mismatches: [(75, 'G', 'T'), (77, 'T', 'G')]
-gap: 16 bp
+alignment matches perfectly with Ivan's data 
+gap: 15 bp
 838 (imperfect match), insertions: [(8, 'T'), (14, 'G'), (19, 'G'), (19, 'G')], deletions: [], mismatches: []
-gap: 2 bp
+alignment matches perfectly with Ivan's data 
+gap: 1 bp
 980 (imperfect match), insertions: [], deletions: [(1, 'T'), (2, 'G'), (133, 'G')], mismatches: []
-gap: 28 bp
+comparison: (Ivans Data -> output data): deletions: [] -> [(1, 'T'), (2, 'G'), (133, 'G')]   mismatches: [(134, 'G', 'T'), (135, 'T', 'G')] -> []   number of events: 2 -> 2
+gap: 27 bp
 1141 (perfect match)
 
 
@@ -279,39 +273,38 @@ ______________________________________________________________
 Total matches: 17
 76 (perfect match)
 212 (perfect match)
-gap: 67 bp
+gap: 66 bp
 415 (imperfect match), insertions: [(83, 'T'), (87, 'G'), (113, 'G'), (122, 'T')], deletions: [], mismatches: [(117, 'G', 'T'), (121, 'T', 'G')]
-comparison: (Ivans Data -> output data): Insertions: [(8, 'T'), (39, 'T')] -> [(83, 'T'), (87, 'G'), (113, 'G'), (122, 'T')]   deletions: [(17, 'T'), (26, 'G'), (27, 'G')] -> []   mismatches: [(23, 'T', 'G'), (58, 'T', 'G'), (60, 'G', 'T')] -> [(117, 'G', 'T'), (121, 'T', 'G')]
-gap: 11 bp
+comparison: (Ivans Data -> output data): Insertions: [(8, 'T'), (39, 'T')] -> [(83, 'T'), (87, 'G'), (113, 'G'), (122, 'T')]   deletions: [(17, 'T'), (26, 'G'), (27, 'G')] -> []   mismatches: [(23, 'T', 'G'), (58, 'T', 'G'), (60, 'G', 'T')] -> [(117, 'G', 'T'), (121, 'T', 'G')]   number of events: 7 -> 6
+gap: 10 bp
 566 (perfect match)
 702 (perfect match)
 838 (perfect match)
 974 (perfect match)
 1110 (imperfect match), insertions: [(79, 'G')], deletions: [(87, 'T')], mismatches: [(83, 'G', 'T')]
 alignment matches perfectly with Ivan's data 
-gap: 3 bp
+gap: 2 bp
 1249 (imperfect match), insertions: [(88, 'G'), (88, 'T'), (122, 'G'), (122, 'T')], deletions: [(1, 'T'), (2, 'G'), (3, 'T'), (4, 'G'), (69, 'T')], mismatches: []
-comparison: (Ivans Data -> output data): deletions: [(69, 'T')] -> [(1, 'T'), (2, 'G'), (3, 'T'), (4, 'G'), (69, 'T')]   
-gap: 82 bp
+comparison: (Ivans Data -> output data): deletions: [(69, 'T')] -> [(1, 'T'), (2, 'G'), (3, 'T'), (4, 'G'), (69, 'T')]   number of events: 3 -> 4
+gap: 81 bp
 1466 (perfect match)
 1602 (perfect match)
-gap: 100 bp
+gap: 99 bp
 1838 (perfect match)
 1974 (perfect match)
 2110 (perfect match)
 2246 (imperfect match), insertions: [(113, 'G'), (122, 'T')], deletions: [], mismatches: [(117, 'G', 'T'), (121, 'T', 'G')]
-comparison: (Ivans Data -> output data): Insertions: [(122, 'G'), (122, 'G'), (122, 'T')] -> [(113, 'G'), (122, 'T')]   deletions: [(115, 'T')] -> []   mismatches: [(117, 'G', 'T')] -> [(117, 'G', 'T'), (121, 'T', 'G')]
-gap: 11 bp
+comparison: (Ivans Data -> output data): Insertions: [(122, 'G'), (122, 'G'), (122, 'T')] -> [(113, 'G'), (122, 'T')]   deletions: [(115, 'T')] -> []   mismatches: [(117, 'G', 'T')] -> [(117, 'G', 'T'), (121, 'T', 'G')]number of events: 3 -> 4
+gap: 10 bp
 2395 (imperfect match), insertions: [(21, 'G'), (21, 'T'), (21, 'G'), (21, 'T'), (21, 'G'), (21, 'G')], deletions: [], mismatches: []
 alignment matches perfectly with Ivan's data 
-gap: 1 bp
+gap: 0 bp
 2538 (imperfect match), insertions: [(113, 'G'), (122, 'T')], deletions: [(1, 'T'), (2, 'G'), (90, 'T')], mismatches: [(117, 'G', 'T'), (121, 'T', 'G')]
-comparison: (Ivans Data -> output data): Insertions: [(122, 'G'), (122, 'G'), (122, 'T')] -> [(113, 'G'), (122, 'T')]   deletions: [(90, 'T'), (115, 'T')] -> [(1, 'T'), (2, 'G'), (90, 'T')]   mismatches: [(117, 'G', 'T')] -> [(117, 'G', 'T'), (121, 'T', 'G')]
+comparison: (Ivans Data -> output data): Insertions: [(122, 'G'), (122, 'G'), (122, 'T')] -> [(113, 'G'), (122, 'T')]   deletions: [(90, 'T'), (115, 'T')] -> [(1, 'T'), (2, 'G'), (90, 'T')]   mismatches: [(117, 'G', 'T')] -> [(117, 'G', 'T'), (121, 'T', 'G')]number of events: 4 -> 6
 
 
 ______________________________________________________________
 12R:
-12R chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 5
 132 (perfect match)
 268 (perfect match)
@@ -322,7 +315,6 @@ Total matches: 5
 
 ______________________________________________________________
 13L:
-13L chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 2
 111 (perfect match)
 247 (perfect match)
@@ -330,10 +322,9 @@ Total matches: 2
 
 ______________________________________________________________
 13R:
-Total matches: 15
-96 (imperfect match), insertions: [(122, 'G'), (122, 'T')], deletions: [], mismatches: []
-comparison: (Ivans Data -> output data): Insertions: [(8, 'T'), (33, 'T')] -> [(122, 'G'), (122, 'T')]   deletions: [(16, 'G'), (17, 'T'), (53, 'G'), (54, 'T')] -> []   mismatches: [(3, 'T', 'G')] -> []
-gap: 32 bp
+number of mutagenic zones mismatch. Comparison will not be made
+Ivan mutagenic zones: 1, output mutagenic zones: 0, Ivan total alignments: 1, Output total alignments: 0
+Total matches: 14
 266 (perfect match)
 402 (perfect match)
 538 (perfect match)
@@ -342,7 +333,7 @@ gap: 32 bp
 946 (perfect match)
 1082 (perfect match)
 1218 (perfect match)
-gap: 101 bp
+gap: 100 bp
 1455 (perfect match)
 1591 (perfect match)
 1727 (perfect match)
@@ -357,35 +348,31 @@ Total matches: 11
 27 (imperfect match), insertions: [(14, 'G'), (19, 'G')], deletions: [], mismatches: [(3, 'T', 'G'), (10, 'G', 'T')]
 alignment matches perfectly with Ivan's data 
 165 (perfect match)
-gap: 102 bp
+gap: 101 bp
+alignments number mismatch in current mutagenic area. No further comparison will be made for chr end
+Ivans number of alignments: 5, output number of alignmnets: 4
 403 (imperfect match), insertions: [(122, 'G'), (122, 'T')], deletions: [], mismatches: []
-comparison: (Ivans Data -> output data): Insertions: [] -> [(122, 'G'), (122, 'T')]   deletions: [(89, 'G'), (90, 'T'), (108, 'G'), (109, 'G'), (115, 'T'), (135, 'T')] -> []   mismatches: [(128, 'G', 'T')] -> []
-gap: 31 bp
+gap: 30 bp
 572 (imperfect match), insertions: [(100, 'G'), (103, 'G'), (103, 'T'), (103, 'G'), (103, 'G')], deletions: [(132, 'T')], mismatches: [(96, 'G', 'T'), (128, 'G', 'T')]
-comparison: (Ivans Data -> output data): Insertions: [(8, 'T'), (33, 'T')] -> [(100, 'G'), (103, 'G'), (103, 'T'), (103, 'G'), (103, 'G')]   deletions: [(16, 'G'), (17, 'T'), (53, 'G'), (54, 'T')] -> [(132, 'T')]   mismatches: [(3, 'T', 'G')] -> [(96, 'G', 'T'), (128, 'G', 'T')]
-gap: 114 bp
+gap: 113 bp
 826 (imperfect match), insertions: [(10, 'T'), (12, 'G'), (15, 'T'), (27, 'T'), (122, 'G'), (122, 'G'), (122, 'T')], deletions: [], mismatches: [(21, 'T', 'G')]
-comparison: (Ivans Data -> output data): Insertions: [(88, 'G'), (88, 'T'), (88, 'G'), (88, 'T'), (88, 'G'), (88, 'T')] -> [(10, 'T'), (12, 'G'), (15, 'T'), (27, 'T'), (122, 'G'), (122, 'G'), (122, 'T')]   deletions: [(103, 'T'), (132, 'T')] -> []   mismatches: [(128, 'G', 'T')] -> [(21, 'T', 'G')]
-gap: 37 bp
+gap: 36 bp
 1006 (imperfect match), insertions: [(14, 'G'), (26, 'T')], deletions: [(38, 'G')], mismatches: [(3, 'T', 'G'), (10, 'G', 'T'), (23, 'T', 'G')]
-comparison: (Ivans Data -> output data): Insertions: [(100, 'G')] -> [(14, 'G'), (26, 'T')]   deletions: [(70, 'G'), (71, 'T'), (72, 'G'), (73, 'T'), (74, 'G'), (75, 'G'), (114, 'G'), (115, 'T'), (116, 'G'), (122, 'G')] -> [(38, 'G')]   mismatches: [] -> [(3, 'T', 'G'), (10, 'G', 'T'), (23, 'T', 'G')]
-gap: 1 bp
+gap: 0 bp
 1144 (perfect match)
 1280 (perfect match)
 1416 (perfect match)
-gap: 13 bp
+gap: 12 bp
 1565 (imperfect match), insertions: [(8, 'T'), (39, 'T')], deletions: [(17, 'T'), (26, 'G'), (27, 'G')], mismatches: [(23, 'T', 'G')]
-comparison: (Ivans Data -> output data): Insertions: [(83, 'T'), (87, 'G')] -> [(8, 'T'), (39, 'T')]   deletions: [(115, 'T')] -> [(17, 'T'), (26, 'G'), (27, 'G')]   mismatches: [(75, 'G', 'T'), (77, 'T', 'G'), (117, 'G', 'T')] -> [(23, 'T', 'G')]
-gap: 3 bp
+gap: 2 bp
 1703 (perfect match)
 
 
 ______________________________________________________________
 14R:
-14R chromosome end is not in the Ivan's data, comparison will be ignored
 Total matches: 14
 84 (perfect match)
-gap: 111 bp
+gap: 110 bp
 331 (perfect match)
 467 (perfect match)
 603 (perfect match)
@@ -406,41 +393,41 @@ ______________________________________________________________
 Total matches: 15
 24 (imperfect match), insertions: [(19, 'G')], deletions: [(8, 'G')], mismatches: [(1, 'T', 'G')]
 alignment matches perfectly with Ivan's data 
-gap: 1 bp
+gap: 0 bp
 161 (perfect match)
 297 (perfect match)
 433 (perfect match)
 569 (perfect match)
 705 (imperfect match), insertions: [(122, 'G'), (122, 'T')], deletions: [(133, 'G')], mismatches: []
 alignment matches perfectly with Ivan's data 
-gap: 19 bp
+gap: 18 bp
 861 (imperfect match), insertions: [], deletions: [(133, 'G')], mismatches: []
 alignment matches perfectly with Ivan's data 
-gap: 29 bp
+gap: 28 bp
 1025 (perfect match)
 1161 (perfect match)
 1297 (imperfect match), insertions: [(113, 'G'), (122, 'T')], deletions: [], mismatches: [(117, 'G', 'T'), (121, 'T', 'G')]
-comparison: (Ivans Data -> output data): Insertions: [(122, 'G'), (122, 'G'), (122, 'T')] -> [(113, 'G'), (122, 'T')]   deletions: [(115, 'T')] -> []   mismatches: [(117, 'G', 'T')] -> [(117, 'G', 'T'), (121, 'T', 'G')]
-gap: 11 bp
+comparison: (Ivans Data -> output data): Insertions: [(122, 'G'), (122, 'G'), (122, 'T')] -> [(113, 'G'), (122, 'T')]   deletions: [(115, 'T')] -> []   mismatches: [(117, 'G', 'T')] -> [(117, 'G', 'T'), (121, 'T', 'G')]   number of events: 3 -> 4
+gap: 10 bp
 1446 (imperfect match), insertions: [(51, 'G'), (54, 'G'), (54, 'T'), (54, 'G'), (54, 'G'), (83, 'T'), (87, 'G')], deletions: [], mismatches: [(75, 'G', 'T'), (77, 'T', 'G')]
 alignment matches perfectly with Ivan's data 
-gap: 16 bp
+gap: 15 bp
 1605 (imperfect match), insertions: [(8, 'T'), (14, 'G'), (19, 'G'), (19, 'G')], deletions: [], mismatches: []
 alignment matches perfectly with Ivan's data 
-gap: 2 bp
+gap: 1 bp
 1747 (imperfect match), insertions: [], deletions: [(1, 'T'), (2, 'G'), (133, 'G')], mismatches: []
-comparison: (Ivans Data -> output data): deletions: [] -> [(1, 'T'), (2, 'G'), (133, 'G')]   mismatches: [(134, 'G', 'T'), (135, 'T', 'G')] -> []
-gap: 28 bp
+comparison: (Ivans Data -> output data): deletions: [] -> [(1, 'T'), (2, 'G'), (133, 'G')]   mismatches: [(134, 'G', 'T'), (135, 'T', 'G')] -> []   number of events: 2 -> 2
+gap: 27 bp
 1908 (perfect match)
 2044 (imperfect match), insertions: [], deletions: [], mismatches: []
-comparison: (Ivans Data -> output data): deletions: [(132, 'T'), (133, 'G'), (134, 'G'), (135, 'T'), (136, 'G')] -> []   
+comparison: (Ivans Data -> output data): deletions: [(132, 'T'), (133, 'G'), (134, 'G'), (135, 'T'), (136, 'G')] -> []   number of events: 1 -> 0
 
 
 ______________________________________________________________
 15R:
 Total matches: 19
 89 (imperfect match), insertions: [(8, 'T'), (14, 'G')], deletions: [], mismatches: [(21, 'T', 'G')]
-comparison: (Ivans Data -> output data): Insertions: [] -> [(8, 'T'), (14, 'G')]   mismatches: [(11, 'G', 'T'), (12, 'T', 'G'), (13, 'G', 'T'), (14, 'T', 'G'), (21, 'T', 'G')] -> [(21, 'T', 'G')]
+comparison: (Ivans Data -> output data): Insertions: [] -> [(8, 'T'), (14, 'G')]   mismatches: [(11, 'G', 'T'), (12, 'T', 'G'), (13, 'G', 'T'), (14, 'T', 'G'), (21, 'T', 'G')] -> [(21, 'T', 'G')]   number of events: 5 -> 3
 227 (perfect match)
 363 (perfect match)
 499 (imperfect match), insertions: [], deletions: [(74, 'G')], mismatches: []
@@ -452,19 +439,19 @@ alignment matches perfectly with Ivan's data
 1178 (perfect match)
 1314 (perfect match)
 1450 (imperfect match), insertions: [(113, 'G'), (122, 'T')], deletions: [], mismatches: [(117, 'G', 'T'), (121, 'T', 'G')]
-comparison: (Ivans Data -> output data): Insertions: [(122, 'G'), (122, 'G'), (122, 'T')] -> [(113, 'G'), (122, 'T')]   deletions: [(115, 'T')] -> []   mismatches: [(117, 'G', 'T')] -> [(117, 'G', 'T'), (121, 'T', 'G')]
-gap: 11 bp
+comparison: (Ivans Data -> output data): Insertions: [(122, 'G'), (122, 'G'), (122, 'T')] -> [(113, 'G'), (122, 'T')]   deletions: [(115, 'T')] -> []   mismatches: [(117, 'G', 'T')] -> [(117, 'G', 'T'), (121, 'T', 'G')]   number of events: 3 -> 4
+gap: 10 bp
 1599 (perfect match)
 1735 (perfect match)
 1871 (perfect match)
 2007 (perfect match)
 2143 (perfect match)
 2279 (perfect match)
+alignments number mismatch in current mutagenic area. No further comparison will be made for chr end
+Ivans number of alignments: 3, output number of alignmnets: 2
 2415 (imperfect match), insertions: [], deletions: [(53, 'G'), (54, 'T'), (89, 'G'), (90, 'T')], mismatches: [(109, 'G', 'T')]
-alignment matches perfectly with Ivan's data 
-gap: 136 bp
+gap: 135 bp
 2683 (imperfect match), insertions: [], deletions: [(120, 'G'), (121, 'T'), (122, 'G')], mismatches: []
-comparison: (Ivans Data -> output data): Insertions: [(25, 'G'), (33, 'T'), (41, 'G'), (41, 'G'), (83, 'T')] -> []   deletions: [(54, 'T'), (90, 'T')] -> [(120, 'G'), (121, 'T'), (122, 'G')]   mismatches: [(39, 'G', 'T'), (75, 'G', 'T'), (77, 'T', 'G')] -> []
 
 
 ______________________________________________________________
@@ -473,17 +460,15 @@ Total matches: 6
 27 (imperfect match), insertions: [(14, 'G'), (19, 'G')], deletions: [], mismatches: [(3, 'T', 'G'), (10, 'G', 'T')]
 alignment matches perfectly with Ivan's data 
 165 (perfect match)
-gap: 102 bp
+gap: 101 bp
+alignments number mismatch in current mutagenic area. No further comparison will be made for chr end
+Ivans number of alignments: 5, output number of alignmnets: 4
 403 (imperfect match), insertions: [(122, 'G'), (122, 'T')], deletions: [], mismatches: []
-comparison: (Ivans Data -> output data): Insertions: [(132, 'G')] -> [(122, 'G'), (122, 'T')]   deletions: [(89, 'G'), (90, 'T'), (108, 'G'), (109, 'G'), (115, 'T')] -> []   mismatches: [(128, 'G', 'T')] -> []
-gap: 31 bp
+gap: 30 bp
 572 (imperfect match), insertions: [(100, 'G'), (103, 'G'), (103, 'T'), (103, 'G'), (103, 'G')], deletions: [(132, 'T')], mismatches: [(96, 'G', 'T'), (128, 'G', 'T')]
-comparison: (Ivans Data -> output data): Insertions: [(33, 'T')] -> [(100, 'G'), (103, 'G'), (103, 'T'), (103, 'G'), (103, 'G')]   deletions: [(8, 'G'), (16, 'G'), (17, 'T'), (53, 'G'), (54, 'T')] -> [(132, 'T')]   mismatches: [(1, 'T', 'G')] -> [(96, 'G', 'T'), (128, 'G', 'T')]
-gap: 114 bp
+gap: 113 bp
 826 (imperfect match), insertions: [(10, 'T'), (12, 'G'), (15, 'T'), (27, 'T'), (122, 'G'), (122, 'G'), (122, 'T')], deletions: [], mismatches: [(21, 'T', 'G')]
-comparison: (Ivans Data -> output data): Insertions: [(88, 'G'), (88, 'T'), (88, 'G'), (88, 'T'), (88, 'G'), (88, 'T')] -> [(10, 'T'), (12, 'G'), (15, 'T'), (27, 'T'), (122, 'G'), (122, 'G'), (122, 'T')]   deletions: [(103, 'T'), (132, 'T')] -> []   mismatches: [(128, 'G', 'T')] -> [(21, 'T', 'G')]
-gap: 37 bp
+gap: 36 bp
 1006 (imperfect match), insertions: [(14, 'G'), (26, 'T')], deletions: [(38, 'G')], mismatches: [(3, 'T', 'G'), (10, 'G', 'T'), (23, 'T', 'G')]
-comparison: (Ivans Data -> output data): Insertions: [(21, 'G'), (21, 'T'), (21, 'G'), (21, 'G'), (27, 'T'), (122, 'G'), (122, 'G'), (122, 'T')] -> [(14, 'G'), (26, 'T')]   deletions: [(8, 'G')] -> [(38, 'G')]   mismatches: [] -> [(3, 'T', 'G'), (10, 'G', 'T'), (23, 'T', 'G')]
 
 
