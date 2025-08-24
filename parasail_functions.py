@@ -186,11 +186,10 @@ def analyze_alignment_from_cigar(query, ref, cigar_str,
         )
 
     # Compute beginning ref coordinate if missing, try inclusive/exclusive interpretations
-    if beg_ref is None:
-        beg_ref = 0
     if ops[0][0] == 'D':
         beg_ref = ops[0][1]
-        
+    if beg_ref is None:
+        beg_ref = 0
 
     # Now do the actual mapping walk; check bounds as we go
     ref_pos = int(beg_ref)
@@ -205,9 +204,13 @@ def analyze_alignment_from_cigar(query, ref, cigar_str,
     if ops[0][0] == 'D':
         ops = ops[1:]
 
+    op_save = None
+    L_save = None
+
     for op, L in ops:
         if query_pos >= len(query) or ref_pos >= len(ref):
-            end_ref = ref_pos - 1
+            op_save = op
+            L_save = L
             break
         if op in ('M', '=', 'X'):
             for i in range(L):
@@ -260,6 +263,14 @@ def analyze_alignment_from_cigar(query, ref, cigar_str,
         else:
             raise ValueError(f"Unhandled CIGAR op '{op}'")
 
+    #incase reference is smaller then query and there are a bunch of deletions at the end:
+    if query_pos < len(query) and op_save == 'I' and L_save:
+        for i in range(L_save):
+            q_idx = query_pos + i
+            q_base = query[q_idx]
+            deletions.append((q_idx+1, q_base))
+        
+
     #computed_end_ref = ref_pos - 1
     #computed_end_query = query_pos - 1
 
@@ -301,6 +312,8 @@ def analyze_alignment_from_cigar(query, ref, cigar_str,
         ## we keep everything (alternatively we could choose to drop edge-deletions,
         ## but it's ambiguous when there are no exact matches).
         #pass
+
+    end_ref = ref_pos - 1
 
     return {
         #'beg_ref': int(beg_ref),

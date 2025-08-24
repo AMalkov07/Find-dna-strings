@@ -11,6 +11,7 @@ Author: ChatGPT (adapt for your environment)
 
 from collections import defaultdict, Counter
 import parasail
+from memory_profiler import profile
 import statistics
 
 from bisect import bisect_right
@@ -361,16 +362,54 @@ def cluster_hits_by_offset(hits, offset_tolerance=8, min_seeds=2):
         })
     return clusters_out
 
+def filter_redundant_alignments(alignments, overlap_thresh=0.8, score_diff_thresh=0.05):
+    """
+    Remove highly redundant alignments, keeping only meaningful alternates.
+    
+    Args:
+        alignments (list of dict): each with 'window_range', 'score', 'identity'.
+        overlap_thresh (float): fraction overlap to be considered redundant.
+        score_diff_thresh (float): relative score difference below which alignments
+                                   are considered redundant.
+    """
+    kept = []
+    
+    for aln in sorted(alignments, key=lambda x: x["score"], reverse=True):
+        redundant = False
+        aln_start, aln_end = aln["window_range"]
+        
+        for kept_aln in kept:
+            k_start, k_end = kept_aln["window_range"]
+
+            # Compute overlap
+            overlap = max(0, min(aln_end, k_end) - max(aln_start, k_start))
+            overlap_frac = overlap / min(aln_end - aln_start, k_end - k_start)
+
+            # Compare scores/identity
+            score_diff = abs(aln["score"] - kept_aln["score"]) / max(aln["score"], kept_aln["score"])
+
+            if overlap_frac >= overlap_thresh and score_diff <= score_diff_thresh:
+                redundant = True
+                break
+        
+        if not redundant:
+            kept.append(aln)
+
+    return kept
+
 
 def extend_cluster(query,
                    reference,
                    cluster,
                    flank=60,
+                   window_size = 150,
+                   step_size = 10,
                    match=2,
-                   mismatch=-2,
-                   gap_open=20,
-                   gap_extend=.5,
-                   min_identity=0.90):
+                   mismatch=-3,
+                   gap_open=5,
+                   gap_extend=2,
+                   min_identity=0.88,
+                   used_regions=None):
     """
     Extract a ref window around the cluster and run a semi-global alignment (extension).
     Returns a dict with alignment info if it passes filters; else None.
@@ -379,58 +418,73 @@ def extend_cluster(query,
      - flank: number of reference bases added on both sides to allow indels and contextual alignment.
      - min_identity: fraction of query bases that must be exact matches (matches / query_len).
     """
-    qlen = len(query)
-    # representative offset is r - q; estimate ref window
-    rep_offset = cluster['offset']
-    # we want to align the whole query somewhere inside reference, so compute window:
-    # estimate ref start if query aligned at rep_offset -> ref_start_candidate = rep_offset
-    # include cluster qmin,qmax to better position window
-    # compute window that is safe
-    est_ref_start = rep_offset  # approximate ref index corresponding to query[0]
-    # but use cluster info to center window
-    est_ref_start = min(cluster['rmin'] - cluster['qmin'], est_ref_start)
-    window_start = max(0, est_ref_start - flank)
-    window_end = min(len(reference), est_ref_start + qlen + flank)
-    ref_subseq = reference[window_start:window_end]
+    alignments = []
+    if used_regions is None:
+        used_regions = set() #bit inefficient and pointless
 
+    qlen = len(query)
+    n_ref = len(reference)
+
+    window_size = min(window_size, n_ref)
+
+    
+    cluster_start = max(0, cluster['rmin'] - cluster['qmin'] - flank)
+    cluster_end = min(len(reference), cluster_start + qlen + flank)
+    region = reference[cluster_start:cluster_end]
     # scoring matrix for DNA (simple)
     matrix = parasail.matrix_create("ACGT", match, mismatch)
 
-    # Use semi-global stats variant (align full query to a window of reference)
-    # sg_stats returns statistics including .matches and .length (alignment length)
-    aln = parasail.sg_stats(query, ref_subseq, gap_open, gap_extend, matrix)
+    #slide window
+    for start in range(0, len(region) - window_size + 1, step_size):
+        sub_ref_start = cluster_start + start # this is the actual value in the full reference string
+        if sub_ref_start in used_regions:
+            continue
+        else:
+            used_regions.add(sub_ref_start)
+        sub_ref_end = sub_ref_start + window_size
 
-    # Try to extract CIGAR & alignment coordinates if a trace/cigar exists
-    cigar_str = None
-    aln_ref_start = None
-    aln_ref_end = None
-    aln_query_start = None
-    aln_query_end = None
 
-    # <<<<<<<<<<<<<<<<<< cigar string code >>>>>>>>>>>>>>>>>>>>>>>>>>
+        # Perform semiglobal alignment
+        sub_ref = region[start:start + window_size]
+        res = parasail.sg_trace_scan(query, sub_ref, gap_open, gap_extend, matrix)
+        #result = parasail.sg_dx_trace(query_seq, sub_ref, gap_open, gap_extend, matrix)
 
-    res = parasail.sg_trace_scan(query, ref_subseq, gap_open, gap_extend, matrix)
+        cigar_str = parasail_functions.try_get_cigar_string(res)
+        if cigar_str is None:
+            raise RuntimeError("Could not obtain CIGAR string from parasail result. Ensure you used a *_trace_* semi-global function.")
 
-    end_ref = getattr(res, 'end_ref', None)
-    end_query = getattr(res, 'end_query', None)
-    beg_ref = getattr(res, 'beg_ref', None)
-    beg_query = getattr(res, 'beg_query', None)
-    matches_count = getattr(res, 'matches', None)
 
-    cigar_str = parasail_functions.try_get_cigar_string(res)
-    if cigar_str is None:
-        raise RuntimeError("Could not obtain CIGAR string from parasail result. Ensure you used a *_trace_* semi-global function.")
+        analysis = parasail_functions.analyze_alignment_from_cigar(
+            query=query,
+            ref=sub_ref,
+            cigar_str=cigar_str,
+        )
 
-    analysis = parasail_functions.analyze_alignment_from_cigar(
-        query=query,
-        ref=ref_subseq,
-        cigar_str=cigar_str,
-        beg_ref=beg_ref,
-        beg_query=beg_query,
-        end_ref=end_ref,
-        end_query=end_query
-    )
 
+
+        identity = analysis['matches'] / len(query)
+
+        if identity >= min_identity:
+
+            aln = {
+                'score': res.score, #check if score exists
+                'matches': analysis['matches'],
+                'aligned_length': analysis['end_ref'] - analysis['beg_ref'] + 1,
+                'identity': round(identity, 4),
+                'ref_start': analysis['beg_ref'],
+                'ref_end': analysis['end_ref'],
+                'cigar': cigar_str,
+                'n_seeds': cluster.get('n_seeds', 0),
+                'mismatches': analysis['mismatches'],
+                'insertions': analysis['insertions'],
+                'deletions': analysis['deletions'],
+                'true_aligned_window_start': sub_ref_start
+            }
+
+            alignments.append(aln)
+
+
+    return alignments, used_regions
 
     # If Parasail produced a CIGAR (trace variant), try to decode and compute query-consumed length.
     # Some parasail versions give .cigar.decode attribute; we'll try to be flexible.
@@ -561,6 +615,71 @@ def extend_cluster(query,
         'analysis_end': analysis['end_ref']
     }
 
+# consider putting this function inside of the filter_redundant_alignments_by_error function
+def is_subset_with_tolerance(aln_a, aln_b, tol=0, start_diff_tolerance = 10):
+    """
+    Return True if all errors in errors_a are also in errors_b within tolerance.
+    """
+
+    start_diff = (aln_a['ref_start']+aln_a['true_aligned_window_start']) - (aln_b['ref_start'] + aln_b['true_aligned_window_start'])
+    if abs(start_diff) > 10:
+        return False
+
+    deletions_a = {x[0] for x in aln_a['deletions']} # makes a set
+    insertions_a = {x[0] for x in aln_a['insertions']} # makes a set
+    mismatches_a = {x[0] for x in aln_a['mismatches']} # makes a set
+
+    for i in aln_b['insertions']:
+        if i[0] + start_diff not in insertions_a:
+            return False
+
+    for d in aln_b['deletions']:
+        if d[0] + start_diff not in deletions_a:
+            return False
+
+    for m in aln_b['mismatches']:
+        if m[0] + start_diff not in mismatches_a:
+            return False
+    
+    return True
+
+
+def filter_redundant_alignments_by_errors(alignments, tol=0):
+    """
+    Remove redundant alignments where one alignment's mistakes are a subset of another's.
+    
+    Args:
+        alignments (list of dict): each dict has:
+            - "score"
+            - "insertions": list[int]
+            - "deletions": list[int]
+            - "mismatches": list[int]
+        tol (int): position tolerance for matching mistakes
+    
+    Returns:
+        list of dict
+    """
+    kept = []
+    alignments = sorted(alignments, key=lambda x: x["score"], reverse=True)
+
+    for i, aln_a in enumerate(alignments):
+        redundant = False
+        #errors_a = aln_a["insertions"] + aln_a["deletions"] + aln_a["mismatches"]
+
+        for aln_b in kept:
+            #errors_b = aln_b["insertions"] + aln_b["deletions"] + aln_b["mismatches"]
+
+            # If A’s errors are covered by B’s errors, then A is redundant (worse).
+            if is_subset_with_tolerance(aln_a, aln_b, tol=tol):
+                redundant = True
+                break
+        
+        if not redundant:
+            kept.append(aln_a)
+
+    return kept
+
+
 
 def seed_and_extend_pipeline(query,
                              reference,
@@ -600,32 +719,46 @@ def seed_and_extend_pipeline(query,
         return []
 
     results = []
+    all_used_regions = set()
     for cl in clusters:
-        print(cl)
-        aln = extend_cluster(query,
+        #print(f"cl: {cl}")
+        alns, used_regions = extend_cluster(query,
                              reference,
                              cl,
                              flank=flank,
+                             window_size=150,
+                             step_size=1, #modify step size
                              match=match,
                              mismatch=mismatch,
                              gap_open=gap_open,
                              gap_extend=gap_extend,
-                             min_identity=min_identity)
-        print(aln)
+                             min_identity=min_identity,
+                             used_regions=all_used_regions)
 
-        if aln:
-            # attach cluster info
-            aln['cluster_offset'] = cl['offset']
-            aln['cluster_qmin'] = cl['qmin']
-            aln['cluster_qmax'] = cl['qmax']
-            aln['cluster_rmin'] = cl['rmin']
-            aln['cluster_rmax'] = cl['rmax']
-            results.append(aln)
+        #if used_regions:
+            #for ur in used_regions:
+                #all_used_regions.append(ur)
+
+        if alns:
+            for aln in alns:
+                # attach cluster info
+                aln['cluster_offset'] = cl['offset']
+                aln['cluster_qmin'] = cl['qmin']
+                aln['cluster_qmax'] = cl['qmax']
+                aln['cluster_rmin'] = cl['rmin']
+                aln['cluster_rmax'] = cl['rmax']
+                results.append(aln)
 
     # sort by identity then score
-    results.sort(key=lambda x: (x['identity'], x['score']), reverse=True)
+    #results.sort(key=lambda x: (x['identity'], x['score']), reverse=True)
+    print(f"len results: {len(results)}, results: {results}")
+    results = filter_redundant_alignments_by_errors(results, 0)
+    print(f"len results: {len(results)}, results: {results}")
 
-    selected_set = weighted_interval_scheduling(results)
+    #selected_set = weighted_interval_scheduling(results)
+
+
+    return results
     
     return selected_set
 
@@ -640,7 +773,7 @@ if __name__ == "__main__":
 
     res = seed_and_extend_pipeline(query, reference,
                                    k=15,
-                                   flank=80,
+                                   flank=60,
                                    match=2,
                                    mismatch=-2,
                                    gap_open=10,
