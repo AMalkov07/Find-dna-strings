@@ -422,7 +422,8 @@ def extend_cluster(query,
     if used_regions is None:
         used_regions = set() #bit inefficient and pointless
     
-    max_mistakes = len(query) // 12
+    #max_mistakes = len(query) // 12
+    max_mistakes = len(query) // 10
 
     qlen = len(query)
     n_ref = len(reference)
@@ -468,7 +469,7 @@ def extend_cluster(query,
 
         #identity = analysis['matches'] / len(query)
 
-        if n_mistakes < max_mistakes:
+        if n_mistakes <= max_mistakes:
 
             aln = {
                 #'score': res.score, #check if score exists
@@ -747,7 +748,6 @@ def best_nonoverlapping_alignments(alignments, reference_length, reference_start
             sco_j = curr_cmp_align['score']
             #if ej <= si:  # non-overlapping (abutting allowed)
             if ej < si:  # non-overlapping (abutting allowed)
-                print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 cnt, gaps_w_start, sc, first_start, path = dp[j]
 
                 # add 0 if abut, else +1 gap if there's separation
@@ -815,6 +815,7 @@ def seed_and_extend_pipeline(query,
     Returns list of alignment dicts.
     """
     # normalize (uppercase)
+    print("_____________________________________________________________")
     query = query.upper()
     reference = reference.upper()
 
@@ -827,7 +828,6 @@ def seed_and_extend_pipeline(query,
                                       offset_tolerance=offset_tolerance,
                                       min_seeds=min_seeds)
 
-    print("_____________________________________________________________")
 
     if not clusters:
         return []
@@ -863,14 +863,15 @@ def seed_and_extend_pipeline(query,
                 aln['cluster_rmax'] = cl['rmax']
                 results.append(aln)
 
+    print(f"alns: {alns}")
+
     # sort by identity then score
     #results.sort(key=lambda x: (x['identity'], x['score']), reverse=True)
     #note: should probably integerate filtering into extension function
-    print(f"len results: {len(results)}, results: {results}\n")
     results = filter_redundant_alignments_by_errors(results, 0)
-    print(f"len results: {len(results)}, results: {results}\n")
+    print(f"results: {results}")
     final_results = best_nonoverlapping_alignments(results, len(reference), 0)
-    print(f"len results: {len(final_results)}, results: {final_results}\n")
+    print(f"final_results: {final_results}")
 
     #selected_set = weighted_interval_scheduling(results)
 

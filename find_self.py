@@ -933,17 +933,21 @@ class find_loops:
         while queue:
             full_str = queue.popleft()
 
-            if len(full_str) < key_n - 5:
+            if len(full_str) < key_n - key_n//12:
                 continue
 
             #all_hits = parasail_functions.recursive_find_alignments(key, full_str)
             all_hits = parasail_seedHit.seed_and_extend_pipeline(key, full_str,
                                         k=15,
-                                        flank=100,
+                                        flank=80,
                                         match=2,
                                         mismatch=-2,
-                                        gap_open=4,
+                                        gap_open=6,
                                         gap_extend=2,
+                                        #match = 1,
+                                        #mismatch = -3,
+                                        #gap_open=5,
+                                        #gap_extend =2,
                                         min_identity=0.90,
                                         offset_tolerance=6,
                                         min_seeds=2)
@@ -971,7 +975,7 @@ class find_loops:
                             dict_insertions_and_deletions[hit['absolute_ref_start']+str_dict[full_str][0]] = total_variants
 
                         
-                continue
+                        continue
 
 
 
@@ -1897,6 +1901,7 @@ class full_analysis:
         no_loops_found_indexes = []
         counter = 0
         for i in range(len(all_chr_ends)):
+            print(convert_num_to_chr_end(i))
             sequence = all_chr_ends[i]
             if not sequence:
                 all_find_loops_objects.append(None)
@@ -2409,7 +2414,9 @@ def main(args, stats_filename):
         #print(elem[0])
     #parse_csv.compare_outputs("181_Ivan_data.csv", arr_for_csv_comparison)
     #print(f"arr for csv comparison: {arr_for_csv_comparison}")
-    parse_csv.compare_outputs("csv_files/181.csv", arr_for_csv_comparison, stats_filename)
+    if user_input_obj.compare_output:
+    #parse_csv.compare_outputs("csv_files/181.csv", arr_for_csv_comparison, stats_filename)
+        parse_csv.compare_outputs(user_input_obj.compare_output, arr_for_csv_comparison, stats_filename)
     return
 
 
@@ -2441,6 +2448,8 @@ if __name__ == "__main__":
                         help="optional input for graph title (must be used with --graph_output flag)")
     parser.add_argument("-p", "--pattern",
                         help="used to specify the exact pattern to look for instead of the programming trying to find the circle pattern automatically")
+    parser.add_argument("-co", "--compare_output",
+                        help="used for comparing the output of the program to Ivan's CSV files")
     args = parser.parse_args()
 
     # Open the output file if provided
