@@ -939,7 +939,7 @@ class find_loops:
             #all_hits = parasail_functions.recursive_find_alignments(key, full_str)
             all_hits = parasail_seedHit.seed_and_extend_pipeline(key, full_str,
                                         k=15,
-                                        flank=80,
+                                        flank=100,
                                         match=2,
                                         mismatch=-2,
                                         gap_open=4,
@@ -951,19 +951,24 @@ class find_loops:
             # following logic is to make sure first mutagenic arrow is only included if directly followed by non mutagenic arrow
             if str_dict[full_str][0] == 0 and n_queue > 1:
                 if all_hits:
-                    end_str = len(full_str) - 1
-                    for hit in all_hits:
+                    if len(all_hits) > 1:
+                        all_hits = all_hits[1:]
+                    else:
+                        end_str = len(full_str) - 1
+                        hit = all_hits[0]
                         print(f"hit ref_start: {hit['ref_start']}")
                         if not hit['aligned_length']:
                             print("ERROR, no aligned length")
                             continue
-                        if hit['ref_start'] + hit['aligned_length'] >= end_str - 2:
-                            good_alignment_starting_pos.append(hit['ref_start']+str_dict[full_str][0])
+                        #if hit['absolute_ref_start'] + hit['aligned_length'] >= end_str:
+                        if hit['absolute_ref_end'] == end_str:
+                        #if True:
+                            good_alignment_starting_pos.append(hit['absolute_ref_start']+str_dict[full_str][0])
 
                             total_variants = [hit['insertions'], hit['deletions'], hit['mismatches']]
 
                             #dict_insertions_and_deletions[hit['beg_ref']+str_dict[full_str][0]] = total_variants
-                            dict_insertions_and_deletions[hit['ref_start']+str_dict[full_str][0]] = total_variants
+                            dict_insertions_and_deletions[hit['absolute_ref_start']+str_dict[full_str][0]] = total_variants
 
                         
                 continue
@@ -985,12 +990,12 @@ class find_loops:
                 for hit in all_hits:
                 
                     #good_alignment_starting_pos.append(hit['beg_ref']+str_dict[full_str][0])
-                    good_alignment_starting_pos.append(hit['ref_start']+str_dict[full_str][0])
+                    good_alignment_starting_pos.append(hit['absolute_ref_start']+str_dict[full_str][0])
 
                     total_variants = [hit['insertions'], hit['deletions'], hit['mismatches']]
 
                     #dict_insertions_and_deletions[hit['beg_ref']+str_dict[full_str][0]] = total_variants
-                    dict_insertions_and_deletions[hit['ref_start']+str_dict[full_str][0]] = total_variants
+                    dict_insertions_and_deletions[hit['absolute_ref_start']+str_dict[full_str][0]] = total_variants
 
                     #print(f"good_algignment starting positions: {good_alignment_starting_pos}")
                     #print(f"dict_insertions_and_deletion: {dict_insertions_and_deletions}")

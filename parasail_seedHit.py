@@ -421,9 +421,12 @@ def extend_cluster(query,
     alignments = []
     if used_regions is None:
         used_regions = set() #bit inefficient and pointless
+    
+    max_mistakes = len(query) // 12
 
     qlen = len(query)
     n_ref = len(reference)
+    n_query = len(query)
 
     window_size = min(window_size, n_ref)
 
@@ -460,17 +463,19 @@ def extend_cluster(query,
             cigar_str=cigar_str,
         )
 
+        
+        n_mistakes = len(analysis['insertions']) + len(analysis['deletions']) + len(analysis['mismatches'])
 
+        #identity = analysis['matches'] / len(query)
 
-        identity = analysis['matches'] / len(query)
-
-        if identity >= min_identity:
+        if n_mistakes < max_mistakes:
 
             aln = {
-                'score': res.score, #check if score exists
+                #'score': res.score, #check if score exists
+                'score': n_query-n_mistakes/n_query, #check if score exists
                 'matches': analysis['matches'],
                 'aligned_length': analysis['end_ref'] - analysis['beg_ref'] + 1,
-                'identity': round(identity, 4),
+                #'identity': round(identity, 4),
                 'ref_start': analysis['beg_ref'],
                 'ref_end': analysis['end_ref'],
                 'cigar': cigar_str,
@@ -478,7 +483,9 @@ def extend_cluster(query,
                 'mismatches': analysis['mismatches'],
                 'insertions': analysis['insertions'],
                 'deletions': analysis['deletions'],
-                'true_aligned_window_start': sub_ref_start
+                'true_aligned_window_start': sub_ref_start,
+                'absolute_ref_start': sub_ref_start + analysis['beg_ref'],
+                'absolute_ref_end': sub_ref_start + analysis['end_ref']
             }
 
             alignments.append(aln)
@@ -679,6 +686,113 @@ def filter_redundant_alignments_by_errors(alignments, tol=0):
 
     return kept
 
+def best_nonoverlapping_alignments(alignments, reference_length, reference_start=0):
+    """
+    Select the best non-overlapping subset of alignments with priorities:
+      1) maximize count
+      2) minimize number of gaps:
+           - gap between consecutive alignments if end_j < start_i
+           - +1 if first chosen start > reference_start
+           - +1 if last  chosen end   < reference_length
+      3) maximize total score
+
+    Args
+    ----
+    alignments : list[tuple]
+        Each item is (start, end, score, *rest). Coordinates are 0-based half-open [start, end).
+    reference_length : int
+        End coordinate of the reference (i.e., last valid index + 1).
+    reference_start : int, default 0
+        Start coordinate of the reference.
+
+    Returns
+    -------
+    result : dict
+        {
+          "count": int,
+          "gaps": int,             # includes start/end gaps per your definition
+          "score": float,
+          "path": list[tuple],     # chosen alignments in increasing order of end
+        }
+    """
+    if not alignments:
+        # With no alignments, by your definition there are two gaps: start and end
+        return []
+
+    # sort by end (classic interval scheduling order)
+    aligns = sorted(alignments, key=lambda x: x['absolute_ref_end'])
+    n = len(aligns)
+
+    # dp[i] stores the best solution that ENDS at alignment i
+    # tuple layout:
+    #   (count, gaps_including_start, score, first_start, path_list)
+    dp = [None] * n
+
+    #for i, (si, ei, sco_i, *rest_i) in enumerate(aligns):
+    for i in range(n):
+        curr_align = aligns[i]
+        si = curr_align['absolute_ref_start']
+        ei = curr_align['absolute_ref_end']
+        sco_i = curr_align['score']
+        # start a chain with only alignment i
+        start_gap = 0 if si == reference_start else 1
+        best = (1, start_gap, sco_i, si, [aligns[i]])
+
+        # try to extend from any non-overlapping j < i
+        for j in range(i):
+            #sj, ej, sco_j, *rest_j = aligns[j]
+            curr_cmp_align = aligns[j]
+            sj = curr_cmp_align['absolute_ref_start']
+            ej = curr_cmp_align['absolute_ref_end']
+            sco_j = curr_cmp_align['score']
+            #if ej <= si:  # non-overlapping (abutting allowed)
+            if ej < si:  # non-overlapping (abutting allowed)
+                print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                cnt, gaps_w_start, sc, first_start, path = dp[j]
+
+                # add 0 if abut, else +1 gap if there's separation
+                gap_add = 0 if ej+1 == si else 1
+
+                cand = (
+                    cnt + 1,
+                    gaps_w_start + gap_add,
+                    sc + sco_i,
+                    first_start,
+                    path + [aligns[i]],
+                )
+
+                # lexicographic preference: count ↑, gaps ↓, score ↑
+                if (
+                    cand[0] > best[0] or
+                    (cand[0] == best[0] and cand[1] < best[1]) or
+                    (cand[0] == best[0] and cand[1] == best[1] and cand[2] > best[2])
+                ):
+                    best = cand
+
+        dp[i] = best
+
+    # Final selection across endpoints i:
+    # add the END-gap (+1 if the chain doesn't reach reference end).
+    best_overall = None
+    best_key = None
+
+    for i, state in enumerate(dp):
+        cnt, gaps_w_start, sc, first_start, path = state
+        last_end = path[-1]['absolute_ref_end']  # end of the last chosen alignment
+        end_gap = 0 if last_end+1 == reference_length else 1
+        total_gaps = gaps_w_start + end_gap
+
+        key = (cnt, -total_gaps, sc)  # count ↑, gaps ↓, score ↑
+        if best_overall is None or key > best_key:
+            best_overall = {
+                "count": cnt,
+                "gaps": total_gaps,
+                "score": sc,
+                "path": path
+            }
+            best_key = key
+
+    return best_overall['path']
 
 
 def seed_and_extend_pipeline(query,
@@ -751,14 +865,17 @@ def seed_and_extend_pipeline(query,
 
     # sort by identity then score
     #results.sort(key=lambda x: (x['identity'], x['score']), reverse=True)
-    print(f"len results: {len(results)}, results: {results}")
+    #note: should probably integerate filtering into extension function
+    print(f"len results: {len(results)}, results: {results}\n")
     results = filter_redundant_alignments_by_errors(results, 0)
-    print(f"len results: {len(results)}, results: {results}")
+    print(f"len results: {len(results)}, results: {results}\n")
+    final_results = best_nonoverlapping_alignments(results, len(reference), 0)
+    print(f"len results: {len(final_results)}, results: {final_results}\n")
 
     #selected_set = weighted_interval_scheduling(results)
 
 
-    return results
+    return final_results
     
     return selected_set
 
