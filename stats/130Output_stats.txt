@@ -1,0 +1,43 @@
+total chr ends with mutagenic zone found: 19
+total chr ends with matching number of mutagenic areas: 19
+total chr ends with matching number of alignments: 11
+total chr ends with exact same call as Ivans data: 7
+10 alignments matched perfectly out of 14 that were compared
+
+chr ends with mutagenic zone number mismatch:
+
+
+chr ends with alignment number mismatch:
+1L
+3R
+6R
+7L
+9R
+11R
+14R
+15R
+
+all Alignment mismatches:
+
+
+comparison: (Ivans Data -> output data): Insertions: [(62, 'G'), (62, 'T'), (62, 'G'), (62, 'G')] -> []   deletions: [(32, 'G'), (36, 'G'), (37, 'T'), (38, 'G')] -> [(112, 'G')]   mismatches: [(112, 'G', 'T')] -> []   number of events: 4 -> 1
+
+
+
+comparison: (Ivans Data -> output data): Insertions: [(60, 'T'), (62, 'G'), (62, 'G'), (85, 'T')] -> [(43, 'T')]   deletions: [(89, 'G'), (90, 'T'), (91, 'G')] -> [(47, 'G'), (48, 'T'), (49, 'G'), (111, 'G'), (112, 'G')]   mismatches: [(111, 'G', 'T')] -> []number of events: 5 -> 3
+
+
+
+
+
+comparison: (Ivans Data -> output data): deletions: [(75, 'G'), (76, 'G'), (77, 'T'), (78, 'G'), (79, 'T'), (111, 'G'), (112, 'G')] -> [(75, 'G'), (76, 'G'), (77, 'T'), (78, 'G'), (79, 'T')]   mismatches: [] -> [(111, 'G', 'T')]number of events: 2 -> 2
+
+
+
+comparison: (Ivans Data -> output data): Insertions: [(14, 'G'), (62, 'G'), (62, 'T'), (62, 'G'), (62, 'G')] -> []   deletions: [(31, 'G'), (36, 'G'), (37, 'T'), (38, 'G')] -> [(112, 'G')]   number of events: 4 -> 1
+
+
+
+
+
+

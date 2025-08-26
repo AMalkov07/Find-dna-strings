@@ -1,0 +1,27 @@
+total chr ends with mutagenic zone found: 18
+total chr ends with matching number of mutagenic areas: 12
+total chr ends with matching number of alignments: 11
+total chr ends with exact same call as Ivans data: 7
+13 alignments matched perfectly out of 17 that were compared
+
+chr ends with mutagenic zone number mismatch:
+1L
+1R
+7R
+14L
+15R
+16R
+
+chr ends with alignment number mismatch:
+11L
+
+all Alignment mismatches:
+comparison: (Ivans Data -> output data): Insertions: [] -> [(77, 'G'), (77, 'T')]   mismatches: [(85, 'G', 'T'), (87, 'T', 'G')] -> []number of events: 2 -> 1
+
+comparison: (Ivans Data -> output data): Insertions: [(81, 'G')] -> []   deletions: [(87, 'T'), (88, 'G')] -> [(83, 'T')]   number of events: 3 -> 2
+
+
+
+comparison: (Ivans Data -> output data): Insertions: [] -> [(9, 'G'), (9, 'T'), (9, 'G'), (14, 'G'), (14, 'G')]   deletions: [(12, 'T'), (13, 'G'), (14, 'T')] -> []   number of events: 1 -> 2
+
+comparison: (Ivans Data -> output data): deletions: [] -> [(1, 'T'), (2, 'G')]   number of events: 1 -> 2
