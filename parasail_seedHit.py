@@ -422,8 +422,8 @@ def extend_cluster(query,
     if used_regions is None:
         used_regions = set() #bit inefficient and pointless
     
-    #max_mistakes = len(query) // 12
-    max_mistakes = len(query) // 10
+    max_mistakes = len(query) // 12
+    #max_mistakes = len(query) // 10
 
     qlen = len(query)
     n_ref = len(reference)
@@ -466,6 +466,7 @@ def extend_cluster(query,
 
         
         n_mistakes = len(analysis['insertions']) + len(analysis['deletions']) + len(analysis['mismatches'])
+        score = (n_query - n_mistakes) / n_query
 
         #identity = analysis['matches'] / len(query)
 
@@ -473,7 +474,8 @@ def extend_cluster(query,
 
             aln = {
                 #'score': res.score, #check if score exists
-                'score': n_query-n_mistakes/n_query, #check if score exists
+                #'score': (n_query-n_mistakes)/n_query, #check if score exists
+                'score': score,
                 'matches': analysis['matches'],
                 'aligned_length': analysis['end_ref'] - analysis['beg_ref'] + 1,
                 #'identity': round(identity, 4),

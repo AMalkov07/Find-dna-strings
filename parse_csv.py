@@ -2,7 +2,8 @@ import csv
 import re
 
 def parse_alignment_csv_line(line: str):
-    pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
+    #pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
+    pattern = re.compile(r"^KRLT(\d+)\s(\d+[LR])-(\d+)$")
     insertions = []
     deletions = []
     mismatches = []

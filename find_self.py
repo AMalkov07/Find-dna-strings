@@ -885,15 +885,15 @@ class find_loops:
 
         key_n = len(key)
         #min_score = key_n - key_n//12
-        max_mistakes = key_n//12
-        str_dict = {}
+        #str_dict = {}
+        str_locations = []
         queue = deque()
 
-        added_first_alignment = True
 
         if len(alignments) < 1:
             tmp = self.input_s
-            str_dict[tmp] = [0, len(tmp)]
+            #str_dict[tmp] = [0, len(tmp)]
+            str_locations.append(0)
             queue.append(tmp)
             
         else:
@@ -915,12 +915,14 @@ class find_loops:
                 if last_val == 0 and alignment > 0:
                     added_first_alignment = True
                 tmp = self.input_s[last_val:alignment]
-                str_dict[tmp] = [last_val, alignment]
+                #str_dict[tmp] = [last_val, alignment]
+                str_locations.append(last_val)
                 queue.append(tmp)
                 last_val = alignment+key_n
             tmp = self.input_s[last_val:]
             x = False
-            str_dict[tmp] = [last_val, len(self.input_s)]
+            #str_dict[tmp] = [last_val, len(self.input_s)]
+            str_locations.append(last_val)
             queue.append(tmp)
 
         good_alignment_arr = []
@@ -930,7 +932,9 @@ class find_loops:
         #counter = 0
         first = True
         n_queue = len(queue)
+        counter = -1 #offset by 1 because I increment at start of loop
         while queue:
+            counter += 1
             full_str = queue.popleft()
 
             if len(full_str) < key_n - key_n//12:
@@ -941,8 +945,8 @@ class find_loops:
                                         k=15,
                                         flank=80,
                                         match=2,
-                                        mismatch=-2,
-                                        gap_open=6,
+                                        mismatch=-3,
+                                        gap_open=5,
                                         gap_extend=2,
                                         #match = 1,
                                         #mismatch = -3,
@@ -953,7 +957,9 @@ class find_loops:
                                         min_seeds=2)
 
             # following logic is to make sure first mutagenic arrow is only included if directly followed by non mutagenic arrow
-            if str_dict[full_str][0] == 0 and n_queue > 1:
+            #if str_dict[full_str][0] == 0 and n_queue > 1:
+            if counter == 0 and str_locations[0] == 0:
+            #if False:
                 if all_hits:
                     if len(all_hits) > 1:
                         all_hits = all_hits[1:]
@@ -967,12 +973,14 @@ class find_loops:
                         #if hit['absolute_ref_start'] + hit['aligned_length'] >= end_str:
                         if hit['absolute_ref_end'] == end_str:
                         #if True:
-                            good_alignment_starting_pos.append(hit['absolute_ref_start']+str_dict[full_str][0])
+                            #good_alignment_starting_pos.append(hit['absolute_ref_start']+str_dict[full_str][0])
+                            good_alignment_starting_pos.append(hit['absolute_ref_start']+str_locations[counter])
 
                             total_variants = [hit['insertions'], hit['deletions'], hit['mismatches']]
 
                             #dict_insertions_and_deletions[hit['beg_ref']+str_dict[full_str][0]] = total_variants
-                            dict_insertions_and_deletions[hit['absolute_ref_start']+str_dict[full_str][0]] = total_variants
+                            #dict_insertions_and_deletions[hit['absolute_ref_start']+str_dict[full_str][0]] = total_variants
+                            dict_insertions_and_deletions[hit['absolute_ref_start']+str_locations[counter]] = total_variants
 
                         
                         continue
@@ -994,12 +1002,12 @@ class find_loops:
                 for hit in all_hits:
                 
                     #good_alignment_starting_pos.append(hit['beg_ref']+str_dict[full_str][0])
-                    good_alignment_starting_pos.append(hit['absolute_ref_start']+str_dict[full_str][0])
+                    good_alignment_starting_pos.append(hit['absolute_ref_start']+str_locations[counter])
 
                     total_variants = [hit['insertions'], hit['deletions'], hit['mismatches']]
 
                     #dict_insertions_and_deletions[hit['beg_ref']+str_dict[full_str][0]] = total_variants
-                    dict_insertions_and_deletions[hit['absolute_ref_start']+str_dict[full_str][0]] = total_variants
+                    dict_insertions_and_deletions[hit['absolute_ref_start']+str_locations[counter]] = total_variants
 
                     #print(f"good_algignment starting positions: {good_alignment_starting_pos}")
                     #print(f"dict_insertions_and_deletion: {dict_insertions_and_deletions}")
