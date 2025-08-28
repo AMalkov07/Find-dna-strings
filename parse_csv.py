@@ -2,8 +2,8 @@ import csv
 import re
 
 def parse_alignment_csv_line(line: str):
-    #pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
-    pattern = re.compile(r"^KRLT(\d+)\s(\d+[LR])-(\d+)$")
+    pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
+    #pattern = re.compile(r"^KRLT(\d+)\s(\d+[LR])-(\d+)$")
     insertions = []
     deletions = []
     mismatches = []
@@ -137,6 +137,9 @@ def count_tuples(arr, mode):
 
 #note: self is just cuz I'm too lazy to change the variable name, it's not actually an object function
 def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
+    total_insertions = 0
+    total_deletions = 0
+    total_mismatches = 0
     if not self.extra_alignment_indexes:
         self.extra_alignment_indexes = []
     all_imperfect_alignments = []
@@ -173,6 +176,9 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
                 insertions_arr = self.extra_alignment_insertions_and_deletions[val][0]
                 deletions_arr = self.extra_alignment_insertions_and_deletions[val][1]
                 mismatches_arr = self.extra_alignment_insertions_and_deletions[val][2]
+                total_insertions += len(insertions_arr)
+                total_deletions += len(deletions_arr)
+                total_mismatches += len(mismatches_arr)
                 if last_end and last_end < val:
                     output.append(f"gap: {val - last_end - 1} bp") # check this makes sense
                 last_end = val + self.n_subStr + len(insertions_arr) - len(deletions_arr)
@@ -194,6 +200,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
                     given_insertions_arr = given_data_grouped_by_chr_dict[j][k]["insertions"]
                     given_deletions_arr = given_data_grouped_by_chr_dict[j][k]["deletions"]
                     given_mismatches_arr = given_data_grouped_by_chr_dict[j][k]["mismatches"]
+                    
 
                     if given_insertions_arr == insertions_arr and given_deletions_arr == deletions_arr and given_mismatches_arr == mismatches_arr:
                         output.append("alignment matches perfectly with Ivan's data ")
@@ -236,6 +243,9 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
             insertions_arr = self.extra_alignment_insertions_and_deletions[val][0]
             deletions_arr = self.extra_alignment_insertions_and_deletions[val][1]
             mismatches_arr = self.extra_alignment_insertions_and_deletions[val][2]
+            total_insertions += len(insertions_arr)
+            total_deletions += len(deletions_arr)
+            total_mismatches += len(mismatches_arr)
             if last_end and last_end < val:
                 output.append(f"gap: {val - last_end - 1} bp") # check this makes sense
             last_end = val + self.n_subStr + len(insertions_arr) - len(deletions_arr)
@@ -285,7 +295,8 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
     final_string = "\n".join(output)
     print(final_string)
 
-    return if_matching_number_of_alignment, total_number_alignments_compared_in_chr, total_number_perfect_alignment_matches_in_chr, ("\n".join(all_imperfect_alignments))
+    return if_matching_number_of_alignment, total_number_alignments_compared_in_chr, total_number_perfect_alignment_matches_in_chr, ("\n".join(all_imperfect_alignments)), total_insertions, total_deletions, total_mismatches
+    #return total_insertions, total_deletions, total_mismatches
 
 
 def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename):
@@ -302,6 +313,10 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
     mismatch_gap_number_indexes = []
     mismatch_alignment_number_indexes = []
     all_imperfect_alignments = []
+
+    total_insertions = 0
+    total_deletions = 0
+    total_mismatches = 0
 
 
     for key in new_data_grouped_by_chr_dict.keys():
@@ -341,7 +356,10 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
             else:
                 total_matching_number_of_gaps += 1
         if print_comparison:
-            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments = custom_object_print(new_data_grouped_by_chr_dict[key], given_data_grouped_by_chr_dict[key], print_comparison)
+            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches = custom_object_print(new_data_grouped_by_chr_dict[key], given_data_grouped_by_chr_dict[key], print_comparison)
+            total_insertions += n_insertions
+            total_deletions += n_deletions
+            total_mismatches += n_mismatches
             if if_matching_number_of_alignments and len(tmp_imperfect_alignments) == 0:
                 total_exact_match_for_entire_chr_end += 1
             else:
@@ -353,7 +371,11 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
             total_number_alignments_compared += total_number_alignments_compared_in_chr
             total_number_perfect_alignment_matches += total_number_perfect_alignment_alignmen_in_chr
         else:
-            custom_object_print(new_data_grouped_by_chr_dict[key], [], print_comparison)
+            #insertions, deletions, mismatches = custom_object_print(new_data_grouped_by_chr_dict[key], [], print_comparison)
+            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches = custom_object_print(new_data_grouped_by_chr_dict[key], [], print_comparison)
+            total_insertions += n_insertions
+            total_deletions += n_deletions
+            total_mismatches += n_mismatches
         print("\n")
 
     # check if key is in Ivans data but not in my output data:
@@ -370,6 +392,7 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
     print(f"total chr ends with matching number of alignments: {total_matching_number_of_alignments}", file=stats_filename)
     print(f"total chr ends with exact same call as Ivans data: {total_exact_match_for_entire_chr_end}", file=stats_filename)
     print(f"{total_number_perfect_alignment_matches} alignments matched perfectly out of {total_number_alignments_compared} that were compared", file=stats_filename)
+    print(f"total insertion count: {total_insertions},  total deletions count: {total_deletions}, total mismatches count: {total_mismatches}", file=stats_filename)
     print("\nchr ends with mutagenic zone number mismatch:", file=stats_filename)
     print("\n".join(mismatch_gap_number_indexes), file=stats_filename)
     print("\nchr ends with alignment number mismatch:", file=stats_filename)

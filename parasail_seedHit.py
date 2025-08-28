@@ -429,7 +429,7 @@ def extend_cluster(query,
     n_ref = len(reference)
     n_query = len(query)
 
-    window_size = min(window_size, n_ref)
+    window_size = min(n_query + n_query//12, n_ref)
 
     
     cluster_start = max(0, cluster['rmin'] - cluster['qmin'] - flank)
