@@ -475,7 +475,8 @@ def extend_cluster(query,
             aln = {
                 #'score': res.score, #check if score exists
                 #'score': (n_query-n_mistakes)/n_query, #check if score exists
-                'score': score,
+                #'score': score,
+                'score': res.score,
                 'matches': analysis['matches'],
                 'aligned_length': analysis['end_ref'] - analysis['beg_ref'] + 1,
                 #'identity': round(identity, 4),
@@ -631,7 +632,7 @@ def is_subset_with_tolerance(aln_a, aln_b, tol=0, start_diff_tolerance = 10):
     Return True if all errors in errors_a are also in errors_b within tolerance.
     """
 
-    start_diff = (aln_a['ref_start']+aln_a['true_aligned_window_start']) - (aln_b['ref_start'] + aln_b['true_aligned_window_start'])
+    start_diff = (aln_a['absolute_ref_start']) - (aln_b['absolute_ref_start'])
     if abs(start_diff) > 10:
         return False
 
@@ -865,12 +866,14 @@ def seed_and_extend_pipeline(query,
                 aln['cluster_rmax'] = cl['rmax']
                 results.append(aln)
 
-    print(f"alns: {alns}")
+    print(f"len results: {len(results)}")
+    print(f"alns: {results}")
 
     # sort by identity then score
     #results.sort(key=lambda x: (x['identity'], x['score']), reverse=True)
     #note: should probably integerate filtering into extension function
     results = filter_redundant_alignments_by_errors(results, 0)
+    print(f"len results: {len(results)}")
     print(f"results: {results}")
     final_results = best_nonoverlapping_alignments(results, len(reference), 0)
     print(f"final_results: {final_results}")

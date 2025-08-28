@@ -140,6 +140,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
     total_insertions = 0
     total_deletions = 0
     total_mismatches = 0
+    alignment_mismatches_comparison = None
     if not self.extra_alignment_indexes:
         self.extra_alignment_indexes = []
     all_imperfect_alignments = []
@@ -188,6 +189,8 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
                         output.append("alignments number mismatch in current mutagenic area. No further comparison will be made for chr end")
                         if_matching_number_of_alignment = False
                         output.append(f"Ivans number of alignments: {len(given_data_grouped_by_chr_dict[j])}, output number of alignmnets: {len(curr_group)}")
+                        #alignment_mismatches_comparison = (len(given_data_grouped_by_chr_dict[j]), len(curr_group))
+                        alignment_mismatches_comparison = f"{len(given_data_grouped_by_chr_dict[j])} -> {len(curr_group)}"
                         should_output_extra_alignment_error_message = False
 
                 output.append(
@@ -255,6 +258,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
                     output.append("alignments number mismatch in current mutagenic area. No further comparison will be made for chr end")
                     if_matching_number_of_alignment = False
                     output.append(f"Ivans number of alignments: {len(given_data_grouped_by_chr_dict[j])}, output number of alignmnets: {len(curr_group)}")
+                    alignment_mismatches_comparison = f"{len(given_data_grouped_by_chr_dict[j])} -> {len(curr_group)}"
                 should_output_extra_alignment_error_message = False
                 
 
@@ -295,7 +299,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison):
     final_string = "\n".join(output)
     print(final_string)
 
-    return if_matching_number_of_alignment, total_number_alignments_compared_in_chr, total_number_perfect_alignment_matches_in_chr, ("\n".join(all_imperfect_alignments)), total_insertions, total_deletions, total_mismatches
+    return if_matching_number_of_alignment, total_number_alignments_compared_in_chr, total_number_perfect_alignment_matches_in_chr, ("\n".join(all_imperfect_alignments)), total_insertions, total_deletions, total_mismatches, alignment_mismatches_comparison
     #return total_insertions, total_deletions, total_mismatches
 
 
@@ -320,6 +324,7 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
 
 
     for key in new_data_grouped_by_chr_dict.keys():
+        all_alignment_mismatch_comparisons = []
         total_chr_ends_compared += 1
         if len(new_data_grouped_by_chr_dict[key].extra_alignment_indexes) > 0 or (key in given_data_grouped_by_chr_dict and len(given_data_grouped_by_chr_dict[key]) > 0):
             total_chr_ends_with_mutagenic_zone += 1
@@ -356,7 +361,7 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
             else:
                 total_matching_number_of_gaps += 1
         if print_comparison:
-            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches = custom_object_print(new_data_grouped_by_chr_dict[key], given_data_grouped_by_chr_dict[key], print_comparison)
+            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches, alignment_mismatches_comparison = custom_object_print(new_data_grouped_by_chr_dict[key], given_data_grouped_by_chr_dict[key], print_comparison)
             total_insertions += n_insertions
             total_deletions += n_deletions
             total_mismatches += n_mismatches
@@ -367,12 +372,12 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
             if if_matching_number_of_alignments:
                 total_matching_number_of_alignments += 1
             else:
-                mismatch_alignment_number_indexes.append(key)
+                mismatch_alignment_number_indexes.append(str(key) + " " + alignment_mismatches_comparison)
             total_number_alignments_compared += total_number_alignments_compared_in_chr
             total_number_perfect_alignment_matches += total_number_perfect_alignment_alignmen_in_chr
         else:
             #insertions, deletions, mismatches = custom_object_print(new_data_grouped_by_chr_dict[key], [], print_comparison)
-            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches = custom_object_print(new_data_grouped_by_chr_dict[key], [], print_comparison)
+            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches, alignment_mismatches_comparison = custom_object_print(new_data_grouped_by_chr_dict[key], [], print_comparison)
             total_insertions += n_insertions
             total_deletions += n_deletions
             total_mismatches += n_mismatches

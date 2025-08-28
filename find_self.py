@@ -944,21 +944,20 @@ class find_loops:
             all_hits = parasail_seedHit.seed_and_extend_pipeline(key, full_str,
                                         k=15,
                                         flank=80,
-                                        match=2,
-                                        mismatch=-3,
-                                        gap_open=5,
-                                        gap_extend=2,
-                                        #match = 1,
-                                        #mismatch = -3,
+                                        #match=2,
+                                        #mismatch=-3,
                                         #gap_open=5,
-                                        #gap_extend =2,
+                                        #gap_extend=2,
+                                        match = 2,
+                                        mismatch = -2,
+                                        gap_open= 5,
+                                        gap_extend =1,
                                         min_identity=0.90,
                                         offset_tolerance=6,
                                         min_seeds=2)
-
             # following logic is to make sure first mutagenic arrow is only included if directly followed by non mutagenic arrow
             #if str_dict[full_str][0] == 0 and n_queue > 1:
-            if counter == 0 and str_locations[0] == 0:
+            if counter == 0 and str_locations[0] == 0 and n_queue > 1:
             #if False:
                 if all_hits:
                     if len(all_hits) > 1:
