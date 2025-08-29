@@ -431,6 +431,8 @@ def extend_cluster(query,
 
     window_size = min(n_query + n_query//12, n_ref)
 
+    sliding_size = min(n_query + n_query//12//2, n_ref)
+
     
     cluster_start = max(0, cluster['rmin'] - cluster['qmin'] - flank)
     cluster_end = min(len(reference), cluster_start + qlen + flank)
@@ -439,12 +441,12 @@ def extend_cluster(query,
     matrix = parasail.matrix_create("ACGT", match, mismatch)
 
     #slide window
-    for start in range(0, len(region) - window_size + 1, step_size):
+    for start in range(0, len(region) - sliding_size+1, step_size):
         sub_ref_start = cluster_start + start # this is the actual value in the full reference string
-        if sub_ref_start in used_regions:
-            continue
-        else:
-            used_regions.add(sub_ref_start)
+        #if sub_ref_start in used_regions:
+            #continue
+        #else:
+            #used_regions.add(sub_ref_start)
         sub_ref_end = sub_ref_start + window_size
 
 
@@ -471,11 +473,11 @@ def extend_cluster(query,
         #identity = analysis['matches'] / len(query)
 
         if n_mistakes <= max_mistakes:
+        #if True:
 
             aln = {
                 #'score': res.score, #check if score exists
                 #'score': (n_query-n_mistakes)/n_query, #check if score exists
-                #'score': score,
                 'score': res.score,
                 'matches': analysis['matches'],
                 'aligned_length': analysis['end_ref'] - analysis['beg_ref'] + 1,
@@ -641,15 +643,18 @@ def is_subset_with_tolerance(aln_a, aln_b, tol=0, start_diff_tolerance = 10):
     mismatches_a = {x[0] for x in aln_a['mismatches']} # makes a set
 
     for i in aln_b['insertions']:
-        if i[0] + start_diff not in insertions_a:
+        #if i[0] + start_diff not in insertions_a:
+        if i[0] not in insertions_a:
             return False
 
     for d in aln_b['deletions']:
-        if d[0] + start_diff not in deletions_a:
+        #if d[0] + start_diff not in deletions_a:
+        if d[0] not in deletions_a:
             return False
 
     for m in aln_b['mismatches']:
-        if m[0] + start_diff not in mismatches_a:
+        #if m[0] + start_diff not in mismatches_a:
+        if m[0] not in mismatches_a:
             return False
     
     return True
@@ -671,9 +676,12 @@ def filter_redundant_alignments_by_errors(alignments, tol=0):
         list of dict
     """
     kept = []
+    added_start_pos = set()
     alignments = sorted(alignments, key=lambda x: x["score"], reverse=True)
 
     for i, aln_a in enumerate(alignments):
+        if aln_a['absolute_ref_start'] in added_start_pos:
+            continue
         redundant = False
         #errors_a = aln_a["insertions"] + aln_a["deletions"] + aln_a["mismatches"]
 
@@ -687,6 +695,8 @@ def filter_redundant_alignments_by_errors(alignments, tol=0):
         
         if not redundant:
             kept.append(aln_a)
+            added_start_pos.add(aln_a['absolute_ref_start'])
+
 
     return kept
 
@@ -838,7 +848,6 @@ def seed_and_extend_pipeline(query,
     results = []
     all_used_regions = set()
     for cl in clusters:
-        #print(f"cl: {cl}")
         alns, used_regions = extend_cluster(query,
                              reference,
                              cl,
@@ -866,17 +875,30 @@ def seed_and_extend_pipeline(query,
                 aln['cluster_rmax'] = cl['rmax']
                 results.append(aln)
 
+
+    print(f"lenth clusters: {len(clusters)}")
+    for cl in clusters:
+        print(cl)
+    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^a")
+    results = sorted(results, key=lambda x: x["score"], reverse=True)
     print(f"len results: {len(results)}")
-    print(f"alns: {results}")
+    #print(f"alns: {results}")
+    for r in results:
+        print(f"score: {r['score']}, absolute_ref_start: {r['absolute_ref_start']}, insertions: {r['insertions']}, deletions: {r['deletions']}, mismatches: {r['mismatches']} ")
+
+    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
 
     # sort by identity then score
     #results.sort(key=lambda x: (x['identity'], x['score']), reverse=True)
     #note: should probably integerate filtering into extension function
     results = filter_redundant_alignments_by_errors(results, 0)
     print(f"len results: {len(results)}")
-    print(f"results: {results}")
+    for r in results:
+        print(f"score: {r['score']}, absolute_ref_start: {r['absolute_ref_start']}, insertions: {r['insertions']}, deletions: {r['deletions']}, mismatches: {r['mismatches']} ")
+    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
     final_results = best_nonoverlapping_alignments(results, len(reference), 0)
-    print(f"final_results: {final_results}")
+    for r in final_results:
+        print(f"score: {r['score']}, absolute_ref_start: {r['absolute_ref_start']}, insertions: {r['insertions']}, deletions: {r['deletions']}, mismatches: {r['mismatches']} ")
 
     #selected_set = weighted_interval_scheduling(results)
 

@@ -944,14 +944,14 @@ class find_loops:
             all_hits = parasail_seedHit.seed_and_extend_pipeline(key, full_str,
                                         k=15,
                                         flank=80,
-                                        #match=2,
-                                        #mismatch=-3,
-                                        #gap_open=5,
-                                        #gap_extend=2,
-                                        match = 2,
-                                        mismatch = -2,
-                                        gap_open= 5,
-                                        gap_extend =1,
+                                        match=2,
+                                        mismatch=-3,
+                                        gap_open=5,
+                                        gap_extend=2,
+                                        #match = 5,
+                                        #mismatch = -4,
+                                        #gap_open= 10,
+                                        #gap_extend =4,
                                         min_identity=0.90,
                                         offset_tolerance=6,
                                         min_seeds=2)
@@ -2361,7 +2361,7 @@ def mod_str(my_str, self_search_type_object):
     return my_str
 
 
-def main(args, stats_filename):
+def main(args, stats_filename, variants_filename):
     # converts args to a dictionary and pass it to the user_input class
     user_input_obj = user_input(**vars(args))
     # Check if the file exists
@@ -2423,7 +2423,7 @@ def main(args, stats_filename):
     #print(f"arr for csv comparison: {arr_for_csv_comparison}")
     if user_input_obj.compare_output:
     #parse_csv.compare_outputs("csv_files/181.csv", arr_for_csv_comparison, stats_filename)
-        parse_csv.compare_outputs(user_input_obj.compare_output, arr_for_csv_comparison, stats_filename)
+        parse_csv.compare_outputs(user_input_obj.compare_output, arr_for_csv_comparison, stats_filename, variants_filename)
     return
 
 
@@ -2466,7 +2466,10 @@ if __name__ == "__main__":
             base, ext = os.path.splitext(args.output)
             stats_filename = f"{base}_stats{ext or '.txt'}"
             stats_output = open(stats_filename, 'w')
+            variants_filename = f"{base}_variants.vcf"
+            variants_output = open(variants_filename, 'w')
+
         else:
             stats_filename = "error_testing_stats_file.txt"
         with redirect_stdout(output):
-            main(args, stats_output)
+            main(args, stats_output, variants_output)
