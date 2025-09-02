@@ -14,10 +14,13 @@ compared_sum = 0
 insertions_sum = 0
 deletions_sum = 0
 mismatches_sum = 0
+given_insertions_sum = 0
+given_deletions_sum = 0
+given_mismatches_sum = 0
 
 for fname in files:
     with open(fname) as f:
-        lines = [line.strip() for line in f][:6]  # now we read first 6 lines
+        lines = [line.strip() for line in f][:7]  # now we read first 6 lines
 
         zone_sum += int(lines[0].split(":")[1].strip())
         areas_sum += int(lines[1].split(":")[1].strip())
@@ -35,6 +38,12 @@ for fname in files:
         deletions_sum += int(nums[1])
         mismatches_sum += int(nums[2])
 
+        # line 7 has given insertions, deletions, mismatches
+        nums = re.findall(r"\d+", lines[6])
+        given_insertions_sum += int(nums[0])
+        given_deletions_sum += int(nums[1])
+        given_mismatches_sum += int(nums[2])
+
 # Write the summed output
 with open("SumOutput_stats.txt", "w") as out:
     out.write(f"total chr ends with mutagenic zone found: {zone_sum}\n")
@@ -43,3 +52,4 @@ with open("SumOutput_stats.txt", "w") as out:
     out.write(f"total chr ends with exact same call as Ivans data: {ivans_sum}\n")
     out.write(f"{perfect_sum} alignments matched perfectly out of {compared_sum} that were compared\n")
     out.write(f"total insertion count: {insertions_sum},  total deletions count: {deletions_sum}, total mismatches count: {mismatches_sum}\n")
+    out.write(f"total Ivan insertion count: {given_insertions_sum},  total Ivan deletions count: {given_deletions_sum}, total Ivan mismatches count: {given_mismatches_sum}\n")

@@ -452,7 +452,16 @@ def extend_cluster(query,
 
         # Perform semiglobal alignment
         sub_ref = region[start:start + window_size]
-        res = parasail.sg_trace_scan(query, sub_ref, gap_open, gap_extend, matrix)
+
+        if len(sub_ref) > n_query:
+            pad_length = len(sub_ref) - n_query
+            query_padded = query + "N" * pad_length
+        else:
+            query_padded = query
+        
+        
+        #res = parasail.nw_trace_scan(query_padded, sub_ref, gap_open, gap_extend, matrix)
+        res = parasail.sg_trace_scan(query_padded, sub_ref, gap_open, gap_extend, matrix)
         #result = parasail.sg_dx_trace(query_seq, sub_ref, gap_open, gap_extend, matrix)
 
         cigar_str = parasail_functions.try_get_cigar_string(res)
@@ -461,7 +470,7 @@ def extend_cluster(query,
 
 
         analysis = parasail_functions.analyze_alignment_from_cigar(
-            query=query,
+            query=query_padded,
             ref=sub_ref,
             cigar_str=cigar_str,
         )
@@ -828,7 +837,7 @@ def seed_and_extend_pipeline(query,
     Returns list of alignment dicts.
     """
     # normalize (uppercase)
-    print("_____________________________________________________________")
+    #print("_____________________________________________________________")
     query = query.upper()
     reference = reference.upper()
 
@@ -876,30 +885,13 @@ def seed_and_extend_pipeline(query,
                 results.append(aln)
 
 
-    print(f"lenth clusters: {len(clusters)}")
-    for cl in clusters:
-        print(cl)
-    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^a")
     results = sorted(results, key=lambda x: x["score"], reverse=True)
-    print(f"len results: {len(results)}")
     #print(f"alns: {results}")
-    for r in results:
-        print(f"score: {r['score']}, absolute_ref_start: {r['absolute_ref_start']}, insertions: {r['insertions']}, deletions: {r['deletions']}, mismatches: {r['mismatches']} ")
-
-    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-
     # sort by identity then score
     #results.sort(key=lambda x: (x['identity'], x['score']), reverse=True)
     #note: should probably integerate filtering into extension function
     results = filter_redundant_alignments_by_errors(results, 0)
-    print(f"len results: {len(results)}")
-    for r in results:
-        print(f"score: {r['score']}, absolute_ref_start: {r['absolute_ref_start']}, insertions: {r['insertions']}, deletions: {r['deletions']}, mismatches: {r['mismatches']} ")
-    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
     final_results = best_nonoverlapping_alignments(results, len(reference), 0)
-    for r in final_results:
-        print(f"score: {r['score']}, absolute_ref_start: {r['absolute_ref_start']}, insertions: {r['insertions']}, deletions: {r['deletions']}, mismatches: {r['mismatches']} ")
-
     #selected_set = weighted_interval_scheduling(results)
 
 

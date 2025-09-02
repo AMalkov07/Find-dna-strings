@@ -1,5 +1,6 @@
 import csv
 import re
+import sys
 
 def parse_alignment_csv_line(line: str):
     pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
@@ -138,7 +139,7 @@ def count_tuples(arr, mode):
 
 def count_events(arr, mode):
     if not arr:
-        return 0
+        return 0, 0, 0
 
     total_events = []
     
@@ -146,6 +147,7 @@ def count_events(arr, mode):
     prev_first = arr[0]
 
     current_event = [prev_first[1]]
+    ref_start = [prev_first[0]]
 
     for i in range(1, len(arr)):
         current_first = arr[i]
@@ -160,18 +162,22 @@ def count_events(arr, mode):
             count += 1
             total_events.append("".join(current_event))
             current_event = [current_first[1]]
+            ref_start.append(current_first[0])
         else:
             current_event.append(current_first[1]) 
         prev_first = current_first
     total_events.append("".join(current_event))
 
-    return count, total_events
+    return count, total_events, ref_start
 
 #note: self is just cuz I'm too lazy to change the variable name, it's not actually an object function
-def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, strain_num, chr_end, variants_filename):
+def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, strain_num, chr_end, variants_filename, referenceString):
     total_insertions = 0
     total_deletions = 0
     total_mismatches = 0
+    total_given_insertions = 0
+    total_given_deletions = 0
+    total_given_mismatches = 0
     repeat_num = 0
     alignment_mismatches_comparison = None
     if not self.extra_alignment_indexes:
@@ -206,6 +212,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
         # imperfect match
         else:
             should_output_extra_alignment_error_message = True
+            should_increment_repeat_num = 1
             for k in range(len(curr_group)):
                 val = curr_group[k]
                 insertions_arr = self.extra_alignment_insertions_and_deletions[val][0]
@@ -214,18 +221,27 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
                 #total_insertions += len(insertions_arr)
                 #total_deletions += len(deletions_arr)
                 if len(insertions_arr) > 0:
-                    curr_insertions, insertions_events = count_events(insertions_arr, "insertions")
+                    curr_insertions, insertions_events, ref_start = count_events(insertions_arr, "insertions")
                     total_insertions += curr_insertions
-                    for ins in insertions_events:
-                        print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
+                    for ii, ins in enumerate(insertions_events):
+                        curr_ref_start = ref_start[ii]
+                        ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
+                        print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
                 if len(deletions_arr) > 0:
-                    curr_deletions, deletions_events = count_events(deletions_arr, "deletions")
+                    curr_deletions, deletions_events, ref_start = count_events(deletions_arr, "deletions")
                     total_deletions += curr_deletions
-                    for dele in deletions_events:
-                        print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
+                    for ii, dele in enumerate(deletions_events):
+                        n_dele = len(dele)
+                        curr_ref_start = ref_start[ii]
+                        ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
+                        print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
                 total_mismatches += len(mismatches_arr)
                 for mis in mismatches_arr:
                     print(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}", file=variants_filename)
+
+                if should_increment_repeat_num < len(curr_group):
+                    should_increment_repeat_num += 1
+                    repeat_num += 1
                     
                 if last_end and last_end < val:
                     output.append(f"gap: {val - last_end - 1} bp") # check this makes sense
@@ -250,6 +266,12 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
                     given_insertions_arr = given_data_grouped_by_chr_dict[j][k]["insertions"]
                     given_deletions_arr = given_data_grouped_by_chr_dict[j][k]["deletions"]
                     given_mismatches_arr = given_data_grouped_by_chr_dict[j][k]["mismatches"]
+
+                    curr_given_insertions, x, y = count_events(given_insertions_arr, "insertions")
+                    total_given_insertions += curr_given_insertions
+                    curr_given_deletions, x, y = count_events(given_deletions_arr, "deletions")
+                    total_given_deletions += curr_given_deletions
+                    total_given_mismatches += len(given_mismatches_arr)
                     
 
                     if given_insertions_arr == insertions_arr and given_deletions_arr == deletions_arr and given_mismatches_arr == mismatches_arr:
@@ -288,6 +310,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
     while j < len(self.extra_alignment_indexes):
         curr_group = self.extra_alignment_indexes[j]
         should_output_extra_alignment_error_message = True
+        should_increment_repeat_num = 1
         for k in range(len(curr_group)):
             val = curr_group[k]
             insertions_arr = self.extra_alignment_insertions_and_deletions[val][0]
@@ -297,18 +320,28 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
             #total_deletions += len(deletions_arr)
             #total_mismatches += len(mismatches_arr)
             if len(insertions_arr) > 0:
-                curr_insertions, insertions_events = count_events(insertions_arr, "insertions")
+                curr_insertions, insertions_events, ref_start = count_events(insertions_arr, "insertions")
                 total_insertions += curr_insertions
-                for ins in insertions_events:
-                    print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
+                for ii, ins in enumerate(insertions_events):
+                    curr_ref_start = ref_start[ii]
+                    ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
+                    print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
             if len(deletions_arr) > 0:
-                curr_deletions, deletions_events = count_events(deletions_arr, "deletions")
+                curr_deletions, deletions_events, ref_start = count_events(deletions_arr, "deletions")
                 total_deletions += curr_deletions
-                for dele in deletions_events:
-                    print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
+                for ii, dele in enumerate(deletions_events):
+                    n_dele = len(dele)
+                    curr_ref_start = ref_start[ii]
+                    ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
+                    print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
             total_mismatches += len(mismatches_arr)
             for mis in mismatches_arr:
                 print(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}", file=variants_filename)
+
+            if should_increment_repeat_num < len(curr_group):
+                should_increment_repeat_num += 1
+                repeat_num += 1
+
             if last_end and last_end < val:
                 output.append(f"gap: {val - last_end - 1} bp") # check this makes sense
             last_end = val + self.n_subStr + len(insertions_arr) - len(deletions_arr)
@@ -333,6 +366,12 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
                 given_insertions_arr = given_data_grouped_by_chr_dict[j][k]["insertions"]
                 given_deletions_arr = given_data_grouped_by_chr_dict[j][k]["deletions"]
                 given_mismatches_arr = given_data_grouped_by_chr_dict[j][k]["mismatches"]
+
+                curr_given_insertions, x, y = count_events(given_insertions_arr, "insertions")
+                total_given_insertions += curr_given_insertions
+                curr_given_deletions, x, y = count_events(given_deletions_arr, "deletions")
+                total_given_deletions += curr_given_deletions
+                total_given_mismatches += len(given_mismatches_arr)
 
                 if given_insertions_arr == insertions_arr and given_deletions_arr == deletions_arr and given_mismatches_arr == mismatches_arr:
                     output.append("alignment matches perfectly with Ivan's data ")
@@ -359,13 +398,13 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
     final_string = "\n".join(output)
     print(final_string)
 
-    return if_matching_number_of_alignment, total_number_alignments_compared_in_chr, total_number_perfect_alignment_matches_in_chr, ("\n".join(all_imperfect_alignments)), total_insertions, total_deletions, total_mismatches, alignment_mismatches_comparison
+    return if_matching_number_of_alignment, total_number_alignments_compared_in_chr, total_number_perfect_alignment_matches_in_chr, ("\n".join(all_imperfect_alignments)), total_insertions, total_deletions, total_mismatches, total_given_insertions, total_given_deletions, total_given_mismatches, alignment_mismatches_comparison
     #return total_insertions, total_deletions, total_mismatches
 
 
-def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename, variants_filename, strain_num):
+def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename, variants_filename, strain_num, referenceString):
 
-    print("strain name, chr end, repeat number, mutation type, mutation bases, only TG mutations", file=variants_filename)
+    print("strain name, chr end, repeat number, mutation type, mutation length, mutated area (w/ before and after bp), mutation bases, only TG mutations", file=variants_filename)
 
     total_matching_number_of_gaps = 0
     total_matching_number_of_alignments = 0 # the number of times that the number of alignments is the same inside of a mutagenic area
@@ -383,6 +422,34 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
     total_insertions = 0
     total_deletions = 0
     total_mismatches = 0
+    total_given_insertions = 0
+    total_given_deletions = 0
+    total_given_mismatches = 0
+    absolute_insertions = 0
+    absolute_deletions = 0
+    absolute_mismatches = 0
+
+    for key in new_data_grouped_by_chr_dict.keys():
+        for group in new_data_grouped_by_chr_dict[key].extra_alignment_indexes:
+            for elem in group:
+                curr_insertions, _, _ = count_events(new_data_grouped_by_chr_dict[key].extra_alignment_insertions_and_deletions[elem][0], "insertions")
+                absolute_insertions += curr_insertions
+                curr_deletions, _, _ = count_events(new_data_grouped_by_chr_dict[key].extra_alignment_insertions_and_deletions[elem][1], "deletions")
+                absolute_deletions += curr_deletions
+                absolute_mismatches += len(new_data_grouped_by_chr_dict[key].extra_alignment_insertions_and_deletions[elem][2])
+
+
+    for key in given_data_grouped_by_chr_dict.keys():
+        for i in ((given_data_grouped_by_chr_dict[key])):
+            for j in ((i)):
+                print(j)
+                if j:
+                    curr_given_insertions, x, y = count_events(j['insertions'], "insertions")
+                    total_given_insertions += curr_given_insertions
+                    curr_given_deletions, x, y = count_events(j['deletions'], "deletions")
+                    total_given_deletions += curr_given_deletions
+                    total_given_mismatches += len(j['mismatches'])
+            
 
 
     for key in new_data_grouped_by_chr_dict.keys():
@@ -423,10 +490,13 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
             else:
                 total_matching_number_of_gaps += 1
         if print_comparison:
-            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches, alignment_mismatches_comparison = custom_object_print(new_data_grouped_by_chr_dict[key], given_data_grouped_by_chr_dict[key], print_comparison, strain_num, key, variants_filename)
+            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches, n_given_insertions, n_given_deletions, n_given_mismatches, alignment_mismatches_comparison = custom_object_print(new_data_grouped_by_chr_dict[key], given_data_grouped_by_chr_dict[key], print_comparison, strain_num, key, variants_filename, referenceString)
             total_insertions += n_insertions
             total_deletions += n_deletions
             total_mismatches += n_mismatches
+            #total_given_insertions += n_given_insertions
+            #total_given_deletions += n_given_deletions
+            #total_given_mismatches += n_given_mismatches
             if if_matching_number_of_alignments and len(tmp_imperfect_alignments) == 0:
                 total_exact_match_for_entire_chr_end += 1
             else:
@@ -439,10 +509,13 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
             total_number_perfect_alignment_matches += total_number_perfect_alignment_alignmen_in_chr
         else:
             #insertions, deletions, mismatches = custom_object_print(new_data_grouped_by_chr_dict[key], [], print_comparison)
-            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches, alignment_mismatches_comparison = custom_object_print(new_data_grouped_by_chr_dict[key], [], print_comparison, strain_num, key, variants_filename)
-            total_insertions += n_insertions
-            total_deletions += n_deletions
-            total_mismatches += n_mismatches
+            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches, n_given_insertions, n_given_deletions, n_given_mismatches, alignment_mismatches_comparison = custom_object_print(new_data_grouped_by_chr_dict[key], [], print_comparison, strain_num, key, variants_filename, referenceString)
+            #total_insertions += n_insertions
+            #total_deletions += n_deletions
+            #total_mismatches += n_mismatches
+            total_given_insertions += n_given_insertions
+            total_given_deletions += n_given_deletions
+            total_given_mismatches += n_given_mismatches
         print("\n")
 
     # check if key is in Ivans data but not in my output data:
@@ -459,7 +532,9 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
     print(f"total chr ends with matching number of alignments: {total_matching_number_of_alignments}", file=stats_filename)
     print(f"total chr ends with exact same call as Ivans data: {total_exact_match_for_entire_chr_end}", file=stats_filename)
     print(f"{total_number_perfect_alignment_matches} alignments matched perfectly out of {total_number_alignments_compared} that were compared", file=stats_filename)
-    print(f"total insertion count: {total_insertions},  total deletions count: {total_deletions}, total mismatches count: {total_mismatches}", file=stats_filename)
+    #print(f"total insertion count: {total_insertions},  total deletions count: {total_deletions}, total mismatches count: {total_mismatches}", file=stats_filename)
+    print(f"total insertion count: {absolute_insertions},  total deletions count: {absolute_deletions}, total mismatches count: {absolute_mismatches}", file=stats_filename)
+    print(f"total Ivan insertion count: {total_given_insertions},  total Ivan deletions count: {total_given_deletions}, total Ivan, mismatches count: {total_given_mismatches}", file=stats_filename)
     print("\nchr ends with mutagenic zone number mismatch:", file=stats_filename)
     print("\n".join(mismatch_gap_number_indexes), file=stats_filename)
     print("\nchr ends with alignment number mismatch:", file=stats_filename)
@@ -475,12 +550,12 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
     
         
 
-def compare_outputs(previous_data_csvfile, new_data, stats_filename, variants_filename):
+def compare_outputs(previous_data_csvfile, new_data, stats_filename, variants_filename, referenceString):
     with open(previous_data_csvfile, newline='', encoding="utf-8-sig") as csvfile:
         reader = csv.reader(csvfile)
         given_data_grouped_by_chr_dict = run_csv_parser(reader) # structure of this dict: {"1L": [[dict1], [d2], [d3, d4, d5 d6]], "2L": ...}
         new_data_grouped_by_chr_dict, strain_num = parse_new_data(new_data) # structure of this dict: {"1L": self_search_obj(1L), "2L": self_search_obj(2L), ...}
-        print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename, variants_filename, strain_num)
+        print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename, variants_filename, strain_num, referenceString)
         for key in new_data_grouped_by_chr_dict.keys():
             if key not in given_data_grouped_by_chr_dict:
                 print(f"{key} key missing from Ivan's data")

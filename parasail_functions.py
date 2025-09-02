@@ -208,7 +208,9 @@ def analyze_alignment_from_cigar(query, ref, cigar_str,
     L_save = None
 
     for op, L in ops:
-        if query_pos >= len(query) or ref_pos >= len(ref):
+        if query_pos >= len(query) or ref_pos >= len(ref) or query[query_pos] == 'N':
+            if query_pos < len(query) and query[query_pos] == 'N':
+                query_pos = len(query)
             op_save = op
             L_save = L
             break

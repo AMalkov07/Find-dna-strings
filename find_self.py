@@ -879,7 +879,7 @@ class find_loops:
         return (alignment["query_start"], alignment["query_end_offset"], mistakes)
 
     def best_alignments_parasail(self, key):
-        print("|||||||||||||||||||||||||||||||||||||||||||||||")
+        #print("|||||||||||||||||||||||||||||||||||||||||||||||")
         my_dict_entry = self.my_dict[key]
         alignments = my_dict_entry.indexes
 
@@ -944,14 +944,18 @@ class find_loops:
             all_hits = parasail_seedHit.seed_and_extend_pipeline(key, full_str,
                                         k=15,
                                         flank=80,
-                                        match=2,
-                                        mismatch=-3,
-                                        gap_open=5,
-                                        gap_extend=2,
+                                        #match=2,
+                                        #mismatch=-3,
+                                        #gap_open=5,
+                                        #gap_extend=2,
                                         #match = 5,
                                         #mismatch = -4,
                                         #gap_open= 10,
-                                        #gap_extend =4,
+                                        #gap_extend =2,
+                                        match = 1,
+                                        mismatch = -3,
+                                        gap_open= 5,
+                                        gap_extend =1,
                                         min_identity=0.90,
                                         offset_tolerance=6,
                                         min_seeds=2)
@@ -965,7 +969,6 @@ class find_loops:
                     else:
                         end_str = len(full_str) - 1
                         hit = all_hits[0]
-                        print(f"hit ref_start: {hit['ref_start']}")
                         if not hit['aligned_length']:
                             print("ERROR, no aligned length")
                             continue
@@ -1110,7 +1113,6 @@ class find_loops:
                 ri = li + key_n + 12
 
                 #relative_start, relative_end, total_variants = self.repeatMaster_2Inputs(full_str[int(li):int(ri)], key)
-                #print("calling needle")
                 relative_start, relative_end_offset, total_variants = self.needle_2Inputs(full_str[int(li):int(ri)], key)
 
                 variants_count = 0
@@ -1141,13 +1143,11 @@ class find_loops:
                     ###ri = li + key_n + 12
 
                     ####relative_start, relative_end, total_variants = self.repeatMaster_2Inputs(full_str[int(li):int(ri)], key)
-                    ####print("calling needle")
                     ###relative_start, relative_end_offset, total_variants = self.needle_2Inputs(full_str[int(li):int(ri)], key)
 
                     relative_end = int(ri) - int(li) - relative_end_offset
                     
                     #relative_start, relative_end, total_variants = self.needle_2Inputs(key, full_str[int(li):int(ri)])
-                    #print(f"target_length: {target_length}")
                     
                     #good_alignment_arr.append(alignments[0])
 
@@ -1182,8 +1182,6 @@ class find_loops:
                         variants_count = max_mistakes + 1
                         
                     li += variants_count - max_mistakes
-        # print(
-        #    f"dict_insertions_and_deletions: {dict_insertions_and_deletions}")
         return (good_alignment_starting_pos, [] , dict_insertions_and_deletions)
 
     def align_repeat_maker(self, key, repeatmasker_path="RepeatMasker"):
@@ -1908,7 +1906,7 @@ class full_analysis:
         no_loops_found_indexes = []
         counter = 0
         for i in range(len(all_chr_ends)):
-            print(convert_num_to_chr_end(i))
+            #print(convert_num_to_chr_end(i))
             sequence = all_chr_ends[i]
             if not sequence:
                 all_find_loops_objects.append(None)
@@ -2423,7 +2421,7 @@ def main(args, stats_filename, variants_filename):
     #print(f"arr for csv comparison: {arr_for_csv_comparison}")
     if user_input_obj.compare_output:
     #parse_csv.compare_outputs("csv_files/181.csv", arr_for_csv_comparison, stats_filename)
-        parse_csv.compare_outputs(user_input_obj.compare_output, arr_for_csv_comparison, stats_filename, variants_filename)
+        parse_csv.compare_outputs(user_input_obj.compare_output, arr_for_csv_comparison, stats_filename, variants_filename, args.pattern)
     return
 
 
