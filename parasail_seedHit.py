@@ -441,7 +441,8 @@ def extend_cluster(query,
     matrix = parasail.matrix_create("ACGT", match, mismatch)
 
     #slide window
-    for start in range(0, len(region) - sliding_size+1, step_size):
+    #for start in range(0, len(region) - sliding_size+1, step_size):
+    for start in range(0, len(region) - min(n_query, len(region)) + 1, step_size):
         sub_ref_start = cluster_start + start # this is the actual value in the full reference string
         #if sub_ref_start in used_regions:
             #continue
@@ -460,8 +461,8 @@ def extend_cluster(query,
             query_padded = query
         
         
-        #res = parasail.nw_trace_scan(query_padded, sub_ref, gap_open, gap_extend, matrix)
-        res = parasail.sg_trace_scan(query_padded, sub_ref, gap_open, gap_extend, matrix)
+        res = parasail.nw_trace_scan(query_padded, sub_ref, gap_open, gap_extend, matrix)
+        #res = parasail.sg_trace_scan(query_padded, sub_ref, gap_open, gap_extend, matrix)
         #result = parasail.sg_dx_trace(query_seq, sub_ref, gap_open, gap_extend, matrix)
 
         cigar_str = parasail_functions.try_get_cigar_string(res)

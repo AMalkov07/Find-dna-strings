@@ -3,8 +3,8 @@ import re
 import sys
 
 def parse_alignment_csv_line(line: str):
-    pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
-    #pattern = re.compile(r"^KRLT(\d+)\s(\d+[LR])-(\d+)$")
+    #pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
+    pattern = re.compile(r"^KRLT(\d+)\s(\d+[LR])-(\d+)$")
     insertions = []
     deletions = []
     mismatches = []
@@ -429,14 +429,24 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
     absolute_deletions = 0
     absolute_mismatches = 0
 
+    chr_end_insertiong_deletion_count = []
+
     for key in new_data_grouped_by_chr_dict.keys():
+        chr_end_insertion = 0
+        chr_end_deletion = 0
+        chr_end_mismatch = 0
         for group in new_data_grouped_by_chr_dict[key].extra_alignment_indexes:
             for elem in group:
                 curr_insertions, _, _ = count_events(new_data_grouped_by_chr_dict[key].extra_alignment_insertions_and_deletions[elem][0], "insertions")
                 absolute_insertions += curr_insertions
+                chr_end_insertion += curr_insertions
                 curr_deletions, _, _ = count_events(new_data_grouped_by_chr_dict[key].extra_alignment_insertions_and_deletions[elem][1], "deletions")
                 absolute_deletions += curr_deletions
+                chr_end_deletion += curr_deletions
                 absolute_mismatches += len(new_data_grouped_by_chr_dict[key].extra_alignment_insertions_and_deletions[elem][2])
+                chr_end_mismatch += len(new_data_grouped_by_chr_dict[key].extra_alignment_insertions_and_deletions[elem][2])
+        chr_end_insertiong_deletion_count.append(f"{key}: insertions: {chr_end_insertion}, deletions: {chr_end_deletion}, mismatches: {chr_end_mismatch}")
+
 
 
     for key in given_data_grouped_by_chr_dict.keys():
@@ -535,6 +545,7 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
     #print(f"total insertion count: {total_insertions},  total deletions count: {total_deletions}, total mismatches count: {total_mismatches}", file=stats_filename)
     print(f"total insertion count: {absolute_insertions},  total deletions count: {absolute_deletions}, total mismatches count: {absolute_mismatches}", file=stats_filename)
     print(f"total Ivan insertion count: {total_given_insertions},  total Ivan deletions count: {total_given_deletions}, total Ivan, mismatches count: {total_given_mismatches}", file=stats_filename)
+    print("\n".join(chr_end_insertiong_deletion_count), file=stats_filename)
     print("\nchr ends with mutagenic zone number mismatch:", file=stats_filename)
     print("\n".join(mismatch_gap_number_indexes), file=stats_filename)
     print("\nchr ends with alignment number mismatch:", file=stats_filename)
