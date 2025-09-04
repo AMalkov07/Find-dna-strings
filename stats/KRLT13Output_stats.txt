@@ -1,15 +1,32 @@
 total chr ends with mutagenic zone found: 12
-total chr ends with matching number of mutagenic areas: 8
-total chr ends with matching number of alignments: 8
-total chr ends with exact same call as Ivans data: 6
-13 alignments matched perfectly out of 17 that were compared
-total insertion count: 28,  total deletions count: 24, total mismatches count: 17
-total Ivan insertion count: 20,  total Ivan deletions count: 17, total Ivan, mismatches count: 14
+total chr ends with matching number of mutagenic areas: 7
+total chr ends with matching number of alignments: 7
+total chr ends with exact same call as Ivans data: 4
+12 alignments matched perfectly out of 17 that were compared
+total insertion count: 34,  total deletions count: 26, total mismatches count: 18
+total Ivan insertion count: 26,  total Ivan deletions count: 27, total Ivan, mismatches count: 15
+1L: insertions: 0, deletions: 2, mismatches: 0
+3R: insertions: 0, deletions: 1, mismatches: 0
+5L: insertions: 0, deletions: 0, mismatches: 0
+5R: insertions: 1, deletions: 1, mismatches: 4
+7R: insertions: 5, deletions: 2, mismatches: 3
+8L: insertions: 2, deletions: 1, mismatches: 1
+8R: insertions: 2, deletions: 4, mismatches: 1
+9L: insertions: 0, deletions: 0, mismatches: 0
+10L: insertions: 2, deletions: 2, mismatches: 4
+10R: insertions: 4, deletions: 3, mismatches: 0
+11R: insertions: 0, deletions: 3, mismatches: 2
+12L: insertions: 10, deletions: 4, mismatches: 1
+14L: insertions: 0, deletions: 0, mismatches: 0
+14R: insertions: 3, deletions: 0, mismatches: 0
+15R: insertions: 0, deletions: 0, mismatches: 0
+16R: insertions: 5, deletions: 3, mismatches: 2
 
 chr ends with mutagenic zone number mismatch:
 1L
 5R
-12L
+8L
+10R
 16R
 
 chr ends with alignment number mismatch:
@@ -19,5 +36,7 @@ all Alignment mismatches:
 comparison: (Ivans Data -> output data): Insertions: [(15, 'G'), (20, 'G'), (20, 'G')] -> []   deletions: [] -> [(43, 'G'), (44, 'G'), (45, 'T'), (46, 'G'), (47, 'T'), (48, 'G'), (49, 'G'), (50, 'G'), (51, 'T'), (52, 'G'), (53, 'T')]   number of events: 2 -> 1
 comparison: (Ivans Data -> output data): deletions: [(16, 'G')] -> [(18, 'T'), (19, 'G'), (20, 'T')]   mismatches: [(5, 'G', 'T'), (37, 'G', 'T')] -> []number of events: 3 -> 1
 comparison: (Ivans Data -> output data): deletions: [(139, 'T'), (154, 'T')] -> [(16, 'G')]   mismatches: [(111, 'T', 'G'), (145, 'G', 'T'), (161, 'G', 'T')] -> [(5, 'G', 'T'), (37, 'G', 'T')]number of events: 5 -> 3
+
+comparison: (Ivans Data -> output data): Insertions: [(31, 'G'), (31, 'T'), (42, 'T'), (43, 'G'), (43, 'T'), (53, 'G')] -> [(65, 'G'), (65, 'T'), (90, 'G'), (102, 'G'), (107, 'G'), (107, 'G'), (109, 'G'), (109, 'T'), (109, 'G'), (145, 'T')]   deletions: [(4, 'G'), (17, 'G'), (18, 'T'), (70, 'G'), (71, 'G'), (78, 'T'), (83, 'G')] -> [(139, 'T'), (152, 'G')]   mismatches: [] -> [(132, 'G', 'T')]   number of events: 9 -> 9
 
 comparison: (Ivans Data -> output data): Insertions: [(11, 'T'), (26, 'T'), (30, 'G')] -> [(22, 'G'), (22, 'G'), (25, 'T'), (25, 'G'), (25, 'T'), (30, 'G'), (30, 'T'), (30, 'G')]   deletions: [(18, 'T')] -> []   number of events: 4 -> 3

@@ -3,8 +3,8 @@ import re
 import sys
 
 def parse_alignment_csv_line(line: str):
-    #pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
-    pattern = re.compile(r"^KRLT(\d+)\s(\d+[LR])-(\d+)$")
+    pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
+    #pattern = re.compile(r"^KRLT(\d+)\s(\d+[LR])-(\d+)$")
     insertions = []
     deletions = []
     mismatches = []
@@ -452,7 +452,7 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
     for key in given_data_grouped_by_chr_dict.keys():
         for i in ((given_data_grouped_by_chr_dict[key])):
             for j in ((i)):
-                print(j)
+                #print(j)
                 if j:
                     curr_given_insertions, x, y = count_events(j['insertions'], "insertions")
                     total_given_insertions += curr_given_insertions

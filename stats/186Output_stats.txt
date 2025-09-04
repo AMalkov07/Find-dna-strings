@@ -4,7 +4,35 @@ total chr ends with matching number of alignments: 15
 total chr ends with exact same call as Ivans data: 11
 18 alignments matched perfectly out of 23 that were compared
 total insertion count: 27,  total deletions count: 18, total mismatches count: 12
-total Ivan insertion count: 21,  total Ivan deletions count: 18, total Ivan, mismatches count: 9
+total Ivan insertion count: 24,  total Ivan deletions count: 23, total Ivan, mismatches count: 13
+1L: insertions: 1, deletions: 3, mismatches: 1
+1R: insertions: 0, deletions: 0, mismatches: 0
+2L: insertions: 1, deletions: 0, mismatches: 0
+3L: insertions: 0, deletions: 0, mismatches: 0
+3R: insertions: 1, deletions: 1, mismatches: 0
+4L: insertions: 0, deletions: 0, mismatches: 0
+5L: insertions: 1, deletions: 0, mismatches: 0
+5R: insertions: 2, deletions: 1, mismatches: 5
+6L: insertions: 0, deletions: 0, mismatches: 0
+6R: insertions: 0, deletions: 0, mismatches: 0
+7L: insertions: 3, deletions: 2, mismatches: 0
+7R: insertions: 4, deletions: 0, mismatches: 1
+8L: insertions: 0, deletions: 1, mismatches: 2
+8R: insertions: 0, deletions: 0, mismatches: 0
+9R: insertions: 0, deletions: 0, mismatches: 0
+10L: insertions: 0, deletions: 1, mismatches: 1
+10R: insertions: 0, deletions: 0, mismatches: 0
+11L: insertions: 5, deletions: 4, mismatches: 1
+11R: insertions: 0, deletions: 0, mismatches: 0
+12L: insertions: 5, deletions: 2, mismatches: 0
+13L: insertions: 1, deletions: 1, mismatches: 0
+13R: insertions: 0, deletions: 0, mismatches: 0
+14L: insertions: 1, deletions: 0, mismatches: 0
+14R: insertions: 0, deletions: 0, mismatches: 1
+15L: insertions: 0, deletions: 0, mismatches: 0
+15R: insertions: 1, deletions: 1, mismatches: 0
+16L: insertions: 1, deletions: 1, mismatches: 0
+16R: insertions: 0, deletions: 0, mismatches: 0
 
 chr ends with mutagenic zone number mismatch:
 1R

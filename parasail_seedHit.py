@@ -424,6 +424,7 @@ def extend_cluster(query,
     
     max_mistakes = len(query) // 12
     #max_mistakes = len(query) // 10
+    #max_mistakes = len(query) // 8
 
     qlen = len(query)
     n_ref = len(reference)
@@ -439,6 +440,78 @@ def extend_cluster(query,
     region = reference[cluster_start:cluster_end]
     # scoring matrix for DNA (simple)
     matrix = parasail.matrix_create("ACGT", match, mismatch)
+
+    #start alignmnents
+    #for r_offset in range(0, max_mistakes, step_size):
+        ##sub_ref_start = cluster_start + start # this is the actual value in the full reference string
+        #sub_ref_start = cluster_start
+        ##if sub_ref_start in used_regions:
+            ##continue
+        ##else:
+            ##used_regions.add(sub_ref_start)
+        #sub_ref_end = sub_ref_start + window_size
+
+        #if n_query < n_ref:
+            #break
+
+
+        ## Perform semiglobal alignment
+        #sub_ref = region[cluster_start:cluster_start + r_offset + n_query]
+
+        #if len(sub_ref) > n_query:
+            #pad_length = len(sub_ref) - n_query
+            #query_padded = query + "N" * pad_length
+        #else:
+            #query_padded = query
+
+        #query_padded = query
+        
+        
+        ##res = parasail.nw_trace_scan(query_padded, sub_ref, gap_open, gap_extend, matrix)
+        #res = parasail.sg_trace_scan(query_padded, sub_ref, gap_open, gap_extend, matrix)
+        ##result = parasail.sg_dx_trace(query_seq, sub_ref, gap_open, gap_extend, matrix)
+
+        #cigar_str = parasail_functions.try_get_cigar_string(res)
+        #if cigar_str is None:
+            #raise RuntimeError("Could not obtain CIGAR string from parasail result. Ensure you used a *_trace_* semi-global function.")
+
+
+        #analysis = parasail_functions.analyze_alignment_from_cigar(
+            #query=query_padded,
+            #ref=sub_ref,
+            #cigar_str=cigar_str,
+        #)
+
+        
+        #n_mistakes = len(analysis['insertions']) + len(analysis['deletions']) + len(analysis['mismatches'])
+        #score = (n_query - n_mistakes) / n_query
+
+        ##identity = analysis['matches'] / len(query)
+
+        #if n_mistakes <= max_mistakes:
+        ##if True:
+
+            #aln = {
+                ##'score': res.score, #check if score exists
+                ##'score': (n_query-n_mistakes)/n_query, #check if score exists
+                #'score': res.score,
+                #'matches': analysis['matches'],
+                #'aligned_length': analysis['end_ref'] - analysis['beg_ref'] + 1,
+                ##'identity': round(identity, 4),
+                #'ref_start': analysis['beg_ref'],
+                #'ref_end': analysis['end_ref'],
+                #'cigar': cigar_str,
+                #'n_seeds': cluster.get('n_seeds', 0),
+                #'mismatches': analysis['mismatches'],
+                #'insertions': analysis['insertions'],
+                #'deletions': analysis['deletions'],
+                #'true_aligned_window_start': sub_ref_start,
+                #'absolute_ref_start': sub_ref_start + analysis['beg_ref'],
+                #'absolute_ref_end': sub_ref_start + analysis['end_ref']
+            #}
+
+            #alignments.append(aln)
+
 
     #slide window
     #for start in range(0, len(region) - sliding_size+1, step_size):
@@ -459,10 +532,12 @@ def extend_cluster(query,
             query_padded = query + "N" * pad_length
         else:
             query_padded = query
+
+        query_padded = query
         
         
-        res = parasail.nw_trace_scan(query_padded, sub_ref, gap_open, gap_extend, matrix)
-        #res = parasail.sg_trace_scan(query_padded, sub_ref, gap_open, gap_extend, matrix)
+        #res = parasail.nw_trace_scan(query_padded, sub_ref, gap_open, gap_extend, matrix)
+        res = parasail.sg_trace_scan(query_padded, sub_ref, gap_open, gap_extend, matrix)
         #result = parasail.sg_dx_trace(query_seq, sub_ref, gap_open, gap_extend, matrix)
 
         cigar_str = parasail_functions.try_get_cigar_string(res)
@@ -710,7 +785,7 @@ def filter_redundant_alignments_by_errors(alignments, tol=0):
 
     return kept
 
-def best_nonoverlapping_alignments(alignments, reference_length, reference_start=0):
+def best_nonoverlapping_alignments(alignments, reference_length, last_elem, reference_start=0):
     """
     Select the best non-overlapping subset of alignments with priorities:
       1) maximize count
@@ -802,7 +877,7 @@ def best_nonoverlapping_alignments(alignments, reference_length, reference_start
     for i, state in enumerate(dp):
         cnt, gaps_w_start, sc, first_start, path = state
         last_end = path[-1]['absolute_ref_end']  # end of the last chosen alignment
-        end_gap = 0 if last_end+1 == reference_length else 1
+        end_gap = 0 if last_end+1 == reference_length or last_elem else 1
         total_gaps = gaps_w_start + end_gap
 
         key = (cnt, -total_gaps, sc)  # count ↑, gaps ↓, score ↑
@@ -820,6 +895,7 @@ def best_nonoverlapping_alignments(alignments, reference_length, reference_start
 
 def seed_and_extend_pipeline(query,
                              reference,
+                             last_elem=False,
                              k=11,
                              flank=60,
                              match=2,
@@ -892,7 +968,9 @@ def seed_and_extend_pipeline(query,
     #results.sort(key=lambda x: (x['identity'], x['score']), reverse=True)
     #note: should probably integerate filtering into extension function
     results = filter_redundant_alignments_by_errors(results, 0)
-    final_results = best_nonoverlapping_alignments(results, len(reference), 0)
+    print(results)
+    print("__________________________________________________________________________")
+    final_results = best_nonoverlapping_alignments(results, len(reference), last_elem, 0)
     #selected_set = weighted_interval_scheduling(results)
 
 

@@ -933,20 +933,24 @@ class find_loops:
         first = True
         n_queue = len(queue)
         counter = -1 #offset by 1 because I increment at start of loop
+        last_elem = False
         while queue:
             counter += 1
             full_str = queue.popleft()
+            if len(queue) == 0:
+                last_elem = True
 
             if len(full_str) < key_n - key_n//12:
                 continue
 
             #all_hits = parasail_functions.recursive_find_alignments(key, full_str)
-            all_hits = parasail_seedHit.seed_and_extend_pipeline(key, full_str,
+            all_hits = parasail_seedHit.seed_and_extend_pipeline(key, full_str, last_elem,
                                         k=15,
                                         flank=80,
                                         #match=2, mismatch=-3, gap_open=5, gap_extend=2,
-                                        #match = 5, mismatch = -4,   gap_open= 10,  gap_extend =2,
-                                        match = 1, mismatch = -3, gap_open= 5, gap_extend =1,
+                                        match = 5, mismatch = -4,   gap_open= 10,  gap_extend =2,
+                                        #match = 10, mismatch = -8,   gap_open= 20,  gap_extend =1,
+                                        #match = 1, mismatch = -3, gap_open= 5, gap_extend =1,
                                         min_identity=0.90,
                                         offset_tolerance=6,
                                         min_seeds=2)
