@@ -17,6 +17,7 @@ import statistics
 from bisect import bisect_right
 
 import parasail_functions
+import parse_csv
 
 # ---------- Masking code ----------
 #import bisect
@@ -423,6 +424,7 @@ def extend_cluster(query,
         used_regions = set() #bit inefficient and pointless
     
     max_mistakes = len(query) // 12
+    max_events = len(query) // 25
     #max_mistakes = len(query) // 10
     #max_mistakes = len(query) // 8
 
@@ -551,13 +553,18 @@ def extend_cluster(query,
             cigar_str=cigar_str,
         )
 
+        insertions_events, _, _= parse_csv.count_events(analysis['insertions'], "insertions")
+        deletion_events, _, _ = parse_csv.count_events(analysis['deletions'], "deletions")
+        mismatch_events = len(analysis['mismatches'])
+        n_events = insertions_events + deletion_events + mismatch_events
+
         
         n_mistakes = len(analysis['insertions']) + len(analysis['deletions']) + len(analysis['mismatches'])
         score = (n_query - n_mistakes) / n_query
 
         #identity = analysis['matches'] / len(query)
 
-        if n_mistakes <= max_mistakes:
+        if n_mistakes <= max_mistakes or n_events < max_events:
         #if True:
 
             aln = {
@@ -968,8 +975,6 @@ def seed_and_extend_pipeline(query,
     #results.sort(key=lambda x: (x['identity'], x['score']), reverse=True)
     #note: should probably integerate filtering into extension function
     results = filter_redundant_alignments_by_errors(results, 0)
-    print(results)
-    print("__________________________________________________________________________")
     final_results = best_nonoverlapping_alignments(results, len(reference), last_elem, 0)
     #selected_set = weighted_interval_scheduling(results)
 

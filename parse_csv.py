@@ -3,8 +3,8 @@ import re
 import sys
 
 def parse_alignment_csv_line(line: str):
-    pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
-    #pattern = re.compile(r"^KRLT(\d+)\s(\d+[LR])-(\d+)$")
+    #pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
+    pattern = re.compile(r"^KRLT(\d+)\s(\d+[LR])-(\d+)$")
     insertions = []
     deletions = []
     mismatches = []
@@ -179,6 +179,11 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
     total_given_deletions = 0
     total_given_mismatches = 0
     repeat_num = 0
+    gap_open = False
+    complex_area_counter = 0
+    complex_area_id = []
+    complex_area_id_tmp = []
+    variants_file_output = []
     alignment_mismatches_comparison = None
     if not self.extra_alignment_indexes:
         self.extra_alignment_indexes = []
@@ -206,6 +211,15 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
         if self.indexes[i] <= curr_group[0]:
             if last_end and last_end < self.indexes[i]:
                 output.append(f"gap: {self.indexes[i] - last_end - 1} bp")
+                if gap_open:
+                    complex_area_id += complex_area_id_tmp
+                    complex_area_id_tmp = []
+                    gap_open = False
+            if gap_open:
+                complex_area_id_tmp = ["N/A"] * len(complex_area_id_tmp)
+                complex_area_id += complex_area_id_tmp
+                complex_area_id_tmp = []
+                gap_open = False
             last_end = self.indexes[i] + self.n_subStr
             output.append(f"{self.indexes[i]} (perfect match)")
             i += 1
@@ -218,34 +232,58 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
                 insertions_arr = self.extra_alignment_insertions_and_deletions[val][0]
                 deletions_arr = self.extra_alignment_insertions_and_deletions[val][1]
                 mismatches_arr = self.extra_alignment_insertions_and_deletions[val][2]
-                #total_insertions += len(insertions_arr)
-                #total_deletions += len(deletions_arr)
+
+                # gap logic
+                if last_end and last_end < val:
+                    output.append(f"gap: {val - last_end - 1} bp") # check this makes sense
+                    if not gap_open:
+                        gap_open = True
+                    else:
+                        complex_area_id += complex_area_id_tmp
+                        complex_area_id_tmp = []
+                    complex_area_counter += 1
+                last_end = val + self.n_subStr + len(insertions_arr) - len(deletions_arr)
+
+
                 if len(insertions_arr) > 0:
                     curr_insertions, insertions_events, ref_start = count_events(insertions_arr, "insertions")
                     total_insertions += curr_insertions
                     for ii, ins in enumerate(insertions_events):
+                        if not gap_open:
+                            complex_area_id.append("N/A")
+                        else:
+                            complex_area_id_tmp.append(complex_area_counter)
                         curr_ref_start = ref_start[ii]
                         ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
-                        print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
+                        #print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
+                        variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}")
                 if len(deletions_arr) > 0:
                     curr_deletions, deletions_events, ref_start = count_events(deletions_arr, "deletions")
                     total_deletions += curr_deletions
                     for ii, dele in enumerate(deletions_events):
+                        if not gap_open:
+                            complex_area_id.append("N/A")
+                        else:
+                            complex_area_id_tmp.append(complex_area_counter)
                         n_dele = len(dele)
                         curr_ref_start = ref_start[ii]
                         ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
-                        print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
+                        #print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
+                        variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}")
                 total_mismatches += len(mismatches_arr)
                 for mis in mismatches_arr:
-                    print(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}", file=variants_filename)
+                    if not gap_open:
+                        complex_area_id.append("N/A")
+                    else:
+                        complex_area_id_tmp.append(complex_area_counter)
+                    #print(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}", file=variants_filename)
+                    variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}")
+                
 
                 if should_increment_repeat_num < len(curr_group):
                     should_increment_repeat_num += 1
                     repeat_num += 1
                     
-                if last_end and last_end < val:
-                    output.append(f"gap: {val - last_end - 1} bp") # check this makes sense
-                last_end = val + self.n_subStr + len(insertions_arr) - len(deletions_arr)
 
                 if print_comparison and should_output_extra_alignment_error_message:
                     if len(curr_group) != len(given_data_grouped_by_chr_dict[j]):
@@ -302,6 +340,15 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
     while i < len(self.indexes):
         if last_end and last_end < self.indexes[i]:
             output.append(f"gap: {self.indexes[i] - last_end - 1} bp")
+            if gap_open:
+                complex_area_id += complex_area_id_tmp
+                complex_area_id_tmp = []
+                gap_open = False
+        if gap_open:
+            complex_area_id_tmp = ["N/A"] * len(complex_area_id_tmp)
+            complex_area_id += complex_area_id_tmp
+            complex_area_id_tmp = []
+            gap_open = False
         last_end = self.indexes[i] + self.n_subStr
         output.append(f"{self.indexes[i]} (perfect match)")
         i += 1
@@ -316,35 +363,55 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
             insertions_arr = self.extra_alignment_insertions_and_deletions[val][0]
             deletions_arr = self.extra_alignment_insertions_and_deletions[val][1]
             mismatches_arr = self.extra_alignment_insertions_and_deletions[val][2]
-            #total_insertions += len(insertions_arr)
-            #total_deletions += len(deletions_arr)
-            #total_mismatches += len(mismatches_arr)
+
+            # gap logic
+            if last_end and last_end < val:
+                output.append(f"gap: {val - last_end - 1} bp") # check this makes sense
+                if not gap_open:
+                    gap_open = True
+                else:
+                    complex_area_id += complex_area_id_tmp
+                    complex_area_id_tmp = []
+                complex_area_counter += 1
+            last_end = val + self.n_subStr + len(insertions_arr) - len(deletions_arr)
             if len(insertions_arr) > 0:
                 curr_insertions, insertions_events, ref_start = count_events(insertions_arr, "insertions")
                 total_insertions += curr_insertions
                 for ii, ins in enumerate(insertions_events):
+                    if not gap_open:
+                        complex_area_id.append("N/A")
+                    else:
+                        complex_area_id_tmp.append(complex_area_counter)
+
                     curr_ref_start = ref_start[ii]
                     ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
-                    print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
+                    #print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
+                    variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}")
             if len(deletions_arr) > 0:
                 curr_deletions, deletions_events, ref_start = count_events(deletions_arr, "deletions")
                 total_deletions += curr_deletions
                 for ii, dele in enumerate(deletions_events):
+                    if not gap_open:
+                        complex_area_id.append("N/A")
+                    else:
+                        complex_area_id_tmp.append(complex_area_counter)
                     n_dele = len(dele)
                     curr_ref_start = ref_start[ii]
                     ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
-                    print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
+                    #print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
+                    variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}")
             total_mismatches += len(mismatches_arr)
             for mis in mismatches_arr:
-                print(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}", file=variants_filename)
+                #print(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}", file=variants_filename)
+                if not gap_open:
+                    complex_area_id.append("N/A")
+                else:
+                    complex_area_id_tmp.append(complex_area_counter)
+                variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}")
 
             if should_increment_repeat_num < len(curr_group):
                 should_increment_repeat_num += 1
                 repeat_num += 1
-
-            if last_end and last_end < val:
-                output.append(f"gap: {val - last_end - 1} bp") # check this makes sense
-            last_end = val + self.n_subStr + len(insertions_arr) - len(deletions_arr)
 
             if print_comparison and should_output_extra_alignment_error_message:
                 if len(curr_group) != len(given_data_grouped_by_chr_dict[j]):
@@ -398,13 +465,29 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
     final_string = "\n".join(output)
     print(final_string)
 
+    if len(complex_area_id_tmp) > 0:
+        complex_area_id_tmp = ["N/A"] * len(complex_area_id_tmp)
+        complex_area_id += complex_area_id_tmp
+
+    if len(complex_area_id) != len(variants_file_output):
+        raise ValueError(
+            "complex_area_id lenght does not match variants_file_output length, somethings wrong"
+            f"complex_area_id length: {len(complex_area_id)}, variants file output length: {len(variants_file_output)}"
+        )
+
+    else:
+        for i in range(len(variants_file_output)):
+            variants_file_output[i] = f"{variants_file_output[i]}, {complex_area_id[i]}"
+
+    print("\n".join(variants_file_output), file=variants_filename)
+
     return if_matching_number_of_alignment, total_number_alignments_compared_in_chr, total_number_perfect_alignment_matches_in_chr, ("\n".join(all_imperfect_alignments)), total_insertions, total_deletions, total_mismatches, total_given_insertions, total_given_deletions, total_given_mismatches, alignment_mismatches_comparison
     #return total_insertions, total_deletions, total_mismatches
 
 
 def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename, variants_filename, strain_num, referenceString):
 
-    print("strain name, chr end, repeat number, mutation type, mutation length, mutated area (w/ before and after bp), mutation bases, only TG mutations", file=variants_filename)
+    print("strain name, chr end, repeat number, mutation type, mutation length, mutated area (w/ before and after bp), mutation bases, only TG mutations, complex mutagenic zone id", file=variants_filename)
 
     total_matching_number_of_gaps = 0
     total_matching_number_of_alignments = 0 # the number of times that the number of alignments is the same inside of a mutagenic area
