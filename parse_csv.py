@@ -148,6 +148,7 @@ def count_events(arr, mode):
 
     current_event = [prev_first[1]]
     ref_start = [prev_first[0]]
+    event_starts_arr = [prev_first[0]]
 
     for i in range(1, len(arr)):
         current_first = arr[i]
@@ -178,12 +179,16 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
     total_given_insertions = 0
     total_given_deletions = 0
     total_given_mismatches = 0
-    repeat_num = 0
+    repeat_num = 1
     gap_open = False
     complex_area_counter = 0
     complex_area_id = []
     complex_area_id_tmp = []
     variants_file_output = []
+    variants_file_output_tmp = []
+    cluster_counter = 1
+    last_mutation_pos = None
+
     alignment_mismatches_comparison = None
     if not self.extra_alignment_indexes:
         self.extra_alignment_indexes = []
@@ -207,6 +212,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
     while i < len(self.indexes) and j < len(self.extra_alignment_indexes):
         repeat_num += 1
         curr_group = self.extra_alignment_indexes[j]
+
         # perfect match
         if self.indexes[i] <= curr_group[0]:
             if last_end and last_end < self.indexes[i]:
@@ -246,38 +252,128 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
 
 
                 if len(insertions_arr) > 0:
-                    curr_insertions, insertions_events, ref_start = count_events(insertions_arr, "insertions")
+                    curr_insertions, insertions_events, ins_ref_start = count_events(insertions_arr, "insertions")
                     total_insertions += curr_insertions
-                    for ii, ins in enumerate(insertions_events):
-                        if not gap_open:
-                            complex_area_id.append("N/A")
-                        else:
-                            complex_area_id_tmp.append(complex_area_counter)
-                        curr_ref_start = ref_start[ii]
-                        ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
-                        #print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
-                        variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}")
+                else:
+                    ins_ref_start = []
                 if len(deletions_arr) > 0:
-                    curr_deletions, deletions_events, ref_start = count_events(deletions_arr, "deletions")
+                    curr_deletions, deletions_events, del_ref_start = count_events(deletions_arr, "deletions")
                     total_deletions += curr_deletions
-                    for ii, dele in enumerate(deletions_events):
-                        if not gap_open:
-                            complex_area_id.append("N/A")
-                        else:
-                            complex_area_id_tmp.append(complex_area_counter)
-                        n_dele = len(dele)
-                        curr_ref_start = ref_start[ii]
-                        ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
-                        #print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
-                        variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}")
+                else:
+                    del_ref_start = []
                 total_mismatches += len(mismatches_arr)
-                for mis in mismatches_arr:
+                mis_ref_start = [x[0] for x in mismatches_arr]
+
+                ins_ptr = del_ptr = mis_ptr = 0
+                n_ins, n_del, n_mis = len(ins_ref_start), len(del_ref_start), len(mis_ref_start)
+
+                while ins_ptr < n_ins or del_ptr < n_del or mis_ptr < n_mis:
+                    curr_ins = ins_ref_start[ins_ptr] if ins_ptr < n_ins else float("inf")
+                    curr_del = del_ref_start[del_ptr] if del_ptr < n_del else float("inf")
+                    curr_mis = mis_ref_start[mis_ptr] if mis_ptr < n_mis else float("inf")
+
+                    smallest = min(curr_ins, curr_del, curr_mis)
+
+                    if last_mutation_pos and smallest - last_mutation_pos > 5:
+                        cluster_counter += 1
+                    last_mutation_pos = smallest
                     if not gap_open:
                         complex_area_id.append("N/A")
                     else:
                         complex_area_id_tmp.append(complex_area_counter)
+
+                    if smallest == curr_ins:
+                        ins = insertions_events[ins_ptr]
+                        curr_ref_start = curr_ins
+                        ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
+                        variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}, cluster_id: {cluster_counter}")
+                        ins_ptr += 1
+
+                    elif smallest == curr_del:
+                        dele = deletions_events[del_ptr]
+                        n_dele = len(dele)
+                        curr_ref_start = curr_del
+                        ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
+                        variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}, cluster_id: {cluster_counter}")
+                        del_ptr += 1
+
+                    else:
+                        mis = mismatches_arr[mis_ptr]
+                        variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}, cluster_id: {cluster_counter}")
+                        mis_ptr += 1
+
+                        
+                
+                cluster_counter += 1
+                last_mutation_pos = None
+                
+                
+
+
+                #if len(insertions_arr) > 0:
+                    #curr_insertions, insertions_events, ins_ref_start = count_events(insertions_arr, "insertions")
+                    #total_insertions += curr_insertions
+                    
+                    #for ii, ins in enumerate(insertions_events):
+                        #if not gap_open:
+                            #complex_area_id.append("N/A")
+                        #else:
+                            #complex_area_id_tmp.append(complex_area_counter)
+                        #curr_ref_start = ins_ref_start[ii]
+                        #ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
+                        ##print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
+                        #variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}")
+                #if len(deletions_arr) > 0:
+                    #curr_deletions, deletions_events, del_ref_start = count_events(deletions_arr, "deletions")
+                    #total_deletions += curr_deletions
+                    #print(f"deletion events: {deletions_events}", file=sys.stdout)
+                    #for ii, dele in enumerate(deletions_events):
+                        #if not gap_open:
+                            #complex_area_id.append("N/A")
+                        #else:
+                            #complex_area_id_tmp.append(complex_area_counter)
+                        #n_dele = len(dele)
+                        #curr_ref_start = del_ref_start[ii]
+                        #ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
+                        ##print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
+                        #variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}")
+                #total_mismatches += len(mismatches_arr)
+                #for mis in mismatches_arr:
+                    #print(f"mismatch: {mis}")
+                    #if not gap_open:
+                        #complex_area_id.append("N/A")
+                    #else:
+                        #complex_area_id_tmp.append(complex_area_counter)
                     #print(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}", file=variants_filename)
-                    variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}")
+                    #variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}")
+
+                ##if not ins_ref_start: ins_ref_start = []
+                #try: ins_ref_start 
+                #except: ins_ref_start = []
+
+                ##if not del_ref_start: del_ref_start = []
+                #try: del_ref_start
+                #except: del_ref_start = []
+                #mis_ref_start = [x[0] for x in mismatches_arr]
+
+                #all_ref_start = ins_ref_start + del_ref_start + mis_ref_start
+                #paired = sorted(zip(all_ref_start, variants_file_output_tmp), key=lambda x: x[0])
+                #all_ref_start_sorted, variants_file_output_tmp_sorted = map(list, zip(*paired))
+
+                #print(f"variant_file_sorted: {variants_file_output_tmp_sorted}")
+
+                #if len(variants_file_output_tmp_sorted) > 0:
+                    #variants_file_output_tmp_sorted[0] += f", cluster: {cluster_counter}"
+
+    
+                #for ii in range(1, len(variants_file_output_tmp_sorted)):
+                    #if all_ref_start_sorted[ii] - all_ref_start_sorted[ii-1] > 5:
+                        #cluster_counter += 1
+                    #variants_file_output_tmp_sorted[ii] += f", cluster: {cluster_counter}"
+                    
+                
+                #variants_file_output += variants_file_output_tmp
+                #variants_file_output_tmp = []
                 
 
                 if should_increment_repeat_num < len(curr_group):
@@ -374,44 +470,132 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
                     complex_area_id_tmp = []
                 complex_area_counter += 1
             last_end = val + self.n_subStr + len(insertions_arr) - len(deletions_arr)
-            if len(insertions_arr) > 0:
-                curr_insertions, insertions_events, ref_start = count_events(insertions_arr, "insertions")
-                total_insertions += curr_insertions
-                for ii, ins in enumerate(insertions_events):
-                    if not gap_open:
-                        complex_area_id.append("N/A")
-                    else:
-                        complex_area_id_tmp.append(complex_area_counter)
 
-                    curr_ref_start = ref_start[ii]
-                    ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
-                    #print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
-                    variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}")
+            if len(insertions_arr) > 0:
+                curr_insertions, insertions_events, ins_ref_start = count_events(insertions_arr, "insertions")
+                total_insertions += curr_insertions
+            else:
+                ins_ref_start = []
             if len(deletions_arr) > 0:
-                curr_deletions, deletions_events, ref_start = count_events(deletions_arr, "deletions")
+                curr_deletions, deletions_events, del_ref_start = count_events(deletions_arr, "deletions")
                 total_deletions += curr_deletions
-                for ii, dele in enumerate(deletions_events):
-                    if not gap_open:
-                        complex_area_id.append("N/A")
-                    else:
-                        complex_area_id_tmp.append(complex_area_counter)
-                    n_dele = len(dele)
-                    curr_ref_start = ref_start[ii]
-                    ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
-                    #print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
-                    variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}")
+            else:
+                del_ref_start = []
             total_mismatches += len(mismatches_arr)
-            for mis in mismatches_arr:
-                #print(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}", file=variants_filename)
+            mis_ref_start = [x[0] for x in mismatches_arr]
+
+            ins_ptr = del_ptr = mis_ptr = 0
+            n_ins, n_del, n_mis = len(ins_ref_start), len(del_ref_start), len(mis_ref_start)
+
+            while ins_ptr < n_ins or del_ptr < n_del or mis_ptr < n_mis:
+                curr_ins = ins_ref_start[ins_ptr] if ins_ptr < n_ins else float("inf")
+                curr_del = del_ref_start[del_ptr] if del_ptr < n_del else float("inf")
+                curr_mis = mis_ref_start[mis_ptr] if mis_ptr < n_mis else float("inf")
+
+                smallest = min(curr_ins, curr_del, curr_mis)
+
+                if last_mutation_pos and smallest - last_mutation_pos > 5:
+                    cluster_counter += 1
+                last_mutation_pos = smallest
                 if not gap_open:
                     complex_area_id.append("N/A")
                 else:
                     complex_area_id_tmp.append(complex_area_counter)
-                variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}")
+
+                if smallest == curr_ins:
+                    ins = insertions_events[ins_ptr]
+                    curr_ref_start = curr_ins
+                    ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
+                    variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}, cluster_id: {cluster_counter}")
+                    ins_ptr += 1
+
+                elif smallest == curr_del:
+                    dele = deletions_events[del_ptr]
+                    n_dele = len(dele)
+                    curr_ref_start = curr_del
+                    ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
+                    variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}, cluster_id: {cluster_counter}")
+                    del_ptr += 1
+
+                else:
+                    mis = mismatches_arr[mis_ptr]
+                    variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}, cluster_id: {cluster_counter}")
+                    mis_ptr += 1
+
+            #if len(insertions_arr) > 0:
+                #curr_insertions, insertions_events, ref_start = count_events(insertions_arr, "insertions")
+                #total_insertions += curr_insertions
+                #for ii, ins in enumerate(insertions_events):
+                    #if not gap_open:
+                        #complex_area_id.append("N/A")
+                    #else:
+                        #complex_area_id_tmp.append(complex_area_counter)
+
+                    #curr_ref_start = ref_start[ii]
+                    #ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
+                    ##print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
+                    #variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}")
+            #if len(deletions_arr) > 0:
+                #curr_deletions, deletions_events, ref_start = count_events(deletions_arr, "deletions")
+                #total_deletions += curr_deletions
+                #for ii, dele in enumerate(deletions_events):
+                    #if not gap_open:
+                        #complex_area_id.append("N/A")
+                    #else:
+                        #complex_area_id_tmp.append(complex_area_counter)
+                    #n_dele = len(dele)
+                    #curr_ref_start = ref_start[ii]
+                    #ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
+                    ##print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
+                    #variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}")
+            #total_mismatches += len(mismatches_arr)
+            #for mis in mismatches_arr:
+                ##print(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}", file=variants_filename)
+                #if not gap_open:
+                    #complex_area_id.append("N/A")
+                #else:
+                    #complex_area_id_tmp.append(complex_area_counter)
+                #variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}")
+
+                
+            ##if not ins_ref_start: ins_ref_start = []
+            #try: ins_ref_start 
+            #except: ins_ref_start = []
+
+            ##if not del_ref_start: del_ref_start = []
+            #try: del_ref_start
+            #except: del_ref_start = []
+            #mis_ref_start = [x[0] for x in mismatches_arr]
+
+            #all_ref_start = ins_ref_start + del_ref_start + mis_ref_start
+            ##paired = sorted(zip(all_ref_start, variants_file_output_tmp), key=lambda x: x[0])
+            ##all_ref_start_sorted, variants_file_output_tmp_sorted = map(list, zip(*paired))
+
+            ##print(f"variant_file_sorted: {variants_file_output_tmp_sorted}")
+
+            #order = sorted(range(len(all_ref_start)), key=lambda i: all_ref_start[i])
+
+            #all_ref_start[:] = [all_ref_start[i] for i in order]
+            #variants_file_output_tmp[:] = [variants_file_output_tmp[i] for i in order]
+
+            #if len(variants_file_output_tmp) > 0:
+                #variants_file_output_tmp[0] += f", cluster: {cluster_counter}"
+
+
+            #for ii in range(1, len(variants_file_output_tmp)):
+                #if all_ref_start[ii] - all_ref_start[ii-1] > 5:
+                    #cluster_counter += 1
+                #variants_file_output_tmp[ii] += f", cluster: {cluster_counter}"
+                
+            
+            #variants_file_output += variants_file_output_tmp
+            #variants_file_output_tmp = []
+
 
             if should_increment_repeat_num < len(curr_group):
                 should_increment_repeat_num += 1
                 repeat_num += 1
+
 
             if print_comparison and should_output_extra_alignment_error_message:
                 if len(curr_group) != len(given_data_grouped_by_chr_dict[j]):
@@ -487,7 +671,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
 
 def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename, variants_filename, strain_num, referenceString):
 
-    print("strain name, chr end, repeat number, mutation type, mutation length, mutated area (w/ before and after bp), mutation bases, only TG mutations, complex mutagenic zone id", file=variants_filename)
+    print("strain name, chr end, repeat number, mutation type, mutation length, mutated area (w/ before and after bp), mutation bases, only TG mutations, cluster id, complex mutagenic zone id", file=variants_filename)
 
     total_matching_number_of_gaps = 0
     total_matching_number_of_alignments = 0 # the number of times that the number of alignments is the same inside of a mutagenic area
