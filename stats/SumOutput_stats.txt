@@ -1,7 +1,0 @@
-total chr ends with mutagenic zone found: 195
-total chr ends with matching number of mutagenic areas: 162
-total chr ends with matching number of alignments: 126
-total chr ends with exact same call as Ivans data: 50
-131 alignments matched perfectly out of 284 that were compared
-total insertion count: 703,  total deletions count: 540, total mismatches count: 374
-total Ivan insertion count: 681,  total Ivan deletions count: 656, total Ivan mismatches count: 492

@@ -3,8 +3,8 @@ import re
 import sys
 
 def parse_alignment_csv_line(line: str):
-    #pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
-    pattern = re.compile(r"^KRLT(\d+)\s(\d+[LR])-(\d+)$")
+    pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
+    #pattern = re.compile(r"^KRLT(\d+)\s(\d+[LR])-(\d+)$")
     insertions = []
     deletions = []
     mismatches = []
@@ -98,6 +98,23 @@ def group_new_data(new_data_grouped_by_chr_dict):
 
         groups.append(current_group)
         new_data_grouped_by_chr_dict[key].extra_alignment_indexes = groups
+    for key in new_data_grouped_by_chr_dict.keys():
+        indexes = sorted(new_data_grouped_by_chr_dict[key].indexes)
+        extra_indexes = sorted(new_data_grouped_by_chr_dict[key].template_switching_indexes)
+        if len(extra_indexes) == 0:
+            continue
+        groups = []
+        current_group = [extra_indexes[0]]
+        for prev, curr in zip(extra_indexes, extra_indexes[1:]):
+            # Check if any index is strictly between prev and curr
+            if any(i > prev and i < curr for i in indexes):
+                groups.append(current_group)
+                current_group = [curr]
+            else:
+                current_group.append(curr)
+
+        groups.append(current_group)
+        new_data_grouped_by_chr_dict[key].template_switching_indexes = groups
     return new_data_grouped_by_chr_dict
     
 
@@ -109,11 +126,11 @@ def parse_new_data(new_data):
         match = pattern.match(name)
         if not match:
             print("no match was found")
-        strain_num, chr_end = match.groups()
+        strain_name, chr_end = match.groups()
         #new_data_grouped_by_chr_dict[match.group(1)] = elem[1]
         new_data_grouped_by_chr_dict[chr_end] = elem[1]
     new_data_grouped_by_chr_dict = group_new_data(new_data_grouped_by_chr_dict)
-    return new_data_grouped_by_chr_dict, strain_num
+    return new_data_grouped_by_chr_dict, strain_name
 
 def count_tuples(arr, mode):
     if not arr:
@@ -172,7 +189,7 @@ def count_events(arr, mode):
     return count, total_events, ref_start
 
 #note: self is just cuz I'm too lazy to change the variable name, it's not actually an object function
-def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, strain_num, chr_end, variants_filename, referenceString):
+def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, strain_name, chr_end, variants_filename, referenceString):
     total_insertions = 0
     total_deletions = 0
     total_mismatches = 0
@@ -274,7 +291,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
 
                     smallest = min(curr_ins, curr_del, curr_mis)
 
-                    if last_mutation_pos and smallest - last_mutation_pos > 5:
+                    if last_mutation_pos and smallest - last_mutation_pos > 10:
                         cluster_counter += 1
                     last_mutation_pos = smallest
                     if not gap_open:
@@ -286,7 +303,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
                         ins = insertions_events[ins_ptr]
                         curr_ref_start = curr_ins
                         ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
-                        variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}, cluster_id: {cluster_counter}")
+                        variants_file_output.append(f"{strain_name}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}, cluster_id: {cluster_counter}")
                         ins_ptr += 1
 
                     elif smallest == curr_del:
@@ -294,86 +311,18 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
                         n_dele = len(dele)
                         curr_ref_start = curr_del
                         ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
-                        variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}, cluster_id: {cluster_counter}")
+                        variants_file_output.append(f"{strain_name}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}, cluster_id: {cluster_counter}")
                         del_ptr += 1
 
                     else:
                         mis = mismatches_arr[mis_ptr]
-                        variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}, cluster_id: {cluster_counter}")
+                        variants_file_output.append(f"{strain_name}, {chr_end}, {repeat_num}, single base, 1, N/A, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}, cluster_id: {cluster_counter}")
                         mis_ptr += 1
 
                         
                 
                 cluster_counter += 1
                 last_mutation_pos = None
-                
-                
-
-
-                #if len(insertions_arr) > 0:
-                    #curr_insertions, insertions_events, ins_ref_start = count_events(insertions_arr, "insertions")
-                    #total_insertions += curr_insertions
-                    
-                    #for ii, ins in enumerate(insertions_events):
-                        #if not gap_open:
-                            #complex_area_id.append("N/A")
-                        #else:
-                            #complex_area_id_tmp.append(complex_area_counter)
-                        #curr_ref_start = ins_ref_start[ii]
-                        #ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
-                        ##print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
-                        #variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}")
-                #if len(deletions_arr) > 0:
-                    #curr_deletions, deletions_events, del_ref_start = count_events(deletions_arr, "deletions")
-                    #total_deletions += curr_deletions
-                    #print(f"deletion events: {deletions_events}", file=sys.stdout)
-                    #for ii, dele in enumerate(deletions_events):
-                        #if not gap_open:
-                            #complex_area_id.append("N/A")
-                        #else:
-                            #complex_area_id_tmp.append(complex_area_counter)
-                        #n_dele = len(dele)
-                        #curr_ref_start = del_ref_start[ii]
-                        #ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
-                        ##print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
-                        #variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}")
-                #total_mismatches += len(mismatches_arr)
-                #for mis in mismatches_arr:
-                    #print(f"mismatch: {mis}")
-                    #if not gap_open:
-                        #complex_area_id.append("N/A")
-                    #else:
-                        #complex_area_id_tmp.append(complex_area_counter)
-                    #print(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}", file=variants_filename)
-                    #variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}")
-
-                ##if not ins_ref_start: ins_ref_start = []
-                #try: ins_ref_start 
-                #except: ins_ref_start = []
-
-                ##if not del_ref_start: del_ref_start = []
-                #try: del_ref_start
-                #except: del_ref_start = []
-                #mis_ref_start = [x[0] for x in mismatches_arr]
-
-                #all_ref_start = ins_ref_start + del_ref_start + mis_ref_start
-                #paired = sorted(zip(all_ref_start, variants_file_output_tmp), key=lambda x: x[0])
-                #all_ref_start_sorted, variants_file_output_tmp_sorted = map(list, zip(*paired))
-
-                #print(f"variant_file_sorted: {variants_file_output_tmp_sorted}")
-
-                #if len(variants_file_output_tmp_sorted) > 0:
-                    #variants_file_output_tmp_sorted[0] += f", cluster: {cluster_counter}"
-
-    
-                #for ii in range(1, len(variants_file_output_tmp_sorted)):
-                    #if all_ref_start_sorted[ii] - all_ref_start_sorted[ii-1] > 5:
-                        #cluster_counter += 1
-                    #variants_file_output_tmp_sorted[ii] += f", cluster: {cluster_counter}"
-                    
-                
-                #variants_file_output += variants_file_output_tmp
-                #variants_file_output_tmp = []
                 
 
                 if should_increment_repeat_num < len(curr_group):
@@ -494,7 +443,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
 
                 smallest = min(curr_ins, curr_del, curr_mis)
 
-                if last_mutation_pos and smallest - last_mutation_pos > 5:
+                if last_mutation_pos and smallest - last_mutation_pos > 10:
                     cluster_counter += 1
                 last_mutation_pos = smallest
                 if not gap_open:
@@ -506,7 +455,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
                     ins = insertions_events[ins_ptr]
                     curr_ref_start = curr_ins
                     ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
-                    variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}, cluster_id: {cluster_counter}")
+                    variants_file_output.append(f"{strain_name}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}, cluster_id: {cluster_counter}")
                     ins_ptr += 1
 
                 elif smallest == curr_del:
@@ -514,82 +463,13 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
                     n_dele = len(dele)
                     curr_ref_start = curr_del
                     ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
-                    variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}, cluster_id: {cluster_counter}")
+                    variants_file_output.append(f"{strain_name}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}, cluster_id: {cluster_counter}")
                     del_ptr += 1
 
                 else:
                     mis = mismatches_arr[mis_ptr]
-                    variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}, cluster_id: {cluster_counter}")
+                    variants_file_output.append(f"{strain_name}, {chr_end}, {repeat_num}, single base, 1, N/A, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}, cluster_id: {cluster_counter}")
                     mis_ptr += 1
-
-            #if len(insertions_arr) > 0:
-                #curr_insertions, insertions_events, ref_start = count_events(insertions_arr, "insertions")
-                #total_insertions += curr_insertions
-                #for ii, ins in enumerate(insertions_events):
-                    #if not gap_open:
-                        #complex_area_id.append("N/A")
-                    #else:
-                        #complex_area_id_tmp.append(complex_area_counter)
-
-                    #curr_ref_start = ref_start[ii]
-                    #ref_subStr = referenceString[curr_ref_start-1:curr_ref_start+1]
-                    ##print(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}", file=variants_filename)
-                    #variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, insertion, {len(ins)}, {ref_subStr}, {ins}, {all(c in "TG" for c in ins)}")
-            #if len(deletions_arr) > 0:
-                #curr_deletions, deletions_events, ref_start = count_events(deletions_arr, "deletions")
-                #total_deletions += curr_deletions
-                #for ii, dele in enumerate(deletions_events):
-                    #if not gap_open:
-                        #complex_area_id.append("N/A")
-                    #else:
-                        #complex_area_id_tmp.append(complex_area_counter)
-                    #n_dele = len(dele)
-                    #curr_ref_start = ref_start[ii]
-                    #ref_subStr = referenceString[curr_ref_start-2:curr_ref_start+n_dele]
-                    ##print(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}", file=variants_filename)
-                    #variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, deletion, {len(dele)}, {ref_subStr}, {dele}, {all(c in "TG" for c in dele)}")
-            #total_mismatches += len(mismatches_arr)
-            #for mis in mismatches_arr:
-                ##print(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}", file=variants_filename)
-                #if not gap_open:
-                    #complex_area_id.append("N/A")
-                #else:
-                    #complex_area_id_tmp.append(complex_area_counter)
-                #variants_file_output.append(f"{strain_num}, {chr_end}, {repeat_num}, single base, {mis[1]} -> {mis[2]}, {mis[2] in "TG"}")
-
-                
-            ##if not ins_ref_start: ins_ref_start = []
-            #try: ins_ref_start 
-            #except: ins_ref_start = []
-
-            ##if not del_ref_start: del_ref_start = []
-            #try: del_ref_start
-            #except: del_ref_start = []
-            #mis_ref_start = [x[0] for x in mismatches_arr]
-
-            #all_ref_start = ins_ref_start + del_ref_start + mis_ref_start
-            ##paired = sorted(zip(all_ref_start, variants_file_output_tmp), key=lambda x: x[0])
-            ##all_ref_start_sorted, variants_file_output_tmp_sorted = map(list, zip(*paired))
-
-            ##print(f"variant_file_sorted: {variants_file_output_tmp_sorted}")
-
-            #order = sorted(range(len(all_ref_start)), key=lambda i: all_ref_start[i])
-
-            #all_ref_start[:] = [all_ref_start[i] for i in order]
-            #variants_file_output_tmp[:] = [variants_file_output_tmp[i] for i in order]
-
-            #if len(variants_file_output_tmp) > 0:
-                #variants_file_output_tmp[0] += f", cluster: {cluster_counter}"
-
-
-            #for ii in range(1, len(variants_file_output_tmp)):
-                #if all_ref_start[ii] - all_ref_start[ii-1] > 5:
-                    #cluster_counter += 1
-                #variants_file_output_tmp[ii] += f", cluster: {cluster_counter}"
-                
-            
-            #variants_file_output += variants_file_output_tmp
-            #variants_file_output_tmp = []
 
 
             if should_increment_repeat_num < len(curr_group):
@@ -669,7 +549,7 @@ def custom_object_print(self, given_data_grouped_by_chr_dict, print_comparison, 
     #return total_insertions, total_deletions, total_mismatches
 
 
-def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename, variants_filename, strain_num, referenceString):
+def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename, variants_filename, strain_name, circleString):
 
     print("strain name, chr end, repeat number, mutation type, mutation length, mutated area (w/ before and after bp), mutation bases, only TG mutations, cluster id, complex mutagenic zone id", file=variants_filename)
 
@@ -767,7 +647,7 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
             else:
                 total_matching_number_of_gaps += 1
         if print_comparison:
-            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches, n_given_insertions, n_given_deletions, n_given_mismatches, alignment_mismatches_comparison = custom_object_print(new_data_grouped_by_chr_dict[key], given_data_grouped_by_chr_dict[key], print_comparison, strain_num, key, variants_filename, referenceString)
+            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches, n_given_insertions, n_given_deletions, n_given_mismatches, alignment_mismatches_comparison = custom_object_print(new_data_grouped_by_chr_dict[key], given_data_grouped_by_chr_dict[key], print_comparison, strain_name, key, variants_filename, circleString)
             total_insertions += n_insertions
             total_deletions += n_deletions
             total_mismatches += n_mismatches
@@ -786,7 +666,7 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
             total_number_perfect_alignment_matches += total_number_perfect_alignment_alignmen_in_chr
         else:
             #insertions, deletions, mismatches = custom_object_print(new_data_grouped_by_chr_dict[key], [], print_comparison)
-            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches, n_given_insertions, n_given_deletions, n_given_mismatches, alignment_mismatches_comparison = custom_object_print(new_data_grouped_by_chr_dict[key], [], print_comparison, strain_num, key, variants_filename, referenceString)
+            if_matching_number_of_alignments, total_number_alignments_compared_in_chr, total_number_perfect_alignment_alignmen_in_chr, tmp_imperfect_alignments, n_insertions, n_deletions, n_mismatches, n_given_insertions, n_given_deletions, n_given_mismatches, alignment_mismatches_comparison = custom_object_print(new_data_grouped_by_chr_dict[key], [], print_comparison, strain_name, key, variants_filename, circleString)
             #total_insertions += n_insertions
             #total_deletions += n_deletions
             #total_mismatches += n_mismatches
@@ -819,21 +699,164 @@ def print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_di
     print("\n".join(mismatch_alignment_number_indexes), file=stats_filename)
     print("\nall Alignment mismatches:", file=stats_filename)        
     print("\n\n".join(all_imperfect_alignments), file=stats_filename)
-        
+  
+def circular_distance(i, j, n):
+    diff = abs(i - j)
+    return min(diff, n-diff)      
             
+def template_switch_print(self, variants_filename, circleString, strain_name, chr_end):
+    n_circleString = len(circleString)
+    repeat_num = 0
+    variants_file_output = []
 
-        
+    alignment_mismatches_comparison = None
 
+    if not self.template_switching_indexes:
+        self.template_switching_indexes = []
+        #self.template_switching_info = {}
+
+    all_imperfect_alignments = []
+    output = []
+    total_alignments = 0
+    if_matching_number_of_alignment = True
+    total_number_alignments_compared_in_chr = 0
+    total_number_perfect_alignment_matches_in_chr = 0
+    if self.template_switching_indexes:
+        for group in self.template_switching_indexes:
+            total_alignments += len(group)
+        total_matches = len(self.indexes) + total_alignments
+    else:
+        total_matches = len(self.indexes)
+    output.append(f"Total matches: {total_matches}")
+
+    # Two-pointer merge
+    i = j = 0
+    while i < len(self.indexes) and j < len(self.template_switching_indexes):
+        repeat_num += 1
+        curr_group = self.template_switching_indexes[j]
+
+        # perfect match
+        if self.indexes[i] <= curr_group[0]:
+            output.append(f"{self.indexes[i]} (perfect match)")
+            i += 1
+        # imperfect match
+        else:
+            last_end = None
+            last_last_end = None
+            last_length = None
+            for k in range(len(curr_group)):
+                val = curr_group[k]
+                reference_chunk = self.template_switching_info[val].reference_chunk
+                n_reference_chunk = len(reference_chunk)
+                reference_start = self.template_switching_info[val].reference_start
+                reference_end = self.template_switching_info[val].reference_end
+                circleString_start = self.template_switching_info[val].circleString_start
+                circleString_end = self.template_switching_info[val].circleString_end
+                is_mutation = self.template_switching_info[val].is_mutation
+
+                if is_mutation:
+                    output.append(f"pos: {reference_start}: {reference_chunk} mutation")
+                    variants_file_output.append(f"{strain_name},{chr_end},{repeat_num},1,{reference_start},{reference_end},N/A,N/A,N/A,N/A")
+                    last_last_end = last_end
+                    last_last_end = None
+                    last_end = None
+                else:
+                    if last_last_end and last_last_end != "ambiguous" and circleString_start != "ambiguous":
+                        if circleString_start >= last_last_end + last_length - 1 and circleString_start <= last_last_end + last_length +1:
+                            memory_jump_val = True
+                        else:
+                            memory_jump_val = False
+                    else:
+                        memory_jump_val = "N/A" 
+                    if last_end and last_end != "ambiguous" and circleString_start != "ambiguous":
+                        if_small_jump = circular_distance(last_end, circleString_start, n_circleString) <= 5
+                    else:
+                        if_small_jump = "N/A"
+                    output.append(f"reference span: {reference_start}-{reference_end}, length: {n_reference_chunk}, circle string Start: {circleString_start}, circle string end: {circleString_end}")
+                    variants_file_output.append(f"{strain_name},{chr_end},{repeat_num},{n_reference_chunk},{reference_start},{reference_end},{circleString_start},{circleString_end},{if_small_jump},{memory_jump_val}")
+                    last_last_end = last_end
+                    last_end = circleString_end
+                    last_length = n_reference_chunk
+                repeat_num += 1
+            j+= 1
+
+    # Remaining perfect matches
+    repeat_num += 1
+    while i < len(self.indexes):
+        output.append(f"{self.indexes[i]} (perfect match)")
+        i += 1
+
+    # Remaining imperfect matches
+    while j < len(self.template_switching_indexes):
+        last_end = None
+        last_last_end = None
+        last_length = None
+        curr_group = self.template_switching_indexes[j]
+        for k in range(len(curr_group)):
+            val = curr_group[k]
+            reference_chunk = self.template_switching_info[val].reference_chunk
+            n_reference_chunk = len(reference_chunk)
+            reference_start = self.template_switching_info[val].reference_start
+            reference_end = self.template_switching_info[val].reference_end
+            circleString_start = self.template_switching_info[val].circleString_start
+            circleString_end = self.template_switching_info[val].circleString_end
+            is_mutation = self.template_switching_info[val].is_mutation
+
+            if is_mutation:
+                output.append(f"pos: {reference_start}: {reference_chunk} mutation")
+                variants_file_output.append(f"{strain_name},{chr_end},{repeat_num},1,{reference_start},{reference_end},N/A,N/A,N/A,N/A")
+                last_last_end = None
+                last_end = None
+                last_length = None
+            else:
+                if last_last_end and last_last_end != "ambiguous" and circleString_start != "ambiguous":
+                   if circleString_start >= last_last_end + last_length - 1 and circleString_start <= last_last_end + last_length +1:
+                       memory_jump_val = True
+                   else:
+                       memory_jump_val = False
+                else:
+                   memory_jump_val = "N/A" 
+                if last_end and last_end != "ambiguous" and circleString_start != "ambiguous":
+                    if_small_jump = circular_distance(last_end, circleString_start, n_circleString) <= 5
+                else:
+                    if_small_jump = "N/A"
+                output.append(f"reference span: {reference_start}-{reference_end}, length: {n_reference_chunk}, circle string Start: {circleString_start}, circle string end: {circleString_end}")
+                variants_file_output.append(f"{strain_name},{chr_end},{repeat_num},{n_reference_chunk},{reference_start},{reference_end},{circleString_start},{circleString_end},{if_small_jump},{memory_jump_val}")
+                last_last_end = last_end
+                last_end = circleString_end
+                last_length = n_reference_chunk
+            repeat_num += 1
+            
+        j += 1
+
+
+
+    final_string = "\n".join(output)
+    print(final_string)
+    print("\n".join(variants_file_output), file=variants_filename)
+    return
+
+    return if_matching_number_of_alignment, total_number_alignments_compared_in_chr, total_number_perfect_alignment_matches_in_chr, ("\n".join(all_imperfect_alignments)), total_insertions, total_deletions, total_mismatches, total_given_insertions, total_given_deletions, total_given_mismatches, alignment_mismatches_comparison
+
+    
+def call_template_switch_print(new_data_grouped_by_chr_dict, variants_filename, circleString, strain_name):
+    print("strain name,chr end,template swtich number,length,reference start,reference end, circle start,circle end,is mutation,small jump,memory jump", file=variants_filename)
+    for key in new_data_grouped_by_chr_dict:
+        print("______________________________________________________________")
+        print(f"{key}:")
+        template_switch_print(new_data_grouped_by_chr_dict[key], variants_filename, circleString, strain_name, key)
     
     
         
 
-def compare_outputs(previous_data_csvfile, new_data, stats_filename, variants_filename, referenceString):
+def compare_outputs(previous_data_csvfile, new_data, stats_filename, variants_filename, circleString):
     with open(previous_data_csvfile, newline='', encoding="utf-8-sig") as csvfile:
         reader = csv.reader(csvfile)
         given_data_grouped_by_chr_dict = run_csv_parser(reader) # structure of this dict: {"1L": [[dict1], [d2], [d3, d4, d5 d6]], "2L": ...}
-        new_data_grouped_by_chr_dict, strain_num = parse_new_data(new_data) # structure of this dict: {"1L": self_search_obj(1L), "2L": self_search_obj(2L), ...}
-        print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename, variants_filename, strain_num, referenceString)
+        new_data_grouped_by_chr_dict, strain_name = parse_new_data(new_data) # structure of this dict: {"1L": self_search_obj(1L), "2L": self_search_obj(2L), ...}
+        call_template_switch_print(new_data_grouped_by_chr_dict, variants_filename, circleString, strain_name)
+        return
+        print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename, variants_filename, strain_name, circleString)
         for key in new_data_grouped_by_chr_dict.keys():
             if key not in given_data_grouped_by_chr_dict:
                 print(f"{key} key missing from Ivan's data")

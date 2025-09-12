@@ -22,113 +22,7 @@ import json
 
 stats_filename_global = ""
 
-#def parse_alignment_csv_line(line):
-    #parts = line.strip().split(",", 3)  # splits into 4 parts max
-    #alignment_name = parts[0]
-    #ins_csv = json.loads(parts[1]) if parts[1] else []
-    #del_csv = json.loads(parts[2]) if parts[2] else []
-    #mis_csv_raw = json.loads(parts[3]) if len(parts) > 3 and parts[3] else []
-    #return alignment_name, ins_csv, del_csv, mis_csv_raw
-
-
-
-#def get_alignment_group_key(alignment_name):
-    #return re.sub(r'-\d+$', '', alignment_name.strip())
-
-
-#def compare_alignment_data_smart(csv_path, best_repeat_sequence_arr):
-    #def classify_match(csv_data, prog_data, data_type):
-        #def normalize(data, data_type):
-            #if data_type == "insertion":
-                ## [{'pos': int, 'inserted_base': str}]
-                #return sorted([[entry["pos"], entry["inserted_base"]] for entry in data])
-            #elif data_type == "deletion":
-                ## [{'pos': int, 'deleted_base': str}]
-                #return sorted([[entry["pos"], entry["deleted_base"]] for entry in data])
-            #elif data_type == "mismatch":
-                ## [{'pos': int, 'from_base': str, 'to_base': str}]
-                #return sorted([[entry["pos"], entry["from_base"], entry["to_base"]] for entry in data])
-            #else:
-                #raise ValueError("Unknown data_type")
-
-        #def compare_indexes(csv_list, prog_list):
-            #return [entry[0] for entry in csv_list] == [entry[0] for entry in prog_list]
-
-        #csv_normalized = normalize(csv_data, data_type)
-        #prog_normalized = normalize(prog_data, data_type)
-
-        #base_match = csv_normalized == prog_normalized
-        #index_match = compare_indexes(csv_normalized, prog_normalized)
-
-        #if base_match and index_match:
-            #return "perfect"
-        #elif base_match:
-            #return "good"
-        #else:
-            #return "bad"
-
-    #results = []
-
-    #current_obj_index = 0
-    #current_entry_index = 0
-    #prev_group_key = None
-
-    #with open(csv_path, newline='') as csvfile:
-        #for line_number, line in enumerate(csvfile, 1):
-            #alignment_name, ins_csv, del_csv, mis_csv_raw = parse_alignment_csv_line(line)
-            #group_key = get_alignment_group_key(alignment_name)
-
-            #if group_key != prev_group_key:
-                #current_obj_index += 1 if prev_group_key is not None else 0
-                #current_entry_index = 0
-                #prev_group_key = group_key
-
-            #if current_obj_index >= len(best_repeat_sequence_arr):
-                #results.append((line_number, alignment_name, "bad", "No corresponding object"))
-                #continue
-
-            #obj = best_repeat_sequence_arr[current_obj_index]
-            #if current_entry_index >= len(obj.extra_alignment_indexes):
-                #results.append((line_number, alignment_name, "bad", "No corresponding entry index"))
-                #continue
-
-            #alignment_index = obj.extra_alignment_indexes[current_entry_index]
-            #ins_prog, del_prog, mis_prog_full = obj.extra_alignment_insertions_and_deletions[alignment_index]
-
-            ## Convert mis_prog_full into comparable format
-            #mis_prog = [
-                #{"pos": entry[0], "from_base": entry[2], "to_base": entry[3]}
-                #for entry in mis_prog_full
-            #]
-
-            #match_type_ins = classify_match(ins_csv, ins_prog, "insertion")
-            #match_type_del = classify_match(del_csv, del_prog, "deletion")
-            #match_type_mis = classify_match(mis_csv_raw, mis_prog, "mismatch")
-
-            #all_types = [match_type_ins, match_type_del, match_type_mis]
-
-            #if all(t == "perfect" for t in all_types):
-                #match_result = "perfect"
-            #elif all(t in ("perfect", "good") for t in all_types):
-                #match_result = "good"
-            #else:
-                #match_result = "bad"
-
-            #results.append((line_number, alignment_name, match_result, None))
-            #current_entry_index += 1
-
-    #for line_num, name, result, error in results:
-        #if error:
-            #print(f"[Line {line_num}] {name}: ERROR - {error}")
-        #else:
-            #print(f"[Line {line_num}] {name}: {result.upper()} MATCH")
-
-    #return results
-
-
-
 global_test = False
-
 
 def is_circular_rearrangement(s1, s2):
     if len(s1) != len(s2):
@@ -148,6 +42,15 @@ def convert_num_to_chr_end(num):
     else:
         return f"{tmp}R"
 
+class template_switch_type:
+    def __init__(self, reference_chunk, reference_start, reference_end, circleString_start, circleString_end, is_mutation):
+        self.reference_chunk = reference_chunk
+        self.reference_start = reference_start
+        self.reference_end = reference_end
+        self.circleString_start = circleString_start
+        self.circleString_end = circleString_end
+        self.is_mutation = is_mutation
+
 
 class self_search_type:
     def __init__(self, n_subStr, indexes, min_gap, has_overlap, offset):
@@ -160,6 +63,8 @@ class self_search_type:
         self.extra_alignment_indexes = []
         self.extra_alignment_insertions_and_deletions = {}
         # self.parent_key = parent_key
+        self.template_switching_indexes = []
+        self.template_switching_info = {}
 
     def add_offset(self):
         for i in range(len(self.indexes)):
@@ -310,7 +215,7 @@ class find_loops:
 
     def __init__(self, input_s, user_input_obj, offset):
         self.input_s = input_s
-        self.my_dict = {}
+        self.my_dict = {} #my dict has potential circle strings as key and self_search_type types as value
         self.coverage_dict = defaultdict(dict)
         # self.min_length = min_length
         self.user_input_obj = user_input_obj
@@ -802,6 +707,143 @@ class find_loops:
 
         #return result
 
+    def alignment_alternative(self, key):
+        my_dict_entry = self.my_dict[key]
+        my_dict_entry.indexes = [] # line used for the full chr end template switching analysis
+        alignments = my_dict_entry.indexes
+        circle_string = key
+        doubled_circle_string = circle_string + circle_string
+        circle_string_n = len(circle_string)
+
+        key_n = len(key)
+        #min_score = key_n - key_n//12
+        #str_dict = {}
+        str_locations = []
+        queue = deque()
+
+
+        if len(alignments) < 1:
+            tmp = self.input_s
+            #str_dict[tmp] = [0, len(tmp)]
+            str_locations.append(0)
+            queue.append(tmp)
+            
+        else:
+
+            last_val = 0
+            for i in range(0, len(alignments)):
+                alignment = alignments[i]
+                if last_val == 0 and alignment > 0:
+                    added_first_alignment = True
+                tmp = self.input_s[last_val:alignment]
+                #str_dict[tmp] = [last_val, alignment]
+                str_locations.append(last_val)
+                queue.append(tmp)
+                last_val = alignment+key_n
+            tmp = self.input_s[last_val:]
+            x = False
+            #str_dict[tmp] = [last_val, len(self.input_s)]
+            str_locations.append(last_val)
+            queue.append(tmp)
+
+        good_alignment_arr = []
+        good_alignment_starting_pos = []
+        dict_insertions_and_deletions = {}
+        arr = []
+        #counter = 0
+        first = True
+        n_queue = len(queue)
+        counter = -1 #offset by 1 because I increment at start of loop
+        last_elem = False
+        all_circles = [key[i:] + key[:i] for i in range(len(key))]
+        while queue and queue[0][0] in "AC":
+            queue[0] = queue[0][1:]
+        while queue: 
+            counter += 1
+            offset = str_locations[counter]
+            full_str = queue.popleft()
+            if len(full_str) == 0 :
+                continue
+            prev_window = ""
+            for i, c in enumerate(full_str):
+                if c == 'A' and len(prev_window) == 0:
+                    self.my_dict[key].template_switching_indexes.append(i + offset)
+                    self.my_dict[key].template_switching_info[i+offset] = template_switch_type(c, i+offset, i+offset, None, None, True)
+                    continue
+                curr_window = prev_window + c
+                if len(curr_window) > circle_string_n:
+                    curr_window = curr_window[len(curr_window) - circle_string_n:]
+                if curr_window in doubled_circle_string:
+                    prev_window += c
+                else:
+                    starting_pos = []
+                    end_pos = []
+                    window_beg = prev_window[:circle_string_n]
+                    tmp_doubled_reference_string = doubled_circle_string
+                    while True:
+                        start = tmp_doubled_reference_string.find(window_beg) + 1
+                        if start == 0:
+                            break
+                        starting_pos.append(start % circle_string_n)
+                        tmp_doubled_reference_string = tmp_doubled_reference_string[start + len(window_beg):]
+                    tmp_doubled_reference_string = doubled_circle_string
+                    if len(prev_window) > circle_string_n:
+                        window_end = prev_window[len(prev_window) - circle_string_n:]
+                        while True:
+                            end = tmp_doubled_reference_string.find(window_end) + 1
+                            if end == 0:
+                                break
+                            end += circle_string_n - 1
+                            end_pos.append(end % circle_string_n)
+                            tmp_doubled_reference_string = tmp_doubled_reference_string[end + 1:]
+                    else:
+                        end_pos.append(starting_pos[0] + min(circle_string_n, len(prev_window)) - 1)
+                        end_pos[0] %= circle_string_n
+                    if len(starting_pos) > 2:
+                        self.my_dict[key].template_switching_indexes.append(i + offset)
+                        self.my_dict[key].template_switching_info[i+offset] = template_switch_type(prev_window, i+offset-len(prev_window) + 1, i+offset, "ambiguous", "ambiguous", False)
+                    else:
+                        self.my_dict[key].template_switching_indexes.append(i + offset)
+                        self.my_dict[key].template_switching_info[i+offset] = template_switch_type(prev_window, i+offset-len(prev_window) + 1, i+offset, starting_pos[0], end_pos[0], False)
+                    prev_window = c
+                    if prev_window not in doubled_circle_string:
+                        self.my_dict[key].template_switching_indexes.append(i+ 1 + offset)
+                        self.my_dict[key].template_switching_info[i+1+offset] = template_switch_type(prev_window, i+1+offset, i+1+offset, None, None, True)
+                        prev_window = ""
+        
+
+            if len(prev_window) > 0:
+                    starting_pos = []
+                    end_pos = []
+                    window_beg = prev_window[:circle_string_n]
+                    tmp_doubled_reference_string = doubled_circle_string
+                    while True:
+                        start = tmp_doubled_reference_string.find(window_beg) + 1
+                        if start == 0:
+                            break
+                        starting_pos.append(start % circle_string_n)
+                        tmp_doubled_reference_string = tmp_doubled_reference_string[start + len(window_beg):]
+                    tmp_doubled_reference_string = doubled_circle_string
+                    if len(prev_window) > circle_string_n:
+                        window_end = prev_window[len(prev_window) - circle_string_n:]
+                        while True:
+                            end = tmp_doubled_reference_string.find(window_end) + 1
+                            if end == 0:
+                                break
+                            end += circle_string_n - 1
+                            end_pos.append(end % circle_string_n)
+                            tmp_doubled_reference_string = tmp_doubled_reference_string[end + 1:]
+                    else:
+                        end_pos.append(starting_pos[0] + min(circle_string_n, len(prev_window)) - 1)
+                        end_pos[0] %= circle_string_n
+                    i+=1 #not sure why this is necessary but yeah
+                    if len(starting_pos) > 2:
+                        self.my_dict[key].template_switching_indexes.append(i + offset)
+                        self.my_dict[key].template_switching_info[i+offset] = template_switch_type(prev_window, i+offset-len(prev_window) + 1, i+offset, "ambiguous", "ambiguous", False)
+                    else:
+                        self.my_dict[key].template_switching_indexes.append(i + offset)
+                        self.my_dict[key].template_switching_info[i+offset] = template_switch_type(prev_window, i+offset-len(prev_window) + 1, i+offset, starting_pos[0], end_pos[0], False)
+
 
     
     #def repeatMaster_2Inputs(self, query, target, needle_path="needle"):
@@ -948,8 +990,8 @@ class find_loops:
                                         k=15,
                                         flank=80,
                                         #match=2, mismatch=-3, gap_open=5, gap_extend=2,
-                                        match = 5, mismatch = -4,   gap_open= 10,  gap_extend =2,
-                                        #match = 10, mismatch = -8,   gap_open= 20,  gap_extend =1,
+                                        #match = 5, mismatch = -4,   gap_open= 10,  gap_extend =2,
+                                        match = 47, mismatch = -40,   gap_open= 100,  gap_extend =24,
                                         #match = 1, mismatch = -3, gap_open= 5, gap_extend =1,
                                         min_identity=0.90,
                                         offset_tolerance=6,
@@ -1665,8 +1707,9 @@ class find_loops:
                     #key].extra_alignment_insertions_and_deletions = self.align_repeat_maker(key)
                 #self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
                     #key].extra_alignment_insertions_and_deletions = self.both_alignments(key)
-                self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
-                    key].extra_alignment_insertions_and_deletions = self.best_alignments_parasail(key)
+                ###self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[ ## current parasail main solution that I"m working with
+                    ###key].extra_alignment_insertions_and_deletions = self.best_alignments_parasail(key)
+                self.alignment_alternative(key)
                 # print(
                 # f"extra indexes: {self.my_dict[key].extra_alignment_indexes} <<<<<<<<<<<<<<<<")
         self.filter_same_length()

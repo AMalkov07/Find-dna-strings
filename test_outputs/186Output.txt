@@ -3,367 +3,297 @@ whole reference detected
 
 ______________________________________________________________
 1L:
-Total matches: 1
-22 (imperfect match), insertions: [(24, 'G')], deletions: [(4, 'G'), (10, 'G'), (39, 'G'), (40, 'G'), (41, 'T')], mismatches: [(14, 'T', 'G')]
-alignment matches perfectly with Ivan's data 
-
-
+Total matches: 8
+reference span: 1-4, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+pos: 5: A mutation
+reference span: 6-15, length: 10, circle string Start: ambiguous, circle string end: ambiguous
+pos: 16: A mutation
+reference span: 17-26, length: 10, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 27-45, length: 19, circle string Start: 26, circle string end: 44
+reference span: 46-66, length: 21, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 67-124, length: 58, circle string Start: 85, circle string end: 54
 ______________________________________________________________
 1R:
-number of mutagenic zones mismatch. Comparison will not be made
-Ivan mutagenic zones: 1, output mutagenic zones: 0, Ivan total alignments: 1, Output total alignments: 0
-Total matches: 0
-
-
+Total matches: 6
+reference span: 1-4, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+pos: 5: A mutation
+reference span: 6-37, length: 32, circle string Start: 13, circle string end: 44
+reference span: 38-47, length: 10, circle string Start: ambiguous, circle string end: ambiguous
+pos: 48: A mutation
+reference span: 49-120, length: 72, circle string Start: 68, circle string end: 51
 ______________________________________________________________
 2L:
-Total matches: 9
-51 (perfect match)
-139 (perfect match)
-227 (imperfect match), insertions: [(25, 'G'), (25, 'T')], deletions: [], mismatches: []
-alignment matches perfectly with Ivan's data 
-317 (perfect match)
-405 (perfect match)
-493 (perfect match)
-581 (perfect match)
-669 (perfect match)
-757 (perfect match)
-
-
+Total matches: 4
+reference span: 1-17, length: 17, circle string Start: 26, circle string end: 42
+reference span: 18-49, length: 32, circle string Start: 13, circle string end: 44
+reference span: 50-258, length: 209, circle string Start: 0, circle string end: 32
+reference span: 259-846, length: 588, circle string Start: 31, circle string end: 2
 ______________________________________________________________
 3L:
-Total matches: 4
-168 (perfect match)
-256 (perfect match)
-344 (perfect match)
-432 (perfect match)
-
-
+Total matches: 13
+reference span: 1-8, length: 8, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 9-15, length: 7, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 16-44, length: 29, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 45-58, length: 14, circle string Start: 31, circle string end: 44
+reference span: 59-68, length: 10, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 69-79, length: 11, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 80-89, length: 10, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 90-102, length: 13, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 103-112, length: 10, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 113-131, length: 19, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 132-145, length: 14, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 146-531, length: 386, circle string Start: 66, circle string end: 11
+reference span: 532-589, length: 58, circle string Start: 73, circle string end: 42
 ______________________________________________________________
 3R:
 Total matches: 5
-25 (perfect match)
-113 (imperfect match), insertions: [(5, 'T')], deletions: [(1, 'T'), (2, 'G')], mismatches: []
-alignment matches perfectly with Ivan's data 
-200 (perfect match)
-288 (perfect match)
-376 (perfect match)
-
-
+reference span: 1-8, length: 8, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 9-15, length: 7, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 16-115, length: 100, circle string Start: 79, circle string end: 2
+reference span: 116-123, length: 8, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 124-539, length: 416, circle string Start: 12, circle string end: 75
 ______________________________________________________________
 4L:
-Total matches: 3
-15 (perfect match)
-gap: 79 bp
-183 (perfect match)
-271 (perfect match)
-
-
+Total matches: 9
+reference span: 1-3, length: 3, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 4-5, length: 2, circle string Start: ambiguous, circle string end: ambiguous
+pos: 6: A mutation
+reference span: 7-10, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 11-11, length: 1, circle string Start: ambiguous, circle string end: ambiguous
+pos: 12: A mutation
+reference span: 13-25, length: 13, circle string Start: 32, circle string end: 44
+reference span: 26-105, length: 80, circle string Start: 11, circle string end: 2
+reference span: 106-419, length: 314, circle string Start: 11, circle string end: 60
 ______________________________________________________________
 5L:
-Total matches: 2
-30 (perfect match)
-118 (imperfect match), insertions: [(72, 'G'), (72, 'T')], deletions: [], mismatches: []
-alignment matches perfectly with Ivan's data 
-
-
+Total matches: 3
+reference span: 1-32, length: 32, circle string Start: 67, circle string end: 10
+reference span: 33-195, length: 163, circle string Start: 3, circle string end: 77
+reference span: 196-225, length: 30, circle string Start: 76, circle string end: 17
 ______________________________________________________________
 5R:
-Total matches: 18
-39 (imperfect match), insertions: [], deletions: [], mismatches: [(6, 'G', 'A')]
-alignment matches perfectly with Ivan's data 
-127 (perfect match)
-215 (perfect match)
-303 (perfect match)
-391 (perfect match)
-479 (perfect match)
-567 (perfect match)
-655 (perfect match)
-743 (perfect match)
-831 (perfect match)
-919 (perfect match)
-1007 (perfect match)
-1095 (perfect match)
-gap: 35 bp
-1219 (perfect match)
-1307 (perfect match)
-1395 (perfect match)
-1483 (imperfect match), insertions: [(77, 'G'), (77, 'T')], deletions: [], mismatches: []
-comparison: (Ivans Data -> output data): Insertions: [] -> [(77, 'G'), (77, 'T')]   mismatches: [(85, 'G', 'T'), (87, 'T', 'G')] -> []number of events: 2 -> 1
-1573 (imperfect match), insertions: [(77, 'G'), (77, 'T')], deletions: [(64, 'T')], mismatches: [(47, 'T', 'G'), (49, 'G', 'T'), (53, 'T', 'G'), (57, 'G', 'T')]
-comparison: (Ivans Data -> output data): Insertions: [(24, 'G')] -> [(77, 'G'), (77, 'T')]   deletions: [(11, 'G'), (12, 'T')] -> [(64, 'T')]   mismatches: [] -> [(47, 'T', 'G'), (49, 'G', 'T'), (53, 'T', 'G'), (57, 'G', 'T')]number of events: 2 -> 6
-
-
+Total matches: 8
+reference span: 1-19, length: 19, circle string Start: 26, circle string end: 44
+reference span: 20-41, length: 22, circle string Start: 77, circle string end: 10
+reference span: 42-44, length: 3, circle string Start: ambiguous, circle string end: ambiguous
+pos: 45: A mutation
+reference span: 46-1221, length: 1176, circle string Start: 7, circle string end: 38
+reference span: 1222-1567, length: 346, circle string Start: 3, circle string end: 84
+reference span: 1568-1619, length: 52, circle string Start: 83, circle string end: 46
+reference span: 1620-1698, length: 79, circle string Start: 33, circle string end: 23
 ______________________________________________________________
 6L:
-Total matches: 7
-29 (perfect match)
-117 (perfect match)
-205 (perfect match)
-293 (perfect match)
-381 (perfect match)
-469 (perfect match)
-557 (perfect match)
-
-
+Total matches: 2
+reference span: 1-17, length: 17, circle string Start: 38, circle string end: 54
+reference span: 18-672, length: 655, circle string Start: 78, circle string end: 28
 ______________________________________________________________
 6R:
-Total matches: 9
-60 (perfect match)
-148 (perfect match)
-gap: 35 bp
-272 (perfect match)
-360 (perfect match)
-448 (perfect match)
-536 (perfect match)
-624 (perfect match)
-712 (perfect match)
-800 (perfect match)
-
-
+Total matches: 7
+reference span: 1-3, length: 3, circle string Start: ambiguous, circle string end: ambiguous
+pos: 4: A mutation
+reference span: 5-8, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 9-33, length: 25, circle string Start: 15, circle string end: 39
+reference span: 34-41, length: 8, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 42-274, length: 233, circle string Start: 70, circle string end: 38
+reference span: 275-911, length: 637, circle string Start: 3, circle string end: 23
 ______________________________________________________________
 7L:
-Total matches: 1
-27 (imperfect match), insertions: [(5, 'T'), (24, 'G'), (77, 'G'), (77, 'T')], deletions: [(16, 'T'), (50, 'G'), (51, 'T')], mismatches: []
-alignment matches perfectly with Ivan's data 
-
-
+Total matches: 23
+reference span: 1-4, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 5-5, length: 1, circle string Start: ambiguous, circle string end: ambiguous
+pos: 6: A mutation
+reference span: 7-10, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+pos: 11: A mutation
+reference span: 12-30, length: 19, circle string Start: 26, circle string end: 44
+reference span: 31-38, length: 8, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 39-45, length: 7, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 46-59, length: 14, circle string Start: 33, circle string end: 46
+reference span: 60-81, length: 22, circle string Start: 33, circle string end: 54
+reference span: 82-109, length: 28, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 110-122, length: 13, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 123-133, length: 11, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 134-144, length: 11, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 145-162, length: 18, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 163-183, length: 21, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 184-199, length: 16, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 200-210, length: 11, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 211-237, length: 27, circle string Start: 20, circle string end: 46
+reference span: 238-246, length: 9, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 247-253, length: 7, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 254-269, length: 16, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 270-277, length: 8, circle string Start: 33, circle string end: 40
 ______________________________________________________________
 7R:
-number of mutagenic zones mismatch. Comparison will not be made
-Ivan mutagenic zones: 2, output mutagenic zones: 1, Ivan total alignments: 2, Output total alignments: 1
-Total matches: 6
-39 (perfect match)
-127 (perfect match)
-215 (imperfect match), insertions: [(53, 'G'), (53, 'G'), (61, 'G'), (68, 'G'), (68, 'G'), (71, 'T')], deletions: [], mismatches: [(57, 'G', 'T')]
-gap: 15 bp
-325 (perfect match)
-413 (perfect match)
-gap: 48 bp
-550 (perfect match)
-
-
+Total matches: 7
+reference span: 1-19, length: 19, circle string Start: 26, circle string end: 44
+reference span: 20-41, length: 22, circle string Start: 77, circle string end: 10
+reference span: 42-269, length: 228, circle string Start: 3, circle string end: 54
+reference span: 270-298, length: 29, circle string Start: 39, circle string end: 67
+reference span: 299-363, length: 65, circle string Start: 26, circle string end: 2
+reference span: 364-540, length: 177, circle string Start: 39, circle string end: 39
+reference span: 541-659, length: 119, circle string Start: 79, circle string end: 21
 ______________________________________________________________
 8L:
-Total matches: 9
-39 (imperfect match), insertions: [], deletions: [], mismatches: [(6, 'G', 'A')]
-alignment matches perfectly with Ivan's data 
-127 (perfect match)
-215 (perfect match)
-303 (perfect match)
-391 (imperfect match), insertions: [], deletions: [(83, 'T')], mismatches: [(85, 'G', 'T')]
-comparison: (Ivans Data -> output data): Insertions: [(81, 'G')] -> []   deletions: [(87, 'T'), (88, 'G')] -> [(83, 'T')]   number of events: 3 -> 2
-478 (perfect match)
-566 (perfect match)
-654 (perfect match)
-742 (perfect match)
-
-
+Total matches: 7
+reference span: 1-19, length: 19, circle string Start: 26, circle string end: 44
+reference span: 20-41, length: 22, circle string Start: 77, circle string end: 10
+reference span: 42-44, length: 3, circle string Start: ambiguous, circle string end: ambiguous
+pos: 45: A mutation
+reference span: 46-473, length: 428, circle string Start: 7, circle string end: 82
+reference span: 474-495, length: 22, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 496-832, length: 337, circle string Start: 18, circle string end: 2
 ______________________________________________________________
 8R:
-Total matches: 6
-74 (perfect match)
-162 (perfect match)
-250 (perfect match)
-338 (perfect match)
-426 (perfect match)
-514 (perfect match)
-
-
+Total matches: 1
+reference span: 1-656, length: 656, circle string Start: 15, circle string end: 54
 ______________________________________________________________
 9R:
-Total matches: 1
-33 (perfect match)
-
-
+Total matches: 6
+reference span: 1-4, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 5-5, length: 1, circle string Start: ambiguous, circle string end: ambiguous
+pos: 6: A mutation
+reference span: 7-10, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+pos: 11: A mutation
+reference span: 12-201, length: 190, circle string Start: 67, circle string end: 80
 ______________________________________________________________
 10L:
-Total matches: 5
-215 (imperfect match), insertions: [], deletions: [(9, 'T')], mismatches: [(5, 'G', 'T')]
-alignment matches perfectly with Ivan's data 
-302 (perfect match)
-390 (perfect match)
-478 (perfect match)
-566 (perfect match)
-
-
+Total matches: 17
+reference span: 1-2, length: 2, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 3-9, length: 7, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 10-29, length: 20, circle string Start: 20, circle string end: 39
+reference span: 30-44, length: 15, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 45-54, length: 10, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 55-64, length: 10, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 65-79, length: 15, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 80-83, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 84-97, length: 14, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 98-111, length: 14, circle string Start: 31, circle string end: 44
+reference span: 112-131, length: 20, circle string Start: 20, circle string end: 39
+reference span: 132-146, length: 15, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 147-181, length: 35, circle string Start: 5, circle string end: 39
+reference span: 182-197, length: 16, circle string Start: 29, circle string end: 44
+reference span: 198-206, length: 9, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 207-229, length: 23, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 230-656, length: 427, circle string Start: 16, circle string end: 2
 ______________________________________________________________
 10R:
-Total matches: 10
-32 (perfect match)
-120 (perfect match)
-208 (perfect match)
-gap: 63 bp
-360 (perfect match)
-448 (perfect match)
-536 (perfect match)
-624 (perfect match)
-712 (perfect match)
-800 (perfect match)
-888 (perfect match)
-
-
+Total matches: 8
+reference span: 1-4, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 5-5, length: 1, circle string Start: ambiguous, circle string end: ambiguous
+pos: 6: A mutation
+reference span: 7-10, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+pos: 11: A mutation
+reference span: 12-21, length: 10, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 22-335, length: 314, circle string Start: 78, circle string end: 39
+reference span: 336-1018, length: 683, circle string Start: 64, circle string end: 42
 ______________________________________________________________
 11L:
-Total matches: 8
-13 (imperfect match), insertions: [(16, 'G'), (16, 'G'), (19, 'T')], deletions: [(25, 'G')], mismatches: []
-alignment matches perfectly with Ivan's data 
-103 (perfect match)
-191 (perfect match)
-279 (perfect match)
-367 (imperfect match), insertions: [(49, 'G'), (49, 'T'), (77, 'G'), (77, 'G'), (77, 'T')], deletions: [(63, 'G'), (64, 'T')], mismatches: []
-alignment matches perfectly with Ivan's data 
-458 (imperfect match), insertions: [(49, 'T')], deletions: [(38, 'G'), (39, 'G'), (63, 'G'), (64, 'T')], mismatches: [(43, 'T', 'G')]
-alignment matches perfectly with Ivan's data 
-543 (perfect match)
-631 (perfect match)
-
-
+Total matches: 5
+reference span: 1-23, length: 23, circle string Start: 17, circle string end: 39
+reference span: 24-44, length: 21, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 45-422, length: 378, circle string Start: 31, circle string end: 56
+reference span: 423-532, length: 110, circle string Start: 18, circle string end: 39
+reference span: 533-787, length: 255, circle string Start: 79, circle string end: 69
 ______________________________________________________________
 11R:
-Total matches: 12
-32 (perfect match)
-gap: 35 bp
-156 (perfect match)
-244 (perfect match)
-332 (perfect match)
-420 (perfect match)
-gap: 71 bp
-580 (perfect match)
-668 (perfect match)
-756 (perfect match)
-844 (perfect match)
-gap: 35 bp
-968 (perfect match)
-1056 (perfect match)
-1144 (perfect match)
-
-
+Total matches: 11
+reference span: 1-4, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+pos: 5: A mutation
+reference span: 6-9, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 10-10, length: 1, circle string Start: ambiguous, circle string end: ambiguous
+pos: 11: A mutation
+reference span: 12-15, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 16-33, length: 18, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 34-157, length: 124, circle string Start: 3, circle string end: 38
+reference span: 158-545, length: 388, circle string Start: 3, circle string end: 38
+reference span: 546-969, length: 424, circle string Start: 55, circle string end: 38
+reference span: 970-1239, length: 270, circle string Start: 3, circle string end: 8
 ______________________________________________________________
 12L:
-Total matches: 14
-10 (imperfect match), insertions: [(9, 'G'), (9, 'T'), (9, 'G'), (14, 'G'), (14, 'G')], deletions: [], mismatches: []
-comparison: (Ivans Data -> output data): Insertions: [] -> [(9, 'G'), (9, 'T'), (9, 'G'), (14, 'G'), (14, 'G')]   deletions: [(12, 'T'), (13, 'G'), (14, 'T')] -> []   number of events: 1 -> 2
-103 (perfect match)
-191 (perfect match)
-279 (imperfect match), insertions: [(25, 'G'), (25, 'T')], deletions: [(39, 'G'), (40, 'G'), (41, 'T')], mismatches: []
-alignment matches perfectly with Ivan's data 
-366 (perfect match)
-454 (perfect match)
-542 (perfect match)
-630 (imperfect match), insertions: [(10, 'T'), (12, 'G'), (12, 'G')], deletions: [(1, 'T'), (2, 'G')], mismatches: []
-alignment matches perfectly with Ivan's data 
-719 (perfect match)
-807 (perfect match)
-895 (perfect match)
-983 (perfect match)
-1071 (perfect match)
-1159 (perfect match)
-
-
+Total matches: 7
+reference span: 1-21, length: 21, circle string Start: 26, circle string end: 46
+reference span: 22-33, length: 12, circle string Start: 33, circle string end: 44
+reference span: 34-310, length: 277, circle string Start: 20, circle string end: 32
+reference span: 311-367, length: 57, circle string Start: 70, circle string end: 38
+reference span: 368-631, length: 264, circle string Start: 3, circle string end: 2
+reference span: 632-662, length: 31, circle string Start: 39, circle string end: 69
+reference span: 663-1313, length: 651, circle string Start: 33, circle string end: 67
 ______________________________________________________________
 13L:
 Total matches: 5
-26 (perfect match)
-114 (imperfect match), insertions: [(5, 'T')], deletions: [(1, 'T'), (2, 'G')], mismatches: []
-comparison: (Ivans Data -> output data): deletions: [] -> [(1, 'T'), (2, 'G')]   number of events: 1 -> 2
-201 (perfect match)
-289 (perfect match)
-377 (perfect match)
-
-
+reference span: 1-8, length: 8, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 9-15, length: 7, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 16-115, length: 100, circle string Start: 79, circle string end: 2
+reference span: 116-123, length: 8, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 124-502, length: 379, circle string Start: 12, circle string end: 38
 ______________________________________________________________
 13R:
-Total matches: 8
-87 (perfect match)
-175 (perfect match)
-263 (perfect match)
-351 (perfect match)
-gap: 51 bp
-491 (perfect match)
-579 (perfect match)
-667 (perfect match)
-755 (perfect match)
-
-
+Total matches: 10
+reference span: 1-4, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+pos: 5: A mutation
+reference span: 6-9, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 10-10, length: 1, circle string Start: ambiguous, circle string end: ambiguous
+pos: 11: A mutation
+reference span: 12-24, length: 13, circle string Start: 32, circle string end: 44
+reference span: 25-33, length: 9, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 34-52, length: 19, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 53-440, length: 388, circle string Start: 55, circle string end: 2
+reference span: 441-872, length: 432, circle string Start: 39, circle string end: 30
 ______________________________________________________________
 14L:
-Total matches: 8
-109 (perfect match)
-197 (perfect match)
-285 (perfect match)
-373 (imperfect match), insertions: [(25, 'G'), (25, 'T')], deletions: [], mismatches: []
-alignment matches perfectly with Ivan's data 
-463 (perfect match)
-551 (perfect match)
-639 (perfect match)
-727 (perfect match)
-
-
+Total matches: 9
+reference span: 1-21, length: 21, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 22-37, length: 16, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 38-40, length: 3, circle string Start: ambiguous, circle string end: ambiguous
+pos: 41: A mutation
+reference span: 42-56, length: 15, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 57-68, length: 12, circle string Start: 33, circle string end: 44
+reference span: 69-90, length: 22, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 91-405, length: 315, circle string Start: 70, circle string end: 32
+reference span: 406-888, length: 483, circle string Start: 31, circle string end: 73
 ______________________________________________________________
 14R:
-Total matches: 18
-39 (imperfect match), insertions: [], deletions: [], mismatches: [(6, 'G', 'A')]
-alignment matches perfectly with Ivan's data 
-127 (perfect match)
-215 (perfect match)
-303 (perfect match)
-391 (perfect match)
-479 (perfect match)
-567 (perfect match)
-655 (perfect match)
-743 (perfect match)
-831 (perfect match)
-919 (perfect match)
-1007 (perfect match)
-1095 (perfect match)
-1183 (perfect match)
-1271 (perfect match)
-1359 (perfect match)
-1447 (perfect match)
-1535 (perfect match)
-
-
+Total matches: 5
+reference span: 1-19, length: 19, circle string Start: 26, circle string end: 44
+reference span: 20-41, length: 22, circle string Start: 77, circle string end: 10
+reference span: 42-44, length: 3, circle string Start: ambiguous, circle string end: ambiguous
+pos: 45: A mutation
+reference span: 46-1675, length: 1630, circle string Start: 7, circle string end: 52
 ______________________________________________________________
 15L:
-Total matches: 1
-64 (perfect match)
-
-
+Total matches: 6
+reference span: 1-4, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+pos: 5: A mutation
+reference span: 6-9, length: 4, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 10-17, length: 8, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 18-25, length: 8, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 26-186, length: 161, circle string Start: 50, circle string end: 34
 ______________________________________________________________
 15R:
-Total matches: 4
-109 (perfect match)
-197 (imperfect match), insertions: [], deletions: [(83, 'T'), (84, 'G'), (85, 'G'), (86, 'G'), (87, 'T'), (88, 'G')], mismatches: []
-alignment matches perfectly with Ivan's data 
-279 (perfect match)
-367 (imperfect match), insertions: [(25, 'G'), (25, 'T')], deletions: [], mismatches: []
-alignment matches perfectly with Ivan's data 
-
-
+Total matches: 10
+reference span: 1-21, length: 21, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 22-37, length: 16, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 38-40, length: 3, circle string Start: ambiguous, circle string end: ambiguous
+pos: 41: A mutation
+reference span: 42-56, length: 15, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 57-68, length: 12, circle string Start: 33, circle string end: 44
+reference span: 69-90, length: 22, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 91-281, length: 191, circle string Start: 70, circle string end: 84
+reference span: 282-399, length: 118, circle string Start: 3, circle string end: 32
+reference span: 400-465, length: 66, circle string Start: 31, circle string end: 8
 ______________________________________________________________
 16L:
-Total matches: 6
-26 (perfect match)
-114 (imperfect match), insertions: [(5, 'T')], deletions: [(1, 'T'), (2, 'G')], mismatches: []
-alignment matches perfectly with Ivan's data 
-201 (perfect match)
-289 (perfect match)
-377 (perfect match)
-465 (perfect match)
-
-
+Total matches: 5
+reference span: 1-8, length: 8, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 9-15, length: 7, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 16-115, length: 100, circle string Start: 79, circle string end: 2
+reference span: 116-123, length: 8, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 124-560, length: 437, circle string Start: 12, circle string end: 8
 ______________________________________________________________
 16R:
-Total matches: 9
-96 (perfect match)
-184 (perfect match)
-272 (perfect match)
-360 (perfect match)
-448 (perfect match)
-536 (perfect match)
-624 (perfect match)
-712 (perfect match)
-800 (perfect match)
-
-
+Total matches: 5
+reference span: 1-14, length: 14, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 15-35, length: 21, circle string Start: 34, circle string end: 54
+reference span: 36-53, length: 18, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 54-64, length: 11, circle string Start: ambiguous, circle string end: ambiguous
+reference span: 65-951, length: 887, circle string Start: 57, circle string end: 63
