@@ -1,5 +1,5 @@
 from utils.data_structures import TelomereSequence, Config, TemplateSwitchEvent, TemplateSwitchData
-from typing import List
+from typing import List, Optional
 
 class TemplateSwitchingStrategy:
     def __init__(self, telomeres: List[TelomereSequence], pattern: str, config: Config):
@@ -8,7 +8,7 @@ class TemplateSwitchingStrategy:
         self.config = config
         
     #Fix: read through this again and break up into other functions
-    def _identify_template_switches(self, telomer_str: str) -> TemplateSwitchData:
+    def _identify_template_switches(self, telomer_str: str) -> Optional[TemplateSwitchData]:
         pattern = self.pattern
         doubled_pattern = pattern + pattern
         n_telomer = len(telomer_str)
@@ -66,12 +66,8 @@ class TemplateSwitchingStrategy:
         return current_analysis
 
 
-            
-
-        
-    
-    def execute(self) -> List[TemplateSwitchData]:
-        analysis_output: List[TemplateSwitchData] = [None] * self.config.max_ends
+    def execute(self) -> List[Optional[TemplateSwitchData]]:
+        analysis_output: List[Optional[TemplateSwitchData]] = [None] * self.config.max_ends
         for i, telomer in enumerate(self.telomers):
             if telomer and telomer.sequence:
                 analysis_output[i] = self._identify_template_switches(telomer.sequence)

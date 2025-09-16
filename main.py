@@ -1,6 +1,6 @@
 import argparse
 import os
-from typing import List
+from typing import List, Optional
 
 from utils.data_structures import Config, TelomereSequence, TemplateSwitchData
 from data_io.fasta_reader import FastaReader
@@ -25,7 +25,7 @@ def run_analysis(config: Config) -> None:
         analyzer = TemplateSwitchingStrategy(telomers, pattern, config)
     else:
         analyzer = AlignmentStrategy(telomers, pattern, config)
-    analysis: List[TemplateSwitchData] = analyzer.execute()
+    analysis: List[Optional[TemplateSwitchData]] = analyzer.execute()
 
     # Step 5: Export results
     exporter = TemplateSwitchingPrint(analysis, telomers, config, pattern)
@@ -55,7 +55,8 @@ def main(args) -> None:
         output_file=args.output,
         analysis_strategy=args.analysis_strategy,
         max_ends=args.maximum_ends,
-        pattern=args.pattern
+        pattern=args.pattern,
+        maximum_alignment_mutations=args.maximum_alignment_mutations
     )
 
     # check if file exists
@@ -105,6 +106,8 @@ if __name__ == "__main__":
                         help="used to specify the exact pattern to look for instead of the programming trying to find the circle pattern automatically")
     parser.add_argument("-co", "--compare_output",
                         help="used for comparing the output of the program to Ivan's CSV files")
+    parser.add_argument("-mam", "--maximum_alignment_mutations", type=int, default=12,
+                        help="determines the cutoff for a valid mutation. Default is 1 mutations per 12 bps")
     args = parser.parse_args()
 
     main(args)

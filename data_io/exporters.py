@@ -1,10 +1,10 @@
-from typing import List
+from typing import List, Optional
 
 from utils.data_structures import TemplateSwitchData, TemplateSwitchEvent, Config, TelomereSequence
 
 class TemplateSwitchingPrint:
     #fix figure out way to associate telomers and analysis arrays with each other
-    def __init__(self, analysis: List[TemplateSwitchData], telomers: TelomereSequence, config: Config, pattern: str):
+    def __init__(self, analysis: List[Optional[TemplateSwitchData]], telomers: List[TelomereSequence], config: Config, pattern: str):
         self.analysis = analysis
         self.telomers = telomers
         self.config = config
@@ -53,7 +53,7 @@ class TemplateSwitchingPrint:
                 else:
                    memory_jump_val = "N/A" 
                 if last_end and last_end != "ambiguous" and pattern_start != "ambiguous":
-                    if_small_jump = self.circular_distance(last_end, pattern_start, n_pattern) <= 5
+                    if_small_jump = self._circular_distance(last_end, pattern_start, n_pattern) <= 5
                 else:
                     if_small_jump = "N/A"
                 primary_output.append(f"telomer span: {telomer_start}-{telomer_end}, length: {n_telomer_chunk}, pattern Start: {pattern_start}, pattern end: {pattern_end}")

@@ -1,5 +1,5 @@
 from utils.data_structures import TelomereSequence
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from Bio import SeqIO
 from Bio.Seq import Seq
 import re
@@ -40,7 +40,7 @@ class FastaReader:
                 return (survivor_name, match.group(2)+match.group(3), index - 1)  # Convert to 0-based indexing
         raise ValueError(f"Invalid header format: {header}")
 
-    def _ac_tg_fraction(self, subseq) -> float:
+    def _ac_tg_fraction(self, subseq) -> Tuple[float, str]:
         ac_count = sum(1 for b in subseq if b in ('A','C'))
         tg_count = sum(1 for b in subseq if b in ('T','G'))
         if ac_count >= tg_count:
@@ -55,7 +55,7 @@ class FastaReader:
         else:  # dominant_type == "TG"
             return sum(1 for b in subseq if b in ('A', 'C'))
 
-    def _find_first_opposite_index(self, subseq: str, dominant_type: str) -> int:
+    def _find_first_opposite_index(self, subseq: str, dominant_type: str) -> Optional[int]:
         """Return index of first opposite base in subseq, or None if none found."""
         opposite_set = ('T', 'G') if dominant_type == "AC" else ('A', 'C')
         for i, b in enumerate(subseq):
@@ -64,7 +64,7 @@ class FastaReader:
         return None
 
     #fix add user variables for most of the inputs to below function
-    def _extract_telomer(self, dna_sequence: str, window_size: int = 40, threshold: int = .9, ignore_last: int = 10, opposite_stop_window: int = 15, opposite_stop_count: int = 3) -> str:
+    def _extract_telomer(self, dna_sequence: str, window_size: int = 40, threshold: float = .9, ignore_last: int = 10, opposite_stop_window: int = 15, opposite_stop_count: int = 3) -> Optional[str]:
 
         seq_str = str(dna_sequence).upper()
         n = len(seq_str)
@@ -132,7 +132,7 @@ class FastaReader:
             output = output[::-1]
         return output
 
-    def _get_better_end(self, start_telomer: str, end_telomer: str) -> str:
+    def _get_better_end(self, start_telomer: Optional[str], end_telomer: Optional[str]) -> Optional[str]:
         if not start_telomer and not end_telomer:
             return None
         if not start_telomer:
@@ -144,24 +144,24 @@ class FastaReader:
         return end_telomer
     
         
-    def parse_fasta(self) -> List[TelomereSequence]:
+    def parse_fasta(self) -> List[Optional[TelomereSequence]]:
         """
         Entry point: fasta file path (from constructor)
         Exit point: List of TelomereSequence objects
         """
         fasta_extract = self._read_fasta()
-        telomeres = [None] * self.max_ends
+        telomers = [None] * self.max_ends
         for header, sequence in fasta_extract:
             survivor_name, chr_match, chr_index_converted = self._extract_header_info(header)
-            if telomeres[chr_index_converted]:
+            if telomers[chr_index_converted]:
                 raise ValueError(f"The FASTA file contains the same {chr_match} end multiple times")
             start_telomer = self._extract_telomer(sequence)
             sequence_reverse = sequence[::-1]
             end_telomer = self._extract_telomer(sequence_reverse)
             best_telomer = self._get_better_end(start_telomer, end_telomer)
-            telomeres[chr_index_converted] = TelomereSequence(survivor_name=survivor_name,
+            telomers[chr_index_converted] = TelomereSequence(survivor_name=survivor_name,
                                                               sequence=best_telomer,
                                                               chromosome_end_id=chr_match)
 
-        return telomeres
+        return telomers
     
