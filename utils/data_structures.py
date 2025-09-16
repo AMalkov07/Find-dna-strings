@@ -67,3 +67,14 @@ class SeedExtendSettings:
     min_identity: float
     offset_tolerance: int
     min_seed: int
+    last_zone: bool
+
+@dataclass
+class SeedExtendCluster:
+    offset: int
+    hits: List[Tuple[int, int]]
+    qmin: int
+    qmax: int
+    rmin: int
+    rmax: int
+    n_seeds: int

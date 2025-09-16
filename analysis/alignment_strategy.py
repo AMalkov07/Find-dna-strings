@@ -55,7 +55,7 @@ class AlignmentStrategy:
         mutagenic_zone, str_locations = self._get_mutagenic_zones(telomer_str, perfect_alignments)
         queue = deque(mutagenic_zone)
 
-        last_elem = False
+        last_zone = False
         counter = -1
         min_mutagenic_zone_len = n_pattern - n_pattern/ max_mistakes
 
@@ -63,12 +63,13 @@ class AlignmentStrategy:
             counter += 1
             current_mutagenic_zone = queue.popleft()
             if len(queue) == 0:
-                last_elem = True
+                last_zone = True
             if len(current_mutagenic_zone) < min_mutagenic_zone_len:
                 continue
 
-            seed_hit_settings = SeedExtendSettings(alignment_settings=self.alignment_settings, k=15, flank=80, min_identity=.9, offset_tolerance=6, min_seed=2)
-            seed_and_extend_pipeline = SeedAndExtend(seed_hit_settings)
+            seed_hit_settings = SeedExtendSettings(alignment_settings=self.alignment_settings, k=15, flank=80, min_identity=.9, offset_tolerance=6, min_seed=2, last_zone = last_zone)
+
+            seed_and_extend_pipeline = SeedAndExtend(current_mutagenic_zone, self.pattern, seed_hit_settings)
             seed_and_extend_pipeline.execute()
 
     def execute(self) -> List[Optional[AlignmentData]]:
