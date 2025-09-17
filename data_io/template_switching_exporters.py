@@ -4,7 +4,7 @@ from utils.data_structures import TemplateSwitchData, TemplateSwitchEvent, Confi
 
 class TemplateSwitchingPrint:
     #fix figure out way to associate telomers and analysis arrays with each other
-    def __init__(self, analysis: List[Optional[TemplateSwitchData]], telomers: List[TelomereSequence], config: Config, pattern: str):
+    def __init__(self, analysis: List[Optional[TemplateSwitchData]], telomers: List[Optional[TelomereSequence]], config: Config, pattern: str):
         self.analysis = analysis
         self.telomers = telomers
         self.config = config
@@ -70,5 +70,5 @@ class TemplateSwitchingPrint:
     def print_analysis(self) -> None:
         main_output_file = open(self.config.output_file, 'w')
         for i, telomer in enumerate(self.telomers):
-            if telomer:
+            if telomer and telomer.sequence:
                 self._chr_end_print(telomer, self.analysis[i], main_output_file)

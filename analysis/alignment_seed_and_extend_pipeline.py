@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 import parasail
 import re
 
@@ -425,8 +425,9 @@ class SeedAndExtend:
         return best_overall['path']
         
 
-    def execute(self, skip_seeding: bool = True) -> List[ImperfectAlignmentEvent]:
-        if not skip_seeding:
+    def execute(self) -> List[ImperfectAlignmentEvent]:
+        skip_seeding: Optional[bool] = self.config.skip_seeding
+        if skip_seeding and not skip_seeding:
             kmer_indexes: Dict[str, List[int]] = self._build_kmer_index()
             hits: List[Tuple[int, int]] = self._find_seed_hits(kmer_indexes)
             if not hits:

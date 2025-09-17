@@ -4,17 +4,17 @@ from utils.data_structures import AlignmentData, Config, TelomereSequence, Imper
 
 class AlignmentPrint:
     #fix figure out way to associate telomers and analysis arrays with each other
-    def __init__(self, analysis: List[Optional[AlignmentData]], telomers: List[TelomereSequence], config: Config, pattern: str):
+    def __init__(self, analysis: List[Optional[AlignmentData]], telomers: List[Optional[TelomereSequence]], config: Config, pattern: str):
         self.analysis = analysis
         self.telomers = telomers
         self.config = config
         self.pattern = pattern
 
-    def _chr_end_print(self, telomer: TelomereSequence, alignment_analysis: AlignmentData, main_output_file) -> None:
+    def _chr_end_print(self, telomer: TelomereSequence, alignment_analysis: Optional[AlignmentData], main_output_file) -> None:
         telomer_str: Optional[str] = telomer.sequence
-        n_telomer_str = len(telomer_str)
         n_pattern = len(self.pattern)
-        output = [telomer.chromosome_end_id]
+        output = ["_______________________________"]
+        output.append(telomer.chromosome_end_id)
 
         perfect_indexes: List[int] = alignment_analysis.perfect_alignments
         alignments: List[ImperfectAlignmentEvent] = alignment_analysis.imperfect_alignments
@@ -72,5 +72,5 @@ class AlignmentPrint:
     def print_analysis(self) -> None:
         main_output_file = open(self.config.output_file, 'w')
         for i, telomer in enumerate(self.telomers):
-            if telomer:
+            if telomer and telomer.sequence:
                 self._chr_end_print(telomer, self.analysis[i], main_output_file)

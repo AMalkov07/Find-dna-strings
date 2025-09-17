@@ -1,298 +1,236 @@
 1L
-104 (perfect match)
-240 (perfect match)
-376 (imperfect match), insertions: [], deletions: [(69, 'T')], mismatches: []
-511 (perfect match)
-647 (perfect match)
-783 (perfect match)
-919 (perfect match)
-1055 (perfect match)
-1191 (perfect match)
-1327 (imperfect match), insertions: [(33, 'T')], deletions: [(53, 'G'), (54, 'T')], mismatches: []
-1462 (perfect match)
-1598 (perfect match)
-1734 (perfect match)
-1870 (imperfect match), insertions: [(66, 'G'), (66, 'G'), (66, 'T'), (66, 'G'), (66, 'T'), (66, 'G'), (66, 'T'), (66, 'G')], deletions: [], mismatches: []
-2014 (imperfect match), insertions: [(88, 'G'), (88, 'T'), (88, 'G'), (88, 'T'), (122, 'G'), (122, 'T')], deletions: [], mismatches: []
-gap: 31 bp
-2188 (imperfect match), insertions: [(101, 'T')], deletions: [(108, 'G')], mismatches: [(103, 'T', 'G')]
-2324 (imperfect match), insertions: [(122, 'G'), (122, 'T')], deletions: [(133, 'G')], mismatches: []
-gap: 122 bp
-2584 (perfect match)
-2720 (perfect match)
-2856 (perfect match)
-gap: 103 bp
-3096 (perfect match)
-3232 (perfect match)
+telomer span: 1-10, length: 10, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 11-29, length: 19, pattern Start: 21, pattern end: 39
+telomer span: 30-48, length: 19, pattern Start: 54, pattern end: 72
+telomer span: 49-70, length: 22, pattern Start: 117, pattern end: 2
+telomer span: 71-84, length: 14, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 85-100, length: 16, pattern Start: 17, pattern end: 32
+telomer span: 101-110, length: 10, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 111-444, length: 334, pattern Start: 7, pattern end: 68
+telomer span: 445-1360, length: 916, pattern Start: 70, pattern end: 33
+telomer span: 1361-1419, length: 59, pattern Start: 69, pattern end: 127
+telomer span: 1420-1958, length: 539, pattern Start: 94, pattern end: 88
+telomer span: 1959-2109, length: 151, pattern Start: 81, pattern end: 95
+telomer span: 2110-2289, length: 180, pattern Start: 58, pattern end: 101
+telomer span: 2290-2315, length: 26, pattern Start: 81, pattern end: 106
+telomer span: 2316-2451, length: 136, pattern Start: 128, pattern end: 127
+telomer span: 2452-2481, length: 30, pattern Start: 73, pattern end: 102
+telomer span: 2482-3100, length: 619, pattern Start: 34, pattern end: 108
 1R
-54 (imperfect match), insertions: [(4, 'G'), (4, 'T'), (33, 'T'), (39, 'T'), (52, 'T')], deletions: [(8, 'G'), (16, 'G'), (17, 'T')], mismatches: [(54, 'T', 'G')]
-192 (perfect match)
-328 (perfect match)
-464 (perfect match)
-600 (perfect match)
-736 (perfect match)
-872 (perfect match)
-1008 (perfect match)
-1144 (perfect match)
-1280 (imperfect match), insertions: [(122, 'G'), (122, 'T'), (132, 'G'), (132, 'T'), (132, 'G')], deletions: [], mismatches: []
-gap: 15 bp
-1437 (imperfect match), insertions: [], deletions: [(133, 'G')], mismatches: []
-gap: 27 bp
-1600 (perfect match)
-1736 (perfect match)
-1872 (perfect match)
-2008 (perfect match)
-2144 (perfect match)
-2280 (perfect match)
-2416 (perfect match)
-2552 (perfect match)
-2688 (perfect match)
-2824 (perfect match)
-2960 (perfect match)
+telomer span: 1-27, length: 27, pattern Start: 76, pattern end: 102
+telomer span: 28-52, length: 25, pattern Start: 48, pattern end: 72
+telomer span: 53-60, length: 8, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 61-93, length: 33, pattern Start: 43, pattern end: 75
+telomer span: 94-107, length: 14, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 108-136, length: 29, pattern Start: 73, pattern end: 101
+telomer span: 137-1407, length: 1271, pattern Start: 81, pattern end: 127
+telomer span: 1408-1570, length: 163, pattern Start: 107, pattern end: 133
 2L
-46 (perfect match)
-182 (perfect match)
-318 (imperfect match), insertions: [(122, 'G'), (122, 'G'), (122, 'T')], deletions: [(115, 'T')], mismatches: [(117, 'G', 'T')]
-gap: 10 bp
-467 (imperfect match), insertions: [(51, 'G'), (54, 'G'), (54, 'T'), (54, 'G'), (54, 'G'), (83, 'T'), (87, 'G')], deletions: [], mismatches: [(75, 'G', 'T'), (77, 'T', 'G')]
-gap: 15 bp
-626 (imperfect match), insertions: [(8, 'T'), (14, 'G'), (19, 'G'), (19, 'G')], deletions: [], mismatches: []
-766 (imperfect match), insertions: [], deletions: [(133, 'G')], mismatches: []
+telomer span: 1-17, length: 17, pattern Start: 20, pattern end: 36
+telomer span: 18-50, length: 33, pattern Start: 76, pattern end: 108
+telomer span: 51-432, length: 382, pattern Start: 5, pattern end: 114
+telomer span: 433-520, length: 88, pattern Start: 102, pattern end: 53
+telomer span: 521-588, length: 68, pattern Start: 34, pattern end: 101
+telomer span: 589-663, length: 75, pattern Start: 115, pattern end: 53
+telomer span: 664-899, length: 236, pattern Start: 34, pattern end: 133
 2R
-45 (imperfect match), insertions: [(33, 'T'), (39, 'T'), (43, 'G'), (43, 'G')], deletions: [(8, 'G'), (16, 'G'), (17, 'T')], mismatches: []
-182 (perfect match)
-318 (perfect match)
-454 (perfect match)
-590 (perfect match)
+telomer span: 1-15, length: 15, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 16-22, length: 7, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 23-36, length: 14, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 37-66, length: 30, pattern Start: 45, pattern end: 74
+telomer span: 67-82, length: 16, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 83-92, length: 10, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 93-759, length: 667, pattern Start: 47, pattern end: 33
 3L
-64 (perfect match)
+telomer span: 1-14, length: 14, pattern Start: 26, pattern end: 39
+telomer span: 15-44, length: 30, pattern Start: 77, pattern end: 106
 3R
-118 (imperfect match), insertions: [(10, 'T'), (14, 'G'), (52, 'G'), (52, 'T')], deletions: [(21, 'T'), (32, 'G'), (45, 'T')], mismatches: [(1, 'T', 'G'), (39, 'G', 'T')]
-255 (perfect match)
-gap: 113 bp
-505 (imperfect match), insertions: [], deletions: [(120, 'G'), (121, 'T'), (122, 'G')], mismatches: []
+telomer span: 1-9, length: 9, pattern Start: 120, pattern end: 128
+telomer span: 10-30, length: 21, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 31-53, length: 23, pattern Start: 84, pattern end: 106
+telomer span: 54-79, length: 26, pattern Start: 117, pattern end: 6
+telomer span: 80-187, length: 108, pattern Start: 62, pattern end: 33
+telomer span: 188-395, length: 208, pattern Start: 69, pattern end: 4
+telomer span: 396-627, length: 232, pattern Start: 27, pattern end: 122
+telomer span: 628-697, length: 70, pattern Start: 45, pattern end: 114
+telomer span: 698-765, length: 68, pattern Start: 102, pattern end: 33
 4L
-18 (imperfect match), insertions: [(3, 'G'), (8, 'T'), (21, 'G'), (21, 'G'), (27, 'G'), (27, 'T')], deletions: [], mismatches: []
-160 (perfect match)
-296 (perfect match)
-432 (perfect match)
-568 (perfect match)
-704 (perfect match)
-840 (perfect match)
-976 (perfect match)
-1112 (perfect match)
-1248 (perfect match)
+telomer span: 1-14, length: 14, pattern Start: 26, pattern end: 39
+telomer span: 15-23, length: 9, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 24-49, length: 26, pattern Start: 77, pattern end: 102
+telomer span: 50-68, length: 19, pattern Start: 20, pattern end: 38
+telomer span: 69-1417, length: 1349, pattern Start: 45, pattern end: 33
+telomer span: 1418-1497, length: 80, pattern Start: 54, pattern end: 133
 4R
-26 (imperfect match), insertions: [(15, 'T'), (17, 'G'), (17, 'G'), (26, 'T')], deletions: [], mismatches: [(3, 'T', 'G'), (10, 'G', 'T'), (23, 'T', 'G')]
-166 (perfect match)
-302 (perfect match)
-438 (perfect match)
-574 (perfect match)
+telomer span: 1-41, length: 41, pattern Start: 55, pattern end: 95
+telomer span: 42-58, length: 17, pattern Start: 23, pattern end: 39
 5L
-182 (imperfect match), insertions: [(3, 'G'), (33, 'T'), (56, 'G')], deletions: [(8, 'G'), (45, 'T'), (51, 'T')], mismatches: [(21, 'T', 'G'), (47, 'G', 'T'), (75, 'G', 'T')]
-318 (imperfect match), insertions: [(101, 'T'), (122, 'G'), (122, 'T')], deletions: [(69, 'T'), (74, 'G'), (108, 'G'), (133, 'G')], mismatches: [(60, 'T', 'G'), (62, 'G', 'T'), (103, 'T', 'G')]
+telomer span: 1-33, length: 33, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 34-51, length: 18, pattern Start: 22, pattern end: 39
+telomer span: 52-72, length: 21, pattern Start: 124, pattern end: 8
+telomer span: 73-98, length: 26, pattern Start: 19, pattern end: 44
+telomer span: 99-131, length: 33, pattern Start: 76, pattern end: 108
+telomer span: 132-151, length: 20, pattern Start: 115, pattern end: 134
+telomer span: 152-170, length: 19, pattern Start: 84, pattern end: 102
+telomer span: 171-191, length: 21, pattern Start: 118, pattern end: 2
+telomer span: 192-209, length: 18, pattern Start: 117, pattern end: 134
+telomer span: 210-232, length: 23, pattern Start: 84, pattern end: 106
+telomer span: 233-260, length: 28, pattern Start: 117, pattern end: 8
+telomer span: 261-377, length: 117, pattern Start: 79, pattern end: 59
+telomer span: 378-430, length: 53, pattern Start: 75, pattern end: 127
+telomer span: 431-466, length: 36, pattern Start: 60, pattern end: 95
+telomer span: 467-493, length: 27, pattern Start: 54, pattern end: 80
+telomer span: 494-530, length: 37, pattern Start: 102, pattern end: 2
+telomer span: 531-570, length: 40, pattern Start: 83, pattern end: 122
 6L
+telomer span: 1-17, length: 17, pattern Start: 20, pattern end: 36
+telomer span: 18-42, length: 25, pattern Start: 20, pattern end: 44
+telomer span: 43-56, length: 14, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 57-100, length: 44, pattern Start: 54, pattern end: 97
 7L
-15 (imperfect match), insertions: [(3, 'G'), (14, 'G'), (25, 'A'), (43, 'G'), (67, 'T')], deletions: [(54, 'T')], mismatches: [(9, 'G', 'T'), (23, 'T', 'G'), (27, 'G', 'T'), (47, 'G', 'T'), (69, 'T', 'G')]
-155 (perfect match)
-291 (perfect match)
-427 (perfect match)
-563 (perfect match)
-699 (perfect match)
-gap: 113 bp
-949 (imperfect match), insertions: [], deletions: [(120, 'G'), (121, 'T'), (122, 'G')], mismatches: []
-gap: 57 bp
-1140 (imperfect match), insertions: [(10, 'T'), (14, 'G'), (52, 'G'), (52, 'T')], deletions: [(21, 'T'), (32, 'G'), (45, 'T')], mismatches: [(1, 'T', 'G'), (39, 'G', 'T')]
+telomer span: 1-20, length: 20, pattern Start: 20, pattern end: 39
+telomer span: 21-27, length: 7, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 28-42, length: 15, pattern Start: ambiguous, pattern end: ambiguous
+pos: 43: A mutation
+telomer span: 44-63, length: 20, pattern Start: 20, pattern end: 39
+telomer span: 64-77, length: 14, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 78-94, length: 17, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 95-839, length: 745, pattern Start: 76, pattern end: 4
+telomer span: 840-1071, length: 232, pattern Start: 27, pattern end: 122
+telomer span: 1072-1141, length: 70, pattern Start: 45, pattern end: 114
+telomer span: 1142-1209, length: 68, pattern Start: 102, pattern end: 33
 7R
-85 (perfect match)
-221 (perfect match)
-gap: 69 bp
-427 (perfect match)
-563 (perfect match)
-699 (perfect match)
-835 (perfect match)
+telomer span: 1-27, length: 27, pattern Start: 20, pattern end: 46
+telomer span: 28-37, length: 10, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 38-65, length: 28, pattern Start: 111, pattern end: 2
+telomer span: 66-83, length: 18, pattern Start: 10, pattern end: 27
+telomer span: 84-367, length: 284, pattern Start: 135, pattern end: 10
 8L
-217 (perfect match)
-353 (perfect match)
-489 (perfect match)
+telomer span: 1-14, length: 14, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 15-27, length: 13, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 28-37, length: 10, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 38-65, length: 28, pattern Start: 111, pattern end: 2
+telomer span: 66-82, length: 17, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 83-110, length: 28, pattern Start: 113, pattern end: 4
+telomer span: 111-176, length: 66, pattern Start: 75, pattern end: 4
 9L
-92 (imperfect match), insertions: [(14, 'G')], deletions: [], mismatches: [(3, 'T', 'G'), (10, 'G', 'T'), (21, 'T', 'G')]
-229 (perfect match)
-365 (perfect match)
-501 (perfect match)
-637 (perfect match)
-773 (perfect match)
-909 (perfect match)
-1045 (perfect match)
+telomer span: 1-2, length: 2, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 3-22, length: 20, pattern Start: 121, pattern end: 4
+telomer span: 23-44, length: 22, pattern Start: 47, pattern end: 68
+telomer span: 45-55, length: 11, pattern Start: 118, pattern end: 128
+telomer span: 56-89, length: 34, pattern Start: 119, pattern end: 16
+telomer span: 90-114, length: 25, pattern Start: 78, pattern end: 102
 10L
-89 (imperfect match), insertions: [(8, 'T'), (14, 'G')], deletions: [], mismatches: [(21, 'T', 'G')]
-227 (perfect match)
-363 (perfect match)
-499 (perfect match)
-635 (perfect match)
-771 (perfect match)
-907 (perfect match)
-1043 (perfect match)
-1179 (perfect match)
-1315 (perfect match)
-1451 (perfect match)
-1587 (perfect match)
-1723 (perfect match)
-1859 (perfect match)
+telomer span: 1-2, length: 2, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 3-22, length: 20, pattern Start: 121, pattern end: 4
+telomer span: 23-44, length: 22, pattern Start: 47, pattern end: 68
+telomer span: 45-55, length: 11, pattern Start: 118, pattern end: 128
+telomer span: 56-117, length: 62, pattern Start: 119, pattern end: 44
 10R
-0 (imperfect match), insertions: [], deletions: [(1, 'T'), (8, 'G'), (25, 'T')], mismatches: [(3, 'T', 'G'), (27, 'G', 'T')]
-133 (perfect match)
-269 (perfect match)
-405 (perfect match)
-541 (perfect match)
-677 (perfect match)
-813 (perfect match)
-949 (perfect match)
-1085 (perfect match)
-1221 (perfect match)
+telomer span: 1-14, length: 14, pattern Start: 26, pattern end: 39
+telomer span: 15-23, length: 9, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 24-41, length: 18, pattern Start: 21, pattern end: 38
 11L
-257 (perfect match)
-393 (perfect match)
-529 (imperfect match), insertions: [(122, 'G'), (122, 'G'), (122, 'T')], deletions: [(115, 'T')], mismatches: [(117, 'G', 'T')]
-gap: 10 bp
-678 (imperfect match), insertions: [(51, 'G'), (54, 'G'), (54, 'T'), (54, 'G'), (54, 'G'), (83, 'T'), (87, 'G')], deletions: [], mismatches: [(75, 'G', 'T'), (77, 'T', 'G')]
-gap: 15 bp
-837 (imperfect match), insertions: [(8, 'T'), (14, 'G'), (19, 'G'), (19, 'G')], deletions: [], mismatches: []
-977 (imperfect match), insertions: [], deletions: [(133, 'G')], mismatches: []
-gap: 27 bp
-1140 (perfect match)
+telomer span: 1-27, length: 27, pattern Start: 80, pattern end: 106
+telomer span: 28-54, length: 27, pattern Start: 76, pattern end: 102
+telomer span: 55-75, length: 21, pattern Start: 48, pattern end: 68
+telomer span: 76-227, length: 152, pattern Start: 118, pattern end: 133
+telomer span: 228-643, length: 416, pattern Start: 107, pattern end: 114
+telomer span: 644-731, length: 88, pattern Start: 102, pattern end: 53
+telomer span: 732-799, length: 68, pattern Start: 34, pattern end: 101
+telomer span: 800-874, length: 75, pattern Start: 115, pattern end: 53
+telomer span: 875-1110, length: 236, pattern Start: 34, pattern end: 133
 12L
-75 (perfect match)
-211 (perfect match)
-gap: 82 bp
-430 (imperfect match), insertions: [(8, 'T'), (39, 'T')], deletions: [(17, 'T'), (26, 'G'), (27, 'G')], mismatches: [(23, 'T', 'G'), (60, 'T', 'G'), (62, 'G', 'T')]
-565 (perfect match)
-701 (perfect match)
-837 (perfect match)
-973 (perfect match)
-1109 (imperfect match), insertions: [(79, 'G')], deletions: [(87, 'T')], mismatches: [(83, 'G', 'T')]
-1245 (imperfect match), insertions: [(88, 'G'), (88, 'T'), (122, 'G'), (122, 'T')], deletions: [(69, 'T')], mismatches: []
-gap: 80 bp
-1465 (perfect match)
-1601 (perfect match)
-gap: 99 bp
-1837 (perfect match)
-1973 (perfect match)
-2109 (perfect match)
-2245 (imperfect match), insertions: [(122, 'G'), (122, 'G'), (122, 'T')], deletions: [(115, 'T')], mismatches: [(117, 'G', 'T')]
-gap: 17 bp
-2401 (imperfect match), insertions: [], deletions: [(15, 'G')], mismatches: [(1, 'T', 'G'), (3, 'T', 'G'), (10, 'G', 'T'), (21, 'T', 'G')]
-2536 (imperfect match), insertions: [(122, 'G'), (122, 'G'), (122, 'T')], deletions: [(90, 'T'), (115, 'T')], mismatches: [(117, 'G', 'T')]
+telomer span: 1-19, length: 19, pattern Start: 20, pattern end: 38
+telomer span: 20-39, length: 20, pattern Start: 25, pattern end: 44
+telomer span: 40-62, length: 23, pattern Start: 123, pattern end: 9
+telomer span: 63-73, length: 11, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 74-380, length: 307, pattern Start: 135, pattern end: 33
+telomer span: 381-497, length: 117, pattern Start: 103, pattern end: 83
+telomer span: 498-1189, length: 692, pattern Start: 69, pattern end: 80
+telomer span: 1190-1223, length: 34, pattern Start: 68, pattern end: 101
+telomer span: 1224-1313, length: 90, pattern Start: 115, pattern end: 68
+telomer span: 1314-1388, length: 75, pattern Start: 34, pattern end: 108
+telomer span: 1389-1796, length: 408, pattern Start: 60, pattern end: 59
+telomer span: 1797-2359, length: 563, pattern Start: 96, pattern end: 114
+telomer span: 2360-2438, length: 79, pattern Start: 102, pattern end: 44
+telomer span: 2439-2625, length: 187, pattern Start: 39, pattern end: 89
+telomer span: 2626-2675, length: 50, pattern Start: 78, pattern end: 127
 12R
-132 (perfect match)
-268 (perfect match)
-404 (perfect match)
-540 (perfect match)
-676 (perfect match)
+telomer span: 1-8, length: 8, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 9-15, length: 7, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 16-42, length: 27, pattern Start: 69, pattern end: 95
+telomer span: 43-59, length: 17, pattern Start: 23, pattern end: 39
+telomer span: 60-79, length: 20, pattern Start: 119, pattern end: 2
+telomer span: 80-98, length: 19, pattern Start: 15, pattern end: 33
 13L
-111 (perfect match)
-247 (perfect match)
+telomer span: 1-25, length: 25, pattern Start: 78, pattern end: 102
+telomer span: 26-44, length: 19, pattern Start: 84, pattern end: 102
+telomer span: 45-89, length: 45, pattern Start: 57, pattern end: 101
 13R
-120 (imperfect match), insertions: [(8, 'T'), (33, 'T')], deletions: [(16, 'G'), (17, 'T'), (53, 'G'), (54, 'T')], mismatches: [(3, 'T', 'G')]
-254 (perfect match)
-390 (perfect match)
-526 (perfect match)
-662 (perfect match)
-798 (perfect match)
-934 (perfect match)
-1070 (perfect match)
-1206 (perfect match)
-gap: 100 bp
-1443 (perfect match)
-1579 (perfect match)
-1715 (perfect match)
-1851 (perfect match)
-1987 (perfect match)
-2123 (perfect match)
+telomer span: 1-14, length: 14, pattern Start: 26, pattern end: 39
+telomer span: 15-24, length: 10, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 25-45, length: 21, pattern Start: 126, pattern end: 10
+telomer span: 46-71, length: 26, pattern Start: 49, pattern end: 74
+telomer span: 72-211, length: 140, pattern Start: 124, pattern end: 127
+telomer span: 212-1375, length: 1164, pattern Start: 94, pattern end: 33
 14L
-27 (imperfect match), insertions: [(14, 'G'), (19, 'G')], deletions: [], mismatches: [(3, 'T', 'G'), (10, 'G', 'T')]
-165 (perfect match)
-301 (imperfect match), insertions: [(132, 'G')], deletions: [(89, 'G'), (90, 'T'), (108, 'G'), (109, 'G'), (115, 'T')], mismatches: [(128, 'G', 'T')]
-gap: 5 bp
-439 (imperfect match), insertions: [(8, 'T'), (33, 'T')], deletions: [(16, 'G'), (17, 'T'), (53, 'G'), (54, 'T')], mismatches: [(3, 'T', 'G')]
-573 (imperfect match), insertions: [], deletions: [(103, 'T'), (110, 'G'), (111, 'T'), (120, 'G'), (121, 'T'), (122, 'G')], mismatches: [(96, 'G', 'T')]
-gap: 126 bp
-830 (imperfect match), insertions: [(27, 'T'), (122, 'G'), (122, 'G'), (122, 'T')], deletions: [(15, 'G')], mismatches: [(5, 'T', 'G'), (9, 'G', 'T'), (21, 'T', 'G')]
-gap: 37 bp
-1007 (imperfect match), insertions: [(14, 'G'), (26, 'T')], deletions: [(38, 'G')], mismatches: [(3, 'T', 'G'), (10, 'G', 'T'), (23, 'T', 'G')]
-1144 (perfect match)
-1280 (perfect match)
-1416 (perfect match)
-gap: 15 bp
-1568 (imperfect match), insertions: [(8, 'T'), (39, 'T')], deletions: [(17, 'T'), (26, 'G'), (27, 'G')], mismatches: [(23, 'T', 'G')]
-1703 (perfect match)
+telomer span: 1-8, length: 8, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 9-15, length: 7, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 16-61, length: 46, pattern Start: 69, pattern end: 114
+telomer span: 62-394, length: 333, pattern Start: 33, pattern end: 93
+telomer span: 395-530, length: 136, pattern Start: 128, pattern end: 127
+telomer span: 531-668, length: 138, pattern Start: 94, pattern end: 95
+telomer span: 669-741, length: 73, pattern Start: 21, pattern end: 93
+telomer span: 742-759, length: 18, pattern Start: 117, pattern end: 134
+telomer span: 760-783, length: 24, pattern Start: 40, pattern end: 63
+telomer span: 784-847, length: 64, pattern Start: 11, pattern end: 74
+telomer span: 848-869, length: 22, pattern Start: 81, pattern end: 102
+telomer span: 870-953, length: 84, pattern Start: 40, pattern end: 123
+telomer span: 954-1054, length: 101, pattern Start: 40, pattern end: 4
+telomer span: 1055-1626, length: 572, pattern Start: 47, pattern end: 74
 14R
-76 (perfect match)
-gap: 110 bp
-323 (perfect match)
-459 (perfect match)
-595 (perfect match)
-731 (perfect match)
-867 (perfect match)
-1003 (perfect match)
-1139 (perfect match)
-1275 (perfect match)
-1411 (perfect match)
-1547 (perfect match)
-1683 (perfect match)
-1819 (perfect match)
-1955 (perfect match)
+telomer span: 1-10, length: 10, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 11-216, length: 206, pattern Start: 71, pattern end: 4
+telomer span: 217-282, length: 66, pattern Start: 75, pattern end: 4
 15L
-19 (imperfect match), insertions: [(19, 'G')], deletions: [(8, 'G')], mismatches: [(1, 'T', 'G')]
-155 (perfect match)
-291 (perfect match)
-427 (perfect match)
-563 (perfect match)
-699 (imperfect match), insertions: [(122, 'G'), (122, 'T'), (132, 'G'), (132, 'T'), (132, 'G')], deletions: [], mismatches: []
-gap: 15 bp
-856 (imperfect match), insertions: [], deletions: [(133, 'G')], mismatches: []
-gap: 27 bp
-1019 (perfect match)
-1155 (perfect match)
-1291 (imperfect match), insertions: [(122, 'G'), (122, 'G'), (122, 'T')], deletions: [(115, 'T')], mismatches: [(117, 'G', 'T')]
-gap: 10 bp
-1440 (imperfect match), insertions: [(51, 'G'), (54, 'G'), (54, 'T'), (54, 'G'), (54, 'G'), (83, 'T'), (87, 'G')], deletions: [], mismatches: [(75, 'G', 'T'), (77, 'T', 'G')]
-gap: 15 bp
-1599 (imperfect match), insertions: [(8, 'T'), (14, 'G'), (19, 'G'), (19, 'G')], deletions: [], mismatches: []
-1739 (imperfect match), insertions: [], deletions: [(133, 'G')], mismatches: []
-gap: 27 bp
-1902 (perfect match)
-2038 (imperfect match), insertions: [], deletions: [(132, 'T'), (133, 'G'), (134, 'G'), (135, 'T'), (136, 'G')], mismatches: []
+telomer span: 1-4, length: 4, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 5-14, length: 10, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 15-20, length: 6, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 21-39, length: 19, pattern Start: 110, pattern end: 128
+telomer span: 40-826, length: 787, pattern Start: 21, pattern end: 127
+telomer span: 827-989, length: 163, pattern Start: 107, pattern end: 133
+telomer span: 990-1405, length: 416, pattern Start: 107, pattern end: 114
+telomer span: 1406-1493, length: 88, pattern Start: 102, pattern end: 53
+telomer span: 1494-1561, length: 68, pattern Start: 34, pattern end: 101
+telomer span: 1562-1636, length: 75, pattern Start: 115, pattern end: 53
+telomer span: 1637-1872, length: 236, pattern Start: 34, pattern end: 133
 15R
-88 (imperfect match), insertions: [(8, 'T'), (14, 'G')], deletions: [], mismatches: [(21, 'T', 'G')]
-226 (perfect match)
-362 (perfect match)
-498 (imperfect match), insertions: [], deletions: [(74, 'G')], mismatches: []
-633 (perfect match)
-769 (perfect match)
-905 (perfect match)
-1041 (perfect match)
-1177 (perfect match)
-1313 (perfect match)
-1449 (imperfect match), insertions: [(122, 'G'), (122, 'G'), (122, 'T')], deletions: [(115, 'T')], mismatches: [(117, 'G', 'T')]
-gap: 10 bp
-1598 (perfect match)
-1734 (perfect match)
-1870 (perfect match)
-2006 (perfect match)
-2142 (perfect match)
-2278 (perfect match)
-2414 (imperfect match), insertions: [], deletions: [(53, 'G'), (54, 'T'), (89, 'G'), (90, 'T')], mismatches: [(109, 'G', 'T')]
-2546 (imperfect match), insertions: [(25, 'G'), (33, 'T'), (41, 'G'), (41, 'G'), (83, 'T')], deletions: [(54, 'T'), (90, 'T')], mismatches: [(39, 'G', 'T'), (75, 'G', 'T'), (77, 'T', 'G')]
-2685 (imperfect match), insertions: [], deletions: [(120, 'G'), (121, 'T'), (122, 'G')], mismatches: []
+telomer span: 1-2, length: 2, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 3-15, length: 13, pattern Start: 121, pattern end: 133
+telomer span: 16-31, length: 16, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 32-42, length: 11, pattern Start: ambiguous, pattern end: ambiguous
+pos: 43: A mutation
+telomer span: 44-59, length: 16, pattern Start: 113, pattern end: 128
+telomer span: 60-116, length: 57, pattern Start: 124, pattern end: 44
+telomer span: 117-573, length: 457, pattern Start: 27, pattern end: 75
+telomer span: 574-1563, length: 990, pattern Start: 77, pattern end: 114
+telomer span: 1564-2473, length: 910, pattern Start: 102, pattern end: 59
+telomer span: 2474-2522, length: 49, pattern Start: 96, pattern end: 8
+telomer span: 2523-2574, length: 52, pattern Start: 113, pattern end: 28
+telomer span: 2575-2644, length: 70, pattern Start: 11, pattern end: 80
+telomer span: 2645-2807, length: 163, pattern Start: 96, pattern end: 122
 16L
-27 (imperfect match), insertions: [(14, 'G'), (19, 'G')], deletions: [], mismatches: [(3, 'T', 'G'), (10, 'G', 'T')]
-165 (perfect match)
-301 (imperfect match), insertions: [(132, 'G')], deletions: [(89, 'G'), (90, 'T'), (108, 'G'), (109, 'G'), (115, 'T')], mismatches: [(128, 'G', 'T')]
-gap: 5 bp
-439 (imperfect match), insertions: [(8, 'T'), (33, 'T')], deletions: [(16, 'G'), (17, 'T'), (53, 'G'), (54, 'T')], mismatches: [(3, 'T', 'G')]
-573 (imperfect match), insertions: [], deletions: [(103, 'T'), (110, 'G'), (111, 'T'), (120, 'G'), (121, 'T'), (122, 'G')], mismatches: [(96, 'G', 'T')]
-gap: 126 bp
-830 (imperfect match), insertions: [(27, 'T'), (122, 'G'), (122, 'G'), (122, 'T')], deletions: [(15, 'G')], mismatches: [(5, 'T', 'G'), (9, 'G', 'T'), (21, 'T', 'G')]
-gap: 37 bp
-1007 (imperfect match), insertions: [(14, 'G'), (26, 'T')], deletions: [(38, 'G')], mismatches: [(3, 'T', 'G'), (10, 'G', 'T'), (23, 'T', 'G')]
+telomer span: 1-8, length: 8, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 9-15, length: 7, pattern Start: ambiguous, pattern end: ambiguous
+telomer span: 16-61, length: 46, pattern Start: 69, pattern end: 114
+telomer span: 62-394, length: 333, pattern Start: 33, pattern end: 93
+telomer span: 395-530, length: 136, pattern Start: 128, pattern end: 127
+telomer span: 531-668, length: 138, pattern Start: 94, pattern end: 95
+telomer span: 669-741, length: 73, pattern Start: 21, pattern end: 93
+telomer span: 742-759, length: 18, pattern Start: 117, pattern end: 134
+telomer span: 760-783, length: 24, pattern Start: 40, pattern end: 63
+telomer span: 784-847, length: 64, pattern Start: 11, pattern end: 74
+telomer span: 848-869, length: 22, pattern Start: 81, pattern end: 102
+telomer span: 870-953, length: 84, pattern Start: 40, pattern end: 123
+telomer span: 954-1054, length: 101, pattern Start: 40, pattern end: 4

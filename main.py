@@ -13,7 +13,7 @@ from data_io.alignment_exporters import AlignmentPrint
 def run_analysis(config: Config) -> None:
     # Step 1: Read sequences
     reader = FastaReader(config.fasta_file_path, config.max_ends)
-    telomers: List[TelomereSequence]  = reader.parse_fasta()
+    telomers: List[Optional[TelomereSequence]]  = reader.parse_fasta()
 
     # step 2: find pattern
     pattern:str = config.pattern
@@ -62,7 +62,8 @@ def main(args) -> None:
         analysis_strategy=args.analysis_strategy,
         max_ends=args.maximum_ends,
         pattern=args.pattern,
-        maximum_alignment_mutations=args.maximum_alignment_mutations
+        maximum_alignment_mutations=args.maximum_alignment_mutations,
+        skip_seeding=args.skip_seeding
     )
 
     # check if file exists
@@ -90,6 +91,8 @@ if __name__ == "__main__":
                         help="Optional output file to save the content.")
     parser.add_argument("-as", "--analysis_strategy", default="template_switching",
                        help="template_switching strategy or alignment strategy for the analysis (default: template_switching)")
+    parser.add_argument("-ss", "--skip_seeding", type=bool, default=True,
+                        help="determines whether we do a seeding process for alignments in mutagenic zone, or just try to do alignments in the whole mutagenic zone")
     parser.add_argument("--min_length", type=int, default=50,
                         help="The minimum length for a valid repeat sequence (default: 50)")
     parser.add_argument("--graph_dpi", type=int, default=300,

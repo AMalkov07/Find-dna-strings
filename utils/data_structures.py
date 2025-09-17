@@ -23,6 +23,7 @@ class Config:
     max_ends: int
     pattern: str
     maximum_alignment_mutations: int
+    skip_seeding: Optional[bool]
 
 @dataclass
 class TemplateSwitchEvent:
