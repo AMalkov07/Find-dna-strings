@@ -213,7 +213,45 @@ class SeedAndExtend:
 
         return output
 
-        
+    def _simple_alignment(self) -> List[ImperfectAlignmentEvent]:
+        alignments: List[ImperfectAlignmentEvent] = []
+        max_mistakes = self.config.maximum_alignment_mutations
+        n_pattern = len(self.pattern)
+        n_mutagenic_zone = len(self.mutagenic_zone)
+
+        window_size = min(n_pattern + n_pattern // max_mistakes, n_mutagenic_zone)
+
+        region = self.mutagenic_zone
+        n_region = len(region)
+
+        match_score = self.seed_extend_settings.alignment_settings.match
+        mismatch_score = self.seed_extend_settings.alignment_settings.mismatch
+        gap_open_score = self.seed_extend_settings.alignment_settings.gap_open
+        gap_extend_score = self.seed_extend_settings.alignment_settings.gap_extend
+        matrix = parasail.matrix_create("ACGT", match_score, mismatch_score)
+
+        slide_end = n_region - min(n_pattern, n_region) + 1
+        for start in range(0, slide_end, 1):
+            mutagenic_zone_start = start 
+            sub_mutagenic_zone = region[start: start + window_size]
+
+            parasail_alignment: Result = parasail.sg_trace_scan(self.pattern, sub_mutagenic_zone, gap_open_score, gap_extend_score, matrix)
+
+            try:
+                #Fix: make sure the below gives the correct cigar strings
+                cigar_str = str(parasail_alignment.cigar.decode)
+            except:
+                raise ValueError("your version of parasail does not give access to the cigar string with the sg_trace_scan function. Please use different version of parasail")
+
+            cigar_analysis: ImperfectAlignmentEvent = self._analyze_from_cigar(cigar_str, sub_mutagenic_zone, mutagenic_zone_start)
+
+            n_mistakes = len(cigar_analysis.insertion_events) + len(cigar_analysis.deletion_events) + len(cigar_analysis.mismatch_events)
+
+            if n_mistakes <= max_mistakes:
+                alignments.append(cigar_analysis)
+
+        return alignments
+
         
 
     def _extend_cluster(self, cluster: SeedExtendCluster) -> List[ImperfectAlignmentEvent]:
@@ -387,25 +425,29 @@ class SeedAndExtend:
         return best_overall['path']
         
 
-    def execute(self) -> List[ImperfectAlignmentEvent]:
-        kmer_indexes: Dict[str, List[int]] = self._build_kmer_index()
-        hits: List[Tuple[int, int]] = self._find_seed_hits(kmer_indexes)
-        if not hits:
-            return []
+    def execute(self, skip_seeding: bool = True) -> List[ImperfectAlignmentEvent]:
+        if not skip_seeding:
+            kmer_indexes: Dict[str, List[int]] = self._build_kmer_index()
+            hits: List[Tuple[int, int]] = self._find_seed_hits(kmer_indexes)
+            if not hits:
+                return []
 
-        clusters: List[SeedExtendCluster] = self._cluster_hits_by_offset(hits)
+            clusters: List[SeedExtendCluster] = self._cluster_hits_by_offset(hits)
 
-        if not clusters:
-            return []
+            if not clusters:
+                return []
 
-        results: List[ImperfectAlignmentEvent] = []
-        all_used_regions = set() #Fix: add the use of the all_used_regions
-        for cl in clusters:
-            #Fix, add the use of the all_used_regions
-            #alns, used_regions = self._extend_cluster(cl)
-            alns: List[ImperfectAlignmentEvent] = self._extend_cluster(cl)
-            if alns:
-                results += alns
+            results: List[ImperfectAlignmentEvent] = []
+            all_used_regions = set() #Fix: add the use of the all_used_regions
+            for cl in clusters:
+                #Fix, add the use of the all_used_regions
+                #alns, used_regions = self._extend_cluster(cl)
+                alns: List[ImperfectAlignmentEvent] = self._extend_cluster(cl)
+                if alns:
+                    results += alns
+
+        else:
+            results: List[ImperfectAlignmentEvent] = self._simple_alignment()
 
         results = sorted(results, key = lambda x: x.score, reverse=True)
         results = self._filter_redundant_alignments_by_error(results)
