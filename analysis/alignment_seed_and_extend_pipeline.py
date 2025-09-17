@@ -164,16 +164,12 @@ class SeedAndExtend:
                 ref_pos += L
                 query_pos += L
             elif op == 'I': #treat I's like deletions not insertions
-                # insertion relative to reference (consumes query only)
                 # convention: insertion at current ref_pos (between ref_pos-1 and ref_pos)
                 for i in range(L):
                     q_idx = query_pos + i
                     q_base = query[q_idx]
                     deletions.append((q_idx+1, q_base))
-                #insertions.append((query_pos, ref_pos, L, seq))
-                #insertions.append((ref_pos-true_beg_ref, query_pos-true_beg_ref, L, seq))
                 query_pos += L
-                #ref_pos += L
             elif op == 'D': # treat D's like insertions not deletions
                 for i in range(L):
                     r_idx = ref_pos + i
@@ -214,6 +210,8 @@ class SeedAndExtend:
             mismatch_events=mismatches,
             score = score 
         )
+
+        return output
 
         
         
@@ -372,7 +370,7 @@ class SeedAndExtend:
 
         for i, state in enumerate(dp):
             cnt, gaps_w_start, sc, first_start, path = state
-            last_end = path[-1]['absolute_ref_end']  # end of the last chosen alignment
+            last_end = path[-1].mutagenic_zone_end_index  # end of the last chosen alignment
             end_gap = 0 if last_end+1 == len(self.mutagenic_zone) or self.seed_extend_settings.last_zone else 1
             total_gaps = gaps_w_start + end_gap
 
@@ -389,7 +387,7 @@ class SeedAndExtend:
         return best_overall['path']
         
 
-    def execute(self):
+    def execute(self) -> List[ImperfectAlignmentEvent]:
         kmer_indexes: Dict[str, List[int]] = self._build_kmer_index()
         hits: List[Tuple[int, int]] = self._find_seed_hits(kmer_indexes)
         if not hits:
@@ -412,4 +410,6 @@ class SeedAndExtend:
         results = sorted(results, key = lambda x: x.score, reverse=True)
         results = self._filter_redundant_alignments_by_error(results)
         final_result: List[ImperfectAlignmentEvent] = self._best_non_overlapping_alignments(results)
+
+        return final_result
 

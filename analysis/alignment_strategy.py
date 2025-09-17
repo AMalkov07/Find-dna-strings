@@ -49,15 +49,20 @@ class AlignmentStrategy:
 
 
     def _identiy_imperfect_alignments(self, telomer_str: str, perfect_alignments: List[int]) -> List[ImperfectAlignmentEvent]:
+        all_imperfect_events_in_end: List[ImperfectAlignmentEvent] = []
+        
         n_pattern = len(self.pattern)
         max_mistakes = self.config.maximum_alignment_mutations
 
         mutagenic_zone, str_locations = self._get_mutagenic_zones(telomer_str, perfect_alignments)
         queue = deque(mutagenic_zone)
+        n_queue = len(queue)
 
         last_zone = False
         counter = -1
         min_mutagenic_zone_len = n_pattern - n_pattern/ max_mistakes
+
+        #good_alignment_starting_pos: List[int] = []
 
         while queue:
             counter += 1
@@ -70,13 +75,49 @@ class AlignmentStrategy:
             seed_hit_settings = SeedExtendSettings(alignment_settings=self.alignment_settings, k=15, flank=80, min_identity=.9, offset_tolerance=6, min_seed=2, last_zone = last_zone)
 
             seed_and_extend_pipeline = SeedAndExtend(current_mutagenic_zone, self.pattern, seed_hit_settings, self.config)
-            seed_and_extend_pipeline.execute()
+            imperfect_alignments: List[ImperfectAlignmentEvent] = seed_and_extend_pipeline.execute()
+            for i in imperfect_alignments:
+                i.full_telomer_start_index = []
+
+            if counter == 0 and str_locations[0] == 0 and n_queue > 1:
+            #if False:
+                if imperfect_alignments:
+                    if len(imperfect_alignments) > 1:
+                        imperfect_alignments = imperfect_alignments[1:]
+                    else:
+                        end_str = len(current_mutagenic_zone) - 1
+                        curr_imperfect_alignment = imperfect_alignments[0]
+                        #if not curr_imperfect_alignment['aligned_length']:
+                            #print("ERROR, no aligned length")
+                            #continue
+                        if curr_imperfect_alignment.mutagenic_zone_end_index == end_str:
+                            curr_imperfect_alignment.full_telomer_start_index.append(curr_imperfect_alignment.mutagenic_zone_start_index + str_locations[counter])
+
+                            all_imperfect_events_in_end += imperfect_alignments
+
+                        continue
+
+            if imperfect_alignments:
+        
+                for curr_imperfect_alignment in imperfect_alignments:
+                
+                    #good_alignment_starting_pos.append(curr_imperfect_alignment['absolute_ref_start']+str_locations[counter])
+                    curr_imperfect_alignment.full_telomer_start_index.append(curr_imperfect_alignment.mutagenic_zone_start_index+str_locations[counter])
+
+                all_imperfect_events_in_end += imperfect_alignments
+
+        return all_imperfect_events_in_end
+
+            
+
+        
+            
 
     def execute(self) -> List[Optional[AlignmentData]]:
         analysis_output: List[Optional[AlignmentData]] = [None] * self.config.max_ends
         for i, telomer in enumerate(self.telomers):
             if telomer and telomer.sequence:
                 perfect_alignments: List[int] = self._identify_perfect_alignments(telomer.sequence)
-                analysis_output[i] = AlignmentData(perfect_alignments=perfect_alignments, imperfect_alignments=[])
-                imperfect_alignment_indexes, alignment_insertions_and_deletions = self._identiy_imperfect_alignments(telomer.sequence, perfect_alignments)
+                imperfect_alignment = self._identiy_imperfect_alignments(telomer.sequence, perfect_alignments)
+                analysis_output[i] = AlignmentData(perfect_alignments=perfect_alignments, imperfect_alignments=imperfect_alignment)
         return analysis_output

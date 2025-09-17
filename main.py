@@ -2,11 +2,12 @@ import argparse
 import os
 from typing import List, Optional
 
-from utils.data_structures import Config, TelomereSequence, TemplateSwitchData
+from utils.data_structures import Config, TelomereSequence, TemplateSwitchData, AlignmentData
 from data_io.fasta_reader import FastaReader
 from analysis.alignment_strategy import AlignmentStrategy
 from analysis.template_switching_strategy import TemplateSwitchingStrategy
-from data_io.exporters import TemplateSwitchingPrint
+from data_io.template_switching_exporters import TemplateSwitchingPrint
+from data_io.alignment_exporters import AlignmentPrint
 
 
 def run_analysis(config: Config) -> None:
@@ -23,14 +24,19 @@ def run_analysis(config: Config) -> None:
     strategy = config.analysis_strategy
     if strategy == "template_switching":
         analyzer = TemplateSwitchingStrategy(telomers, pattern, config)
+        template_switch_analysis: List[Optional[TemplateSwitchData]] = analyzer.execute()
     else:
+        print("performing alignment analysis")
         analyzer = AlignmentStrategy(telomers, pattern, config)
-    analysis: List[Optional[TemplateSwitchData]] = analyzer.execute()
+        alignment_analysis: List[Optional[AlignmentData]] = analyzer.execute()
 
     # Step 5: Export results
-    exporter = TemplateSwitchingPrint(analysis, telomers, config, pattern)
-    exporter.print_analysis()
-    #exporter.export_results(pattern, results, graph_path)
+    if strategy == "template_switching":
+        template_switch_exporter = TemplateSwitchingPrint(template_switch_analysis, telomers, config, pattern)
+        template_switch_exporter.print_analysis()
+    else:
+        alignment_exporter = AlignmentPrint(alignment_analysis, telomers, config, pattern)
+        alignment_exporter.print_analysis()
             
 
 '''
