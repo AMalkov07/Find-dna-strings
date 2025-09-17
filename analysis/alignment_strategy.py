@@ -69,7 +69,7 @@ class AlignmentStrategy:
 
             seed_hit_settings = SeedExtendSettings(alignment_settings=self.alignment_settings, k=15, flank=80, min_identity=.9, offset_tolerance=6, min_seed=2, last_zone = last_zone)
 
-            seed_and_extend_pipeline = SeedAndExtend(current_mutagenic_zone, self.pattern, seed_hit_settings)
+            seed_and_extend_pipeline = SeedAndExtend(current_mutagenic_zone, self.pattern, seed_hit_settings, self.config)
             seed_and_extend_pipeline.execute()
 
     def execute(self) -> List[Optional[AlignmentData]]:

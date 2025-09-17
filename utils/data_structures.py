@@ -42,10 +42,13 @@ class TemplateSwitchData:
 
 @dataclass
 class ImperfectAlignmentEvent:
-    alignment_start_index: List[int]
-    insertion_events: List[Tuple[str, int]]
-    deletion_events: List[Tuple[str, int]]
-    mismatch_events: List[Tuple[str, str, int]]
+    full_telomer_start_index: Optional[List[int]]
+    mutagenic_zone_start_index: int
+    mutagenic_zone_end_index: int
+    insertion_events: List[Tuple[int, str]]
+    deletion_events: List[Tuple[int, str]]
+    mismatch_events: List[Tuple[int, str, str]]
+    score: float
 
 @dataclass
 class AlignmentData:
