@@ -1,3 +1,4 @@
+______________________
 1L
 telomer span: 1-10, length: 10, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 11-29, length: 19, pattern Start: 21, pattern end: 39
@@ -16,6 +17,7 @@ telomer span: 2290-2315, length: 26, pattern Start: 81, pattern end: 106
 telomer span: 2316-2451, length: 136, pattern Start: 128, pattern end: 127
 telomer span: 2452-2481, length: 30, pattern Start: 73, pattern end: 102
 telomer span: 2482-3100, length: 619, pattern Start: 34, pattern end: 108
+______________________
 1R
 telomer span: 1-27, length: 27, pattern Start: 76, pattern end: 102
 telomer span: 28-52, length: 25, pattern Start: 48, pattern end: 72
@@ -25,6 +27,7 @@ telomer span: 94-107, length: 14, pattern Start: ambiguous, pattern end: ambiguo
 telomer span: 108-136, length: 29, pattern Start: 73, pattern end: 101
 telomer span: 137-1407, length: 1271, pattern Start: 81, pattern end: 127
 telomer span: 1408-1570, length: 163, pattern Start: 107, pattern end: 133
+______________________
 2L
 telomer span: 1-17, length: 17, pattern Start: 20, pattern end: 36
 telomer span: 18-50, length: 33, pattern Start: 76, pattern end: 108
@@ -33,6 +36,7 @@ telomer span: 433-520, length: 88, pattern Start: 102, pattern end: 53
 telomer span: 521-588, length: 68, pattern Start: 34, pattern end: 101
 telomer span: 589-663, length: 75, pattern Start: 115, pattern end: 53
 telomer span: 664-899, length: 236, pattern Start: 34, pattern end: 133
+______________________
 2R
 telomer span: 1-15, length: 15, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 16-22, length: 7, pattern Start: ambiguous, pattern end: ambiguous
@@ -41,9 +45,11 @@ telomer span: 37-66, length: 30, pattern Start: 45, pattern end: 74
 telomer span: 67-82, length: 16, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 83-92, length: 10, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 93-759, length: 667, pattern Start: 47, pattern end: 33
+______________________
 3L
 telomer span: 1-14, length: 14, pattern Start: 26, pattern end: 39
 telomer span: 15-44, length: 30, pattern Start: 77, pattern end: 106
+______________________
 3R
 telomer span: 1-9, length: 9, pattern Start: 120, pattern end: 128
 telomer span: 10-30, length: 21, pattern Start: ambiguous, pattern end: ambiguous
@@ -54,6 +60,7 @@ telomer span: 188-395, length: 208, pattern Start: 69, pattern end: 4
 telomer span: 396-627, length: 232, pattern Start: 27, pattern end: 122
 telomer span: 628-697, length: 70, pattern Start: 45, pattern end: 114
 telomer span: 698-765, length: 68, pattern Start: 102, pattern end: 33
+______________________
 4L
 telomer span: 1-14, length: 14, pattern Start: 26, pattern end: 39
 telomer span: 15-23, length: 9, pattern Start: ambiguous, pattern end: ambiguous
@@ -61,9 +68,11 @@ telomer span: 24-49, length: 26, pattern Start: 77, pattern end: 102
 telomer span: 50-68, length: 19, pattern Start: 20, pattern end: 38
 telomer span: 69-1417, length: 1349, pattern Start: 45, pattern end: 33
 telomer span: 1418-1497, length: 80, pattern Start: 54, pattern end: 133
+______________________
 4R
 telomer span: 1-41, length: 41, pattern Start: 55, pattern end: 95
 telomer span: 42-58, length: 17, pattern Start: 23, pattern end: 39
+______________________
 5L
 telomer span: 1-33, length: 33, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 34-51, length: 18, pattern Start: 22, pattern end: 39
@@ -82,11 +91,13 @@ telomer span: 431-466, length: 36, pattern Start: 60, pattern end: 95
 telomer span: 467-493, length: 27, pattern Start: 54, pattern end: 80
 telomer span: 494-530, length: 37, pattern Start: 102, pattern end: 2
 telomer span: 531-570, length: 40, pattern Start: 83, pattern end: 122
+______________________
 6L
 telomer span: 1-17, length: 17, pattern Start: 20, pattern end: 36
 telomer span: 18-42, length: 25, pattern Start: 20, pattern end: 44
 telomer span: 43-56, length: 14, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 57-100, length: 44, pattern Start: 54, pattern end: 97
+______________________
 7L
 telomer span: 1-20, length: 20, pattern Start: 20, pattern end: 39
 telomer span: 21-27, length: 7, pattern Start: ambiguous, pattern end: ambiguous
@@ -99,12 +110,14 @@ telomer span: 95-839, length: 745, pattern Start: 76, pattern end: 4
 telomer span: 840-1071, length: 232, pattern Start: 27, pattern end: 122
 telomer span: 1072-1141, length: 70, pattern Start: 45, pattern end: 114
 telomer span: 1142-1209, length: 68, pattern Start: 102, pattern end: 33
+______________________
 7R
 telomer span: 1-27, length: 27, pattern Start: 20, pattern end: 46
 telomer span: 28-37, length: 10, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 38-65, length: 28, pattern Start: 111, pattern end: 2
 telomer span: 66-83, length: 18, pattern Start: 10, pattern end: 27
 telomer span: 84-367, length: 284, pattern Start: 135, pattern end: 10
+______________________
 8L
 telomer span: 1-14, length: 14, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 15-27, length: 13, pattern Start: ambiguous, pattern end: ambiguous
@@ -113,6 +126,7 @@ telomer span: 38-65, length: 28, pattern Start: 111, pattern end: 2
 telomer span: 66-82, length: 17, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 83-110, length: 28, pattern Start: 113, pattern end: 4
 telomer span: 111-176, length: 66, pattern Start: 75, pattern end: 4
+______________________
 9L
 telomer span: 1-2, length: 2, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 3-22, length: 20, pattern Start: 121, pattern end: 4
@@ -120,16 +134,19 @@ telomer span: 23-44, length: 22, pattern Start: 47, pattern end: 68
 telomer span: 45-55, length: 11, pattern Start: 118, pattern end: 128
 telomer span: 56-89, length: 34, pattern Start: 119, pattern end: 16
 telomer span: 90-114, length: 25, pattern Start: 78, pattern end: 102
+______________________
 10L
 telomer span: 1-2, length: 2, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 3-22, length: 20, pattern Start: 121, pattern end: 4
 telomer span: 23-44, length: 22, pattern Start: 47, pattern end: 68
 telomer span: 45-55, length: 11, pattern Start: 118, pattern end: 128
 telomer span: 56-117, length: 62, pattern Start: 119, pattern end: 44
+______________________
 10R
 telomer span: 1-14, length: 14, pattern Start: 26, pattern end: 39
 telomer span: 15-23, length: 9, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 24-41, length: 18, pattern Start: 21, pattern end: 38
+______________________
 11L
 telomer span: 1-27, length: 27, pattern Start: 80, pattern end: 106
 telomer span: 28-54, length: 27, pattern Start: 76, pattern end: 102
@@ -140,6 +157,7 @@ telomer span: 644-731, length: 88, pattern Start: 102, pattern end: 53
 telomer span: 732-799, length: 68, pattern Start: 34, pattern end: 101
 telomer span: 800-874, length: 75, pattern Start: 115, pattern end: 53
 telomer span: 875-1110, length: 236, pattern Start: 34, pattern end: 133
+______________________
 12L
 telomer span: 1-19, length: 19, pattern Start: 20, pattern end: 38
 telomer span: 20-39, length: 20, pattern Start: 25, pattern end: 44
@@ -156,6 +174,7 @@ telomer span: 1797-2359, length: 563, pattern Start: 96, pattern end: 114
 telomer span: 2360-2438, length: 79, pattern Start: 102, pattern end: 44
 telomer span: 2439-2625, length: 187, pattern Start: 39, pattern end: 89
 telomer span: 2626-2675, length: 50, pattern Start: 78, pattern end: 127
+______________________
 12R
 telomer span: 1-8, length: 8, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 9-15, length: 7, pattern Start: ambiguous, pattern end: ambiguous
@@ -163,10 +182,12 @@ telomer span: 16-42, length: 27, pattern Start: 69, pattern end: 95
 telomer span: 43-59, length: 17, pattern Start: 23, pattern end: 39
 telomer span: 60-79, length: 20, pattern Start: 119, pattern end: 2
 telomer span: 80-98, length: 19, pattern Start: 15, pattern end: 33
+______________________
 13L
 telomer span: 1-25, length: 25, pattern Start: 78, pattern end: 102
 telomer span: 26-44, length: 19, pattern Start: 84, pattern end: 102
 telomer span: 45-89, length: 45, pattern Start: 57, pattern end: 101
+______________________
 13R
 telomer span: 1-14, length: 14, pattern Start: 26, pattern end: 39
 telomer span: 15-24, length: 10, pattern Start: ambiguous, pattern end: ambiguous
@@ -174,6 +195,7 @@ telomer span: 25-45, length: 21, pattern Start: 126, pattern end: 10
 telomer span: 46-71, length: 26, pattern Start: 49, pattern end: 74
 telomer span: 72-211, length: 140, pattern Start: 124, pattern end: 127
 telomer span: 212-1375, length: 1164, pattern Start: 94, pattern end: 33
+______________________
 14L
 telomer span: 1-8, length: 8, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 9-15, length: 7, pattern Start: ambiguous, pattern end: ambiguous
@@ -189,10 +211,12 @@ telomer span: 848-869, length: 22, pattern Start: 81, pattern end: 102
 telomer span: 870-953, length: 84, pattern Start: 40, pattern end: 123
 telomer span: 954-1054, length: 101, pattern Start: 40, pattern end: 4
 telomer span: 1055-1626, length: 572, pattern Start: 47, pattern end: 74
+______________________
 14R
 telomer span: 1-10, length: 10, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 11-216, length: 206, pattern Start: 71, pattern end: 4
 telomer span: 217-282, length: 66, pattern Start: 75, pattern end: 4
+______________________
 15L
 telomer span: 1-4, length: 4, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 5-14, length: 10, pattern Start: ambiguous, pattern end: ambiguous
@@ -205,6 +229,7 @@ telomer span: 1406-1493, length: 88, pattern Start: 102, pattern end: 53
 telomer span: 1494-1561, length: 68, pattern Start: 34, pattern end: 101
 telomer span: 1562-1636, length: 75, pattern Start: 115, pattern end: 53
 telomer span: 1637-1872, length: 236, pattern Start: 34, pattern end: 133
+______________________
 15R
 telomer span: 1-2, length: 2, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 3-15, length: 13, pattern Start: 121, pattern end: 133
@@ -220,6 +245,7 @@ telomer span: 2474-2522, length: 49, pattern Start: 96, pattern end: 8
 telomer span: 2523-2574, length: 52, pattern Start: 113, pattern end: 28
 telomer span: 2575-2644, length: 70, pattern Start: 11, pattern end: 80
 telomer span: 2645-2807, length: 163, pattern Start: 96, pattern end: 122
+______________________
 16L
 telomer span: 1-8, length: 8, pattern Start: ambiguous, pattern end: ambiguous
 telomer span: 9-15, length: 7, pattern Start: ambiguous, pattern end: ambiguous

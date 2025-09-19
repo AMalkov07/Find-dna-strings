@@ -6,7 +6,7 @@ from utils.data_structures import TelomereSequence, AlignmentData, Config, Imper
 from analysis.alignment_seed_and_extend_pipeline import SeedAndExtend
 
 class AlignmentStrategy:
-    def __init__(self, telomeres: List[TelomereSequence], pattern: str, config: Config):
+    def __init__(self, telomeres: List[Optional[TelomereSequence]], pattern: str, config: Config):
         self.telomers = telomeres
         self.pattern = pattern
         self.config = config

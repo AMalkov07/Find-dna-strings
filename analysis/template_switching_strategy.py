@@ -2,8 +2,8 @@ from utils.data_structures import TelomereSequence, Config, TemplateSwitchEvent,
 from typing import List, Optional
 
 class TemplateSwitchingStrategy:
-    def __init__(self, telomeres: List[TelomereSequence], pattern: str, config: Config):
-        self.telomers: List[TelomereSequence] = telomeres
+    def __init__(self, telomeres: List[Optional[TelomereSequence]], pattern: str, config: Config):
+        self.telomers: List[Optional[TelomereSequence]] = telomeres
         self.pattern: str = pattern
         self.config = config
         

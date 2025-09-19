@@ -1,4 +1,6 @@
 from typing import List, Optional
+from os.path import splitext
+from _io import TextIOWrapper
 
 from utils.data_structures import TemplateSwitchData, TemplateSwitchEvent, Config, TelomereSequence
 
@@ -14,13 +16,15 @@ class TemplateSwitchingPrint:
         diff = abs(i - j)
         return min(diff, n-diff)  
 
-    def _chr_end_print(self, telomer: TelomereSequence, template_switch_analysis: TemplateSwitchData, main_output_file) -> None:
+    def _chr_end_print(self, telomer: TelomereSequence, template_switch_analysis: TemplateSwitchData, main_output_file: TextIOWrapper, variants_output_file: TextIOWrapper) -> None:
         telomer_str: str = telomer.sequence
         n_telomer_str = len(telomer_str)
         n_pattern = len(self.pattern)
         indexes = template_switch_analysis.template_switch_event_indexes
 
-        primary_output = [telomer.chromosome_end_id]
+        primary_output: List[str] = ["______________________"]
+        primary_output.append(telomer.chromosome_end_id)
+        variants_file_output: List[str] = []
 
         for i, indx in enumerate(indexes):
             if not indx:
@@ -33,6 +37,8 @@ class TemplateSwitchingPrint:
             pattern_start: int = template_switch_info.pattern_start
             pattern_end: int = template_switch_info.pattern_end
             is_mutation: bool = template_switch_info.is_mutation
+            strain_name: str = telomer.survivor_name
+            chr_end: str = telomer.chromosome_end_id
 
             last_end = None
             last_last_end = None
@@ -41,6 +47,7 @@ class TemplateSwitchingPrint:
             if is_mutation:
                 primary_output.append(f"pos: {telomer_start}: {telomer_chunk} mutation")
                 #variants_file_output.append(f"{strain_name},{chr_end},{repeat_num},1,{reference_start},{reference_end},N/A,N/A,N/A,N/A")
+                variants_file_output.append(f"{strain_name},{chr_end},,1,{telomer_start},{telomer_end},N/A,N/A,N/A,N/A")
                 last_last_end = None
                 last_end = None
                 last_length = None           
@@ -58,6 +65,7 @@ class TemplateSwitchingPrint:
                     if_small_jump = "N/A"
                 primary_output.append(f"telomer span: {telomer_start}-{telomer_end}, length: {n_telomer_chunk}, pattern Start: {pattern_start}, pattern end: {pattern_end}")
                 #variants_file_output.append(f"{strain_name},{chr_end},{repeat_num},{n_reference_chunk},{reference_start},{reference_end},{circleString_start},{circleString_end},{if_small_jump},{memory_jump_val}")
+                variants_file_output.append(f"{strain_name},{chr_end},{n_telomer_chunk},{telomer_start},{telomer_end},{pattern_start},{pattern_end},{if_small_jump},{memory_jump_val}")
                 last_last_end = last_end
                 last_end = pattern_end
                 last_length = n_telomer_chunk
@@ -66,9 +74,16 @@ class TemplateSwitchingPrint:
         final_string = "\n".join(primary_output)
         print(final_string, file=main_output_file)
 
+        final_variant_string = "\n".join(variants_file_output)
+        print(final_variant_string, file=variants_output_file)
+
 
     def print_analysis(self) -> None:
-        main_output_file = open(self.config.output_file, 'w')
+        output_file_name = self.config.output_file
+        base, ext = splitext(output_file_name)
+        variants_filename = f"{base}_variants.vcf"
+        main_output_file = open(output_file_name, 'w')
+        variants_output_file = open(variants_filename, 'w')
         for i, telomer in enumerate(self.telomers):
             if telomer and telomer.sequence:
-                self._chr_end_print(telomer, self.analysis[i], main_output_file)
+                self._chr_end_print(telomer, self.analysis[i], main_output_file, variants_output_file)

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Set
 import parasail
 import re
 
@@ -85,49 +85,49 @@ class SeedAndExtend:
 
     def _analyze_from_cigar(self, cigar_str: str, sub_mutagenic_zone: str, mutagenic_zone_start: int) -> ImperfectAlignmentEvent:
         #Fix: get rid of below 2 variables and rename stuff in this function
-        query = self.pattern
-        ref = sub_mutagenic_zone
+        pattern = self.pattern
+        sub_mutagenic_zone = sub_mutagenic_zone
 
         ops: List[Tuple[str, int]] = self._parse_cigar_string(cigar_str)
         if len(ops) == 0:
             raise ValueError("Empty Cigar")
         # count consumption
-        ref_consumed = sum(l for (op, l) in ops if op in ('M', 'D', '=', 'X'))
-        query_consumed = sum(l for (op, l) in ops if op in ('M', 'I', '=', 'X'))
+        sub_mutagenic_zone_consumed = sum(l for (op, l) in ops if op in ('M', 'D', '=', 'X'))
+        pattern_consumed = sum(l for (op, l) in ops if op in ('M', 'I', '=', 'X'))
         # soft clip lengths (if any)
         left_soft = ops[0][1] if ops[0][0] == 'S' else 0
         right_soft = ops[-1][1] if ops[-1][0] == 'S' else 0
-        query_total = query_consumed + left_soft + right_soft
+        pattern_total = pattern_consumed + left_soft + right_soft
 
-        beg_query = left_soft
-        end_query = beg_query + query_consumed + right_soft - 1
+        beg_pattern = left_soft
+        end_pattern = beg_pattern + pattern_consumed + right_soft - 1
 
-        # If user expects entire query aligned (semi-global), validate this:
-        if query_total != len(query):
+        # If user expects entire pattern aligned (semi-global), validate this:
+        if pattern_total != len(pattern):
             # Not fatal, but warn via exception text so caller notices.
             # (We could also choose to silently continue; you asked for clarity.)
             raise ValueError(
-                f"CIGAR-consumed query length ({query_total}) != len(query) ({len(query)}). "
-                "For a true semi-global alignment the entire query should be consumed. "
+                f"CIGAR-consumed pattern length ({pattern_total}) != len(pattern) ({len(sub_mutagenic_zone)}). "
+                "For a true semi-global alignment the entire pattern should be consumed. "
                 "Check that you called an sg_trace_* function (no soft-clips) or that your "
                 "CIGAR matches expectations."
             )
 
-        # Compute beginning ref coordinate if missing, try inclusive/exclusive interpretations
+        # Compute beginning sub_mutagenic_zone coordinate if missing, try inclusive/exclusive interpretations
         if ops[0][0] == 'D':
-            beg_ref = ops[0][1]
+            beg_sub_mutagenic_zone = ops[0][1]
         else:
-            beg_ref = 0
+            beg_sub_mutagenic_zone = 0
 
         # Now do the actual mapping walk; check bounds as we go
-        ref_pos = int(beg_ref)
-        query_pos = int(beg_query)
+        sub_mutagenic_zone_pos = int(beg_sub_mutagenic_zone)
+        pattern_pos = int(beg_pattern)
 
         matches = 0
         mismatches: List[Tuple[int, str, str]]= []
-        insertions: List[Tuple[int, str]] = []  # (ref_pos_where_insertion_happens, query_pos_start, length, seq)
-        deletions: List[Tuple[int, str]] = []   # (ref_pos_start, length, seq)
-        match_positions_ref = []  # all ref indices that are exact matches
+        insertions: List[Tuple[int, str]] = []  # (sub_mutagenic_zone_pos_where_insertion_happens, pattern_pos_start, length, seq)
+        deletions: List[Tuple[int, str]] = []   # (sub_mutagenic_zone_pos_start, length, seq)
+        match_positions_sub_mutagenic_zone = []  # all ref indices that are exact matches
 
         if ops[0][0] == 'D':
             ops = ops[1:]
@@ -136,75 +136,75 @@ class SeedAndExtend:
         L_save = None
 
         for op, L in ops:
-            if query_pos >= len(query) or ref_pos >= len(ref) or query[query_pos] == 'N':
-                if query_pos < len(query) and query[query_pos] == 'N':
-                    query_pos = len(query)
+            if pattern_pos >= len(pattern) or sub_mutagenic_zone_pos >= len(sub_mutagenic_zone) or pattern[pattern_pos] == 'N':
+                if pattern_pos < len(pattern) and pattern[pattern_pos] == 'N':
+                    pattern_pos = len(pattern)
                 op_save = op
                 L_save = L
                 break
             if op in ('M', '=', 'X'):
                 for i in range(L):
-                    #r_idx = ref_pos + i - beg_ref
-                    #q_idx = query_pos + i - beg_query
-                    r_idx = ref_pos + i 
-                    q_idx = query_pos + i
+                    #r_idx = sub_mutagenic_zone_pos + i - beg_ref
+                    #q_idx = pattern_pos + i - beg_pattern
+                    r_idx = sub_mutagenic_zone_pos + i 
+                    q_idx = pattern_pos + i
                     #r_idx = i + L
                     #q_idx = i + L
-                    if r_idx < 0 or r_idx >= len(ref) or q_idx < 0 or q_idx >= len(query):
+                    if r_idx < 0 or r_idx >= len(sub_mutagenic_zone) or q_idx < 0 or q_idx >= len(pattern):
                         raise IndexError(f"Index out of range during CIGAR walk: r_idx={r_idx}, q_idx={q_idx}")
-                    rbase = ref[r_idx]
-                    qbase = query[q_idx]
+                    rbase = sub_mutagenic_zone[r_idx]
+                    qbase = pattern[q_idx]
                     if rbase == qbase:
                         matches += 1
-                        match_positions_ref.append(r_idx)
+                        match_positions_sub_mutagenic_zone.append(r_idx)
                     else:
                         #mismatches.append((r_idx, q_idx, rbase, qbase))
-                        mismatches.append((q_idx+1, qbase, rbase)) # the relative r_idx should be r_idx - true_beg_ref
-                        #mismatches.append((r_idx-true_beg_ref, q_idx-true_beg_ref, rbase, qbase))
-                ref_pos += L
-                query_pos += L
+                        mismatches.append((q_idx+1, qbase, rbase)) # the relative r_idx should be r_idx - true_beg_sub_mutagenic_zone
+                        #mismatches.append((r_idx-true_beg_sub_mutagenic_zone, q_idx-true_beg_ref, rbase, qbase))
+                sub_mutagenic_zone_pos += L
+                pattern_pos += L
             elif op == 'I': #treat I's like deletions not insertions
-                # convention: insertion at current ref_pos (between ref_pos-1 and ref_pos)
+                # convention: insertion at current sub_mutagenic_zone_pos (between ref_pos-1 and ref_pos)
                 for i in range(L):
-                    q_idx = query_pos + i
-                    q_base = query[q_idx]
+                    q_idx = pattern_pos + i
+                    q_base = pattern[q_idx]
                     deletions.append((q_idx+1, q_base))
-                query_pos += L
+                pattern_pos += L
             elif op == 'D': # treat D's like insertions not deletions
                 for i in range(L):
-                    r_idx = ref_pos + i
-                    r_base = ref[r_idx]
-                    insertions.append((query_pos, r_base))
-                ref_pos += L
-                #query_pos += 1
+                    r_idx = sub_mutagenic_zone_pos + i
+                    r_base = sub_mutagenic_zone[r_idx]
+                    insertions.append((pattern_pos, r_base))
+                sub_mutagenic_zone_pos += L
+                #pattern_pos += 1
             elif op == 'S':
-                # soft clip: consumes query only (these were accounted for earlier)
-                query_pos += L
+                # soft clip: consumes pattern only (these were accounted for earlier)
+                pattern_pos += L
             elif op == 'H':
                 # hard clip: consumes neither
                 pass
             elif op == 'N':
-                # skipped region in reference (like intron) - consumes ref
-                ref_pos += L
+                # skipped region in sub_mutagenic_zoneerence (like intron) - consumes ref
+                sub_mutagenic_zone_pos += L
             else:
                 raise ValueError(f"Unhandled CIGAR op '{op}'")
 
-        #incase reference is smaller then query and there are a bunch of deletions at the end:
-        if query_pos < len(query) and op_save == 'I' and L_save:
+        #incase sub_mutagenic_zoneerence is smaller then pattern and there are a bunch of deletions at the end:
+        if pattern_pos < len(pattern) and op_save == 'I' and L_save:
             for i in range(L_save):
-                q_idx = query_pos + i
-                q_base = query[q_idx]
+                q_idx = pattern_pos + i
+                q_base = pattern[q_idx]
                 deletions.append((q_idx+1, q_base))
 
         n_mistakes = len(insertions) + len(deletions) + len(mismatches)
-        score = (len(query) - n_mistakes) / len(query)
+        score = (len(pattern) - n_mistakes) / len(pattern)
 
-        end_ref = ref_pos - 1
+        end_sub_mutagenic_zone = sub_mutagenic_zone_pos - 1
 
         output = ImperfectAlignmentEvent(
             full_telomer_start_index=None,
-            mutagenic_zone_start_index=mutagenic_zone_start + beg_ref,
-            mutagenic_zone_end_index=mutagenic_zone_start + end_ref,
+            mutagenic_zone_start_index=mutagenic_zone_start + beg_sub_mutagenic_zone,
+            mutagenic_zone_end_index=mutagenic_zone_start + end_sub_mutagenic_zone,
             insertion_events=insertions,
             deletion_events=deletions,
             mismatch_events=mismatches,
@@ -215,31 +215,31 @@ class SeedAndExtend:
 
     def _simple_alignment(self) -> List[ImperfectAlignmentEvent]:
         alignments: List[ImperfectAlignmentEvent] = []
-        max_mistakes = self.config.maximum_alignment_mutations
+        max_mistakes: int = self.config.maximum_alignment_mutations
         n_pattern = len(self.pattern)
         n_mutagenic_zone = len(self.mutagenic_zone)
 
-        window_size = min(n_pattern + n_pattern // max_mistakes, n_mutagenic_zone)
+        window_size: int = min(n_pattern + n_pattern // max_mistakes, n_mutagenic_zone)
 
-        region = self.mutagenic_zone
-        n_region = len(region)
+        region: str = self.mutagenic_zone
+        n_region: int = len(region)
 
-        match_score = self.seed_extend_settings.alignment_settings.match
-        mismatch_score = self.seed_extend_settings.alignment_settings.mismatch
-        gap_open_score = self.seed_extend_settings.alignment_settings.gap_open
-        gap_extend_score = self.seed_extend_settings.alignment_settings.gap_extend
+        match_score: int = self.seed_extend_settings.alignment_settings.match
+        mismatch_score: int = self.seed_extend_settings.alignment_settings.mismatch
+        gap_open_score: int = self.seed_extend_settings.alignment_settings.gap_open
+        gap_extend_score: int = self.seed_extend_settings.alignment_settings.gap_extend
         matrix = parasail.matrix_create("ACGT", match_score, mismatch_score)
 
-        slide_end = n_region - min(n_pattern, n_region) + 1
+        slide_end: int = n_region - min(n_pattern, n_region) + 1
         for start in range(0, slide_end, 1):
-            mutagenic_zone_start = start 
-            sub_mutagenic_zone = region[start: start + window_size]
+            mutagenic_zone_start: int = start 
+            sub_mutagenic_zone: str = region[start: start + window_size]
 
             parasail_alignment: Result = parasail.sg_trace_scan(self.pattern, sub_mutagenic_zone, gap_open_score, gap_extend_score, matrix)
 
             try:
                 #Fix: make sure the below gives the correct cigar strings
-                cigar_str = str(parasail_alignment.cigar.decode)
+                cigar_str: str = str(parasail_alignment.cigar.decode)
             except:
                 raise ValueError("your version of parasail does not give access to the cigar string with the sg_trace_scan function. Please use different version of parasail")
 
@@ -302,9 +302,9 @@ class SeedAndExtend:
         if abs(start_diff) > 10:
             return False
 
-        deletions_a = {x[0] for x in aln_a.deletion_events} # makes a set
-        insertions_a = {x[0] for x in aln_a.insertion_events} # makes a set
-        mismatches_a = {x[0] for x in aln_a.mismatch_events} # makes a set
+        deletions_a: Set[int] = {x[0] for x in aln_a.deletion_events}
+        insertions_a: set[int] = {x[0] for x in aln_a.insertion_events}
+        mismatches_a: Set[int] = {x[0] for x in aln_a.mismatch_events}
 
         for i in aln_b.insertion_events:
             if i[0] not in insertions_a:
@@ -324,8 +324,8 @@ class SeedAndExtend:
     def _filter_redundant_alignments_by_error(self, alignments: List[ImperfectAlignmentEvent]) -> List[ImperfectAlignmentEvent]:
 
         kept: List[ImperfectAlignmentEvent] = []
-        added_start_pos = set()
-        #fix: redundant with the sort inside of execute function
+        added_start_pos: Set = set()
+
         alignments = sorted(alignments, key=lambda x: x.score, reverse=True)
 
         for i, aln_a in enumerate(alignments):
@@ -359,7 +359,7 @@ class SeedAndExtend:
         # dp[i] stores the best solution that ENDS at alignment i
         # tuple layout:
         #   (count, gaps_including_start, score, first_start, path_list)
-        dp = [None] * n
+        dp: List[Optional[Tuple[int, int, int, int, List[ImperfectAlignmentEvent]]]] = [None] * n
 
         #for i, (si, ei, sco_i, *rest_i) in enumerate(aligns):
         for i in range(n):
@@ -450,7 +450,6 @@ class SeedAndExtend:
         else:
             results: List[ImperfectAlignmentEvent] = self._simple_alignment()
 
-        results = sorted(results, key = lambda x: x.score, reverse=True)
         results = self._filter_redundant_alignments_by_error(results)
         final_result: List[ImperfectAlignmentEvent] = self._best_non_overlapping_alignments(results)
 

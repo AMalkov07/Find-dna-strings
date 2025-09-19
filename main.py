@@ -23,6 +23,7 @@ def run_analysis(config: Config) -> None:
     # Step 3: Analyze sequences
     strategy = config.analysis_strategy
     if strategy == "template_switching":
+        print("performing template switching analysis")
         analyzer = TemplateSwitchingStrategy(telomers, pattern, config)
         template_switch_analysis: List[Optional[TemplateSwitchData]] = analyzer.execute()
     else:
@@ -48,10 +49,6 @@ def run_analysis(config: Config) -> None:
     # Step 4: Create graph
     graph_gen = GraphGenerator()
     graph_path = graph_gen.create_graph(results)
-        
-    # Step 5: Export results
-    exporter = ResultExporter(self.config.output_file)
-    exporter.export_results(pattern, results, graph_path)
     '''
 
 
