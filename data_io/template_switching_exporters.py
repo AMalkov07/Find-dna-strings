@@ -6,8 +6,7 @@ from utils.data_structures import TemplateSwitchData, TemplateSwitchEvent, Confi
 
 class TemplateSwitchingPrint:
     #fix figure out way to associate telomers and analysis arrays with each other
-    def __init__(self, analysis: List[Optional[TemplateSwitchData]], telomers: List[Optional[TelomereSequence]], config: Config, pattern: str):
-        self.analysis = analysis
+    def __init__(self, telomers: List[Optional[TelomereSequence]], config: Config, pattern: str):
         self.telomers = telomers
         self.config = config
         self.pattern = pattern
@@ -84,6 +83,9 @@ class TemplateSwitchingPrint:
         variants_filename = f"{base}_variants.vcf"
         main_output_file = open(output_file_name, 'w')
         variants_output_file = open(variants_filename, 'w')
-        for i, telomer in enumerate(self.telomers):
+        for telomer in self.telomers:
             if telomer and telomer.sequence:
-                self._chr_end_print(telomer, self.analysis[i], main_output_file, variants_output_file)
+                if isinstance(telomer.analysis, TemplateSwitchData):
+                    self._chr_end_print(telomer, telomer.analysis, main_output_file, variants_output_file)
+                else:
+                    raise ValueError("telomer _chr_end_print function failed to be called because the analysis type isn't TemplateSwitchData")

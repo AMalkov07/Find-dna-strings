@@ -25,18 +25,19 @@ def run_analysis(config: Config) -> None:
     if strategy == "template_switching":
         print("performing template switching analysis")
         analyzer = TemplateSwitchingStrategy(telomers, pattern, config)
-        template_switch_analysis: List[Optional[TemplateSwitchData]] = analyzer.execute()
+        #template_switch_analysis: List[Optional[TemplateSwitchData]] = analyzer.execute()
+        analyzer.execute()
     else:
         print("performing alignment analysis")
         analyzer = AlignmentStrategy(telomers, pattern, config)
-        alignment_analysis: List[Optional[AlignmentData]] = analyzer.execute()
+        analyzer.execute()
 
     # Step 5: Export results
     if strategy == "template_switching":
-        template_switch_exporter = TemplateSwitchingPrint(template_switch_analysis, telomers, config, pattern)
+        template_switch_exporter = TemplateSwitchingPrint(telomers, config, pattern)
         template_switch_exporter.print_analysis()
     else:
-        alignment_exporter = AlignmentPrint(alignment_analysis, telomers, config, pattern)
+        alignment_exporter = AlignmentPrint(telomers, config, pattern)
         alignment_exporter.print_analysis()
             
 
@@ -60,7 +61,8 @@ def main(args) -> None:
         max_ends=args.maximum_ends,
         pattern=args.pattern,
         maximum_alignment_mutations=args.maximum_alignment_mutations,
-        skip_seeding=args.skip_seeding
+        skip_seeding=args.skip_seeding,
+        compare_file_path=args.compare_output
     )
 
     # check if file exists
@@ -74,6 +76,10 @@ def main(args) -> None:
     # check if valid analysis strategy
     if config.analysis_strategy != "template_switching" and config.analysis_strategy != "alignment":
         raise ValueError("invalid strategy name")
+
+    # check if compare file path exists
+    if config.compare_file_path and not os.path.isfile(config.compare_file_path):
+        raise FileNotFoundError(f"File not found: {config.compare_file_path}")
 
     run_analysis(config)
 
@@ -110,7 +116,7 @@ if __name__ == "__main__":
                         help="optional input for graph title (must be used with --graph_output flag)")
     parser.add_argument("-p", "--pattern",
                         help="used to specify the exact pattern to look for instead of the programming trying to find the circle pattern automatically")
-    parser.add_argument("-co", "--compare_output",
+    parser.add_argument("-co", "--compare_output", type=str, default=None,
                         help="used for comparing the output of the program to Ivan's CSV files")
     parser.add_argument("-mam", "--maximum_alignment_mutations", type=int, default=12,
                         help="determines the cutoff for a valid mutation. Default is 1 mutations per 12 bps")

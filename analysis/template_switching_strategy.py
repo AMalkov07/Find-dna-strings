@@ -66,9 +66,9 @@ class TemplateSwitchingStrategy:
         return current_analysis
 
 
-    def execute(self) -> List[Optional[TemplateSwitchData]]:
-        analysis_output: List[Optional[TemplateSwitchData]] = [None] * self.config.max_ends
-        for i, telomer in enumerate(self.telomers):
+    def execute(self) -> None:
+        #analysis_output: List[Optional[TemplateSwitchData]] = [None] * self.config.max_ends
+        for telomer in self.telomers:
             if telomer and telomer.sequence:
-                analysis_output[i] = self._identify_template_switches(telomer.sequence)
-        return analysis_output
+                telomer.analysis = self._identify_template_switches(telomer.sequence)
+        #return analysis_output

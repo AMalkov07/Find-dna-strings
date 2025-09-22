@@ -1,11 +1,12 @@
 from dataclasses import dataclass
-from typing import List, Dict, Tuple, Any, Optional
+from typing import List, Dict, Tuple, Any, Optional, Union
 
 @dataclass
 class TelomereSequence:
     survivor_name: str
     sequence: Optional[str]
     chromosome_end_id: str
+    analysis: Optional[Union["TemplateSwitchData", "AlignmentData"]] #quotes are because the types are defined later in the file
     
 @dataclass
 class AnalysisResult:
@@ -24,6 +25,7 @@ class Config:
     pattern: str
     maximum_alignment_mutations: int
     skip_seeding: Optional[bool]
+    compare_file_path: str
 
 @dataclass
 class TemplateSwitchEvent:
@@ -43,7 +45,7 @@ class TemplateSwitchData:
 
 @dataclass
 class ImperfectAlignmentEvent:
-    full_telomer_start_index: Optional[List[int]]
+    full_telomer_start_index: Optional[int]
     mutagenic_zone_start_index: int
     mutagenic_zone_end_index: int
     insertion_events: List[Tuple[int, str]]
@@ -82,3 +84,12 @@ class SeedExtendCluster:
     rmin: int
     rmax: int
     n_seeds: int
+
+@dataclass
+class CsvLine:
+    survivor_id: int
+    chr_end: str
+    alignment_id: int
+    insertions: List[Tuple[int, str]]
+    deletions: List[Tuple[int, str]]
+    mismatches: List[Tuple[int, str, str]]

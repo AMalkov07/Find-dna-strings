@@ -24,7 +24,7 @@ class FastaReader:
 
     def _extract_header_info(self, header: str) -> Tuple[str, str, int]:
         #fix: add user input option for this regular expression and harded if statement below
-        match = re.search(r'^([^_]+)_(\d+)([LR])_', header)
+        match = re.search(r'^([^_]+)_(\d+)([LR])', header)
         if match:
             survivor_name = match.group(1)
             index = int(match.group(2))  # Extract the matched number
@@ -150,7 +150,7 @@ class FastaReader:
         Exit point: List of TelomereSequence objects
         """
         fasta_extract = self._read_fasta()
-        telomers = [None] * self.max_ends
+        telomers: List[Optional[TelomereSequence]] = [None] * self.max_ends
         for header, sequence in fasta_extract:
             survivor_name, chr_match, chr_index_converted = self._extract_header_info(header)
             if telomers[chr_index_converted]:
@@ -161,7 +161,8 @@ class FastaReader:
             best_telomer = self._get_better_end(start_telomer, end_telomer)
             telomers[chr_index_converted] = TelomereSequence(survivor_name=survivor_name,
                                                               sequence=best_telomer,
-                                                              chromosome_end_id=chr_match)
+                                                              chromosome_end_id=chr_match,
+                                                              analysis=None)
 
         return telomers
     

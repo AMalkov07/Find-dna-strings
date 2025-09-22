@@ -11,6 +11,7 @@ class AlignmentStrategy:
         self.pattern = pattern
         self.config = config
         self.alignment_settings = AlignmentSettings(match=5, mismatch=-4, gap_open=10, gap_extend=2)
+        #self.alignment_settings = AlignmentSettings(match=47, mismatch=-40, gap_open=100, gap_extend=24)
 
     def _identify_perfect_alignments(self, telomer_str: str) -> List[int]:
         pattern = self.pattern
@@ -76,8 +77,6 @@ class AlignmentStrategy:
 
             seed_and_extend_pipeline = SeedAndExtend(current_mutagenic_zone, self.pattern, seed_hit_settings, self.config)
             imperfect_alignments: List[ImperfectAlignmentEvent] = seed_and_extend_pipeline.execute()
-            for i in imperfect_alignments:
-                i.full_telomer_start_index = []
 
             if counter == 0 and str_locations[0] == 0 and n_queue > 1:
             #if False:
@@ -91,7 +90,7 @@ class AlignmentStrategy:
                             #print("ERROR, no aligned length")
                             #continue
                         if curr_imperfect_alignment.mutagenic_zone_end_index == end_str:
-                            curr_imperfect_alignment.full_telomer_start_index.append(curr_imperfect_alignment.mutagenic_zone_start_index + str_locations[counter])
+                            curr_imperfect_alignment.full_telomer_start_index = curr_imperfect_alignment.mutagenic_zone_start_index + str_locations[counter]
 
                             all_imperfect_events_in_end += imperfect_alignments
 
@@ -102,7 +101,7 @@ class AlignmentStrategy:
                 for curr_imperfect_alignment in imperfect_alignments:
                 
                     #good_alignment_starting_pos.append(curr_imperfect_alignment['absolute_ref_start']+str_locations[counter])
-                    curr_imperfect_alignment.full_telomer_start_index.append(curr_imperfect_alignment.mutagenic_zone_start_index+str_locations[counter])
+                    curr_imperfect_alignment.full_telomer_start_index = curr_imperfect_alignment.mutagenic_zone_start_index+str_locations[counter]
 
                 all_imperfect_events_in_end += imperfect_alignments
 
@@ -113,11 +112,9 @@ class AlignmentStrategy:
         
             
 
-    def execute(self) -> List[Optional[AlignmentData]]:
-        analysis_output: List[Optional[AlignmentData]] = [None] * self.config.max_ends
-        for i, telomer in enumerate(self.telomers):
+    def execute(self) -> None:
+        for telomer in self.telomers:
             if telomer and telomer.sequence:
                 perfect_alignments: List[int] = self._identify_perfect_alignments(telomer.sequence)
                 imperfect_alignment = self._identiy_imperfect_alignments(telomer.sequence, perfect_alignments)
-                analysis_output[i] = AlignmentData(perfect_alignments=perfect_alignments, imperfect_alignments=imperfect_alignment)
-        return analysis_output
+                telomer.analysis = AlignmentData(perfect_alignments=perfect_alignments, imperfect_alignments=imperfect_alignment)
