@@ -564,7 +564,8 @@ def extend_cluster(query,
 
         #identity = analysis['matches'] / len(query)
 
-        if n_mistakes <= max_mistakes or n_events < max_events:
+        #if n_mistakes <= max_mistakes or n_events < max_events:
+        if n_mistakes <= max_mistakes:
         #if True:
 
             aln = {

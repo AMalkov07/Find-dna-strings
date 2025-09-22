@@ -3,8 +3,9 @@ import re
 import sys
 
 def parse_alignment_csv_line(line: str):
-    pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
+    #pattern = re.compile(r"^IT(\d+)\s(\d+[LR])-(\d+)$")
     #pattern = re.compile(r"^KRLT(\d+)\s(\d+[LR])-(\d+)$")
+    pattern = re.compile(r"^(?:IT|KRLT)(\d+)\s(\d+[LR])-(\d+)$")
     insertions = []
     deletions = []
     mismatches = []
@@ -854,8 +855,8 @@ def compare_outputs(previous_data_csvfile, new_data, stats_filename, variants_fi
         reader = csv.reader(csvfile)
         given_data_grouped_by_chr_dict = run_csv_parser(reader) # structure of this dict: {"1L": [[dict1], [d2], [d3, d4, d5 d6]], "2L": ...}
         new_data_grouped_by_chr_dict, strain_name = parse_new_data(new_data) # structure of this dict: {"1L": self_search_obj(1L), "2L": self_search_obj(2L), ...}
-        call_template_switch_print(new_data_grouped_by_chr_dict, variants_filename, circleString, strain_name)
-        return
+        #call_template_switch_print(new_data_grouped_by_chr_dict, variants_filename, circleString, strain_name)
+        #return
         print_differences(new_data_grouped_by_chr_dict, given_data_grouped_by_chr_dict, stats_filename, variants_filename, strain_name, circleString)
         for key in new_data_grouped_by_chr_dict.keys():
             if key not in given_data_grouped_by_chr_dict:

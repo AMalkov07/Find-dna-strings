@@ -45,7 +45,7 @@ for fname in files:
         given_mismatches_sum += int(nums[2])
 
 # Write the summed output
-with open("SumOutput_stats.txt", "w") as out:
+with open("Sum_stats.txt", "w") as out:
     out.write(f"total chr ends with mutagenic zone found: {zone_sum}\n")
     out.write(f"total chr ends with matching number of mutagenic areas: {areas_sum}\n")
     out.write(f"total chr ends with matching number of alignments: {alignments_sum}\n")

@@ -990,8 +990,8 @@ class find_loops:
                                         k=15,
                                         flank=80,
                                         #match=2, mismatch=-3, gap_open=5, gap_extend=2,
-                                        #match = 5, mismatch = -4,   gap_open= 10,  gap_extend =2,
-                                        match = 47, mismatch = -40,   gap_open= 100,  gap_extend =24,
+                                        match = 5, mismatch = -4,   gap_open= 10,  gap_extend =2,
+                                        #match = 47, mismatch = -40,   gap_open= 100,  gap_extend =24,
                                         #match = 1, mismatch = -3, gap_open= 5, gap_extend =1,
                                         min_identity=0.90,
                                         offset_tolerance=6,
@@ -1707,9 +1707,9 @@ class find_loops:
                     #key].extra_alignment_insertions_and_deletions = self.align_repeat_maker(key)
                 #self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[
                     #key].extra_alignment_insertions_and_deletions = self.both_alignments(key)
-                ###self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[ ## current parasail main solution that I"m working with
-                    ###key].extra_alignment_insertions_and_deletions = self.best_alignments_parasail(key)
-                self.alignment_alternative(key)
+                self.my_dict[key].extra_alignment_indexes, self.my_dict[key].all_extra_alignment_scores, self.my_dict[ ## current parasail main solution that I"m working with
+                    key].extra_alignment_insertions_and_deletions = self.best_alignments_parasail(key)
+                #self.alignment_alternative(key)
                 # print(
                 # f"extra indexes: {self.my_dict[key].extra_alignment_indexes} <<<<<<<<<<<<<<<<")
         self.filter_same_length()
