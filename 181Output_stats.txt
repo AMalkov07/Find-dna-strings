@@ -1,0 +1,5 @@
+total chr ends with mutagenic zone found: 19
+total chr ends with matching number of mutagenic areas: 18
+total chr ends with matching number of alignments: 18
+42 alignments matched perfectly out of 62 that were compared
+total insertion count: 104,  total deletions count: 76, total mismatches count: 76

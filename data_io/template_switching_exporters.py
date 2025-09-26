@@ -11,7 +11,7 @@ class TemplateSwitchingPrint:
         self.config = config
         self.pattern = pattern
 
-    def _circular_distance(self, i, j, n) -> int:
+    def _circular_distance(self, i: int, j: int, n) -> int:
         diff = abs(i - j)
         return min(diff, n-diff)  
 
@@ -24,6 +24,10 @@ class TemplateSwitchingPrint:
         primary_output: List[str] = ["______________________"]
         primary_output.append(telomer.chromosome_end_id)
         variants_file_output: List[str] = []
+
+        last_end = None
+        last_last_end = None
+        last_length = None
 
         for i, indx in enumerate(indexes):
             if not indx:
@@ -39,9 +43,6 @@ class TemplateSwitchingPrint:
             strain_name: str = telomer.survivor_name
             chr_end: str = telomer.chromosome_end_id
 
-            last_end = None
-            last_last_end = None
-            last_length = None
 
             if is_mutation:
                 primary_output.append(f"pos: {telomer_start}: {telomer_chunk} mutation")
@@ -58,11 +59,16 @@ class TemplateSwitchingPrint:
                        memory_jump_val = False
                 else:
                    memory_jump_val = "N/A" 
+
+
                 if last_end and last_end != "ambiguous" and pattern_start != "ambiguous":
-                    if_small_jump = self._circular_distance(last_end, pattern_start, n_pattern) <= 5
+                    jump_size = self._circular_distance(last_end, pattern_start, n_pattern) 
+                    if_small_jump = jump_size <= 5
+                    
                 else:
+                    jump_size = "N/A"
                     if_small_jump = "N/A"
-                primary_output.append(f"telomer span: {telomer_start}-{telomer_end}, length: {n_telomer_chunk}, pattern Start: {pattern_start}, pattern end: {pattern_end}")
+                primary_output.append(f"telomer span: {telomer_start}-{telomer_end}, length: {n_telomer_chunk}, pattern Start: {pattern_start}, pattern end: {pattern_end}, last_jump_size: {jump_size}")
                 #variants_file_output.append(f"{strain_name},{chr_end},{repeat_num},{n_reference_chunk},{reference_start},{reference_end},{circleString_start},{circleString_end},{if_small_jump},{memory_jump_val}")
                 variants_file_output.append(f"{strain_name},{chr_end},{n_telomer_chunk},{telomer_start},{telomer_end},{pattern_start},{pattern_end},{if_small_jump},{memory_jump_val}")
                 last_last_end = last_end

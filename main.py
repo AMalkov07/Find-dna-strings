@@ -4,10 +4,15 @@ from typing import List, Optional
 
 from utils.data_structures import Config, TelomereSequence, TemplateSwitchData, AlignmentData
 from data_io.fasta_reader import FastaReader
+from analysis.pattern_finder import PatternFinder
 from analysis.alignment_strategy import AlignmentStrategy
 from analysis.template_switching_strategy import TemplateSwitchingStrategy
+from data_io.graph_alignment import GraphAlignment
+from data_io.graph_template_switching import GraphTemplateSwitching
 from data_io.template_switching_exporters import TemplateSwitchingPrint
 from data_io.alignment_exporters import AlignmentPrint
+
+import pattern_finder_lcp
 
 
 def run_analysis(config: Config) -> None:
@@ -16,9 +21,11 @@ def run_analysis(config: Config) -> None:
     telomers: List[Optional[TelomereSequence]]  = reader.parse_fasta()
 
     # step 2: find pattern
-    pattern:str = config.pattern
+    pattern: Optional[str] = config.pattern
     if not pattern:
-        raise ValueError("no pattern was inputed")
+        pattern = pattern_finder_lcp.execute(telomers)
+    if not pattern:
+        raise ValueError("no good pattern was found")
 
     # Step 3: Analyze sequences
     strategy = config.analysis_strategy
@@ -32,6 +39,16 @@ def run_analysis(config: Config) -> None:
         analyzer = AlignmentStrategy(telomers, pattern, config)
         analyzer.execute()
 
+    # step 4: Graph
+    if config.graph_output:
+        if strategy == "template_switching":
+            grapher = GraphTemplateSwitching(telomers, pattern, config)
+            grapher.execute()
+        else:
+            grapher = GraphAlignment(telomers, pattern, config)
+            grapher.execute()
+    
+
     # Step 5: Export results
     if strategy == "template_switching":
         template_switch_exporter = TemplateSwitchingPrint(telomers, config, pattern)
@@ -42,10 +59,6 @@ def run_analysis(config: Config) -> None:
             
 
 '''
-        
-    # Step 2: Find pattern  
-    pattern_finder = PatternFinder()
-    pattern = pattern_finder.find_consensus_pattern(telomeres)
         
     # Step 4: Create graph
     graph_gen = GraphGenerator()
@@ -62,7 +75,9 @@ def main(args) -> None:
         pattern=args.pattern,
         maximum_alignment_mutations=args.maximum_alignment_mutations,
         skip_seeding=args.skip_seeding,
-        compare_file_path=args.compare_output
+        compare_file_path=args.compare_output,
+        min_pattern_length=args.min_length,
+        graph_output=args.graph_output
     )
 
     # check if file exists
@@ -97,7 +112,9 @@ if __name__ == "__main__":
     parser.add_argument("-ss", "--skip_seeding", type=bool, default=True,
                         help="determines whether we do a seeding process for alignments in mutagenic zone, or just try to do alignments in the whole mutagenic zone")
     parser.add_argument("--min_length", type=int, default=50,
-                        help="The minimum length for a valid repeat sequence (default: 50)")
+                        help="The minimum length for a valid pattern (default: 50)")
+    parser.add_argument("--max_length", type=int, default=300,
+                        help="The maximum length for a valid pattern (default: 300)")
     parser.add_argument("--graph_dpi", type=int, default=300,
                         help="the dpi of the saved graph (default: 300)")
     parser.add_argument("-go", "--graph_output",

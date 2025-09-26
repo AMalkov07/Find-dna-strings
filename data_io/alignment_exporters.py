@@ -1,9 +1,9 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Tuple
 from csv import reader
 import re
 from os.path import splitext
 
-from utils.data_structures import AlignmentData, Config, TelomereSequence, ImperfectAlignmentEvent, CsvLine, Dict, Tuple
+from utils.data_structures import AlignmentData, Config, TelomereSequence, ImperfectAlignmentEvent, CsvLine
 
 class AlignmentPrint:
     def __init__(self, telomers: List[Optional[TelomereSequence]], config: Config, pattern: str):
@@ -17,7 +17,7 @@ class AlignmentPrint:
         self.fully_matching_alignments_in_chr_end = False
 
     def _count_events(self, indel_arr: List[Tuple[int, str]], mode: str) -> int:
-        if not arr:
+        if not indel_arr:
             return 0
 
         count = 1
@@ -34,6 +34,8 @@ class AlignmentPrint:
                 condition = (current_first[0] == prev_first[0])
             elif mode == "deletions":
                 condition = (current_first[0] == prev_first[0] + 1)
+            else:
+                raise ValueError(f"invalid mode value: {mode}")
             
             if not (condition):
                 count += 1
@@ -293,6 +295,21 @@ class AlignmentPrint:
             print(f"total chr ends with matching number of mutagenic areas: {self.compare_mutagenic_zone_count_match}", file=stats_output_file)
             print(f"total chr ends with matching number of alignments: {self.compare_alignment_count_match}", file=stats_output_file)
             print(f"{self.exact_call_match} alignments matched perfectly out of {self.alignment_comparison_count} that were compared", file=stats_output_file)
+
+        total_survivor_insertions_count = 0
+        total_survivor_deletion_count = 0
+        total_survivor_mismatch_count = 0
+        for telomer in self.telomers:
+            if telomer and isinstance(telomer.analysis, AlignmentData) and telomer.analysis.imperfect_alignments:
+                chr_alignments: List[ImperfectAlignmentEvent] = telomer.analysis.imperfect_alignments
+                for alignment in chr_alignments:
+                    total_survivor_insertions_count += self._count_events(alignment.insertion_events, "insertions")
+                    total_survivor_deletion_count += self._count_events(alignment.deletion_events, "deletions")
+                    total_survivor_mismatch_count += len(alignment.mismatch_events)
+        print(f"total insertion count: {total_survivor_insertions_count},  total deletions count: {total_survivor_deletion_count}, total mismatches count: {total_survivor_mismatch_count}", file=stats_output_file)
+
+
+                
 
 
 

@@ -155,10 +155,13 @@ class FastaReader:
             survivor_name, chr_match, chr_index_converted = self._extract_header_info(header)
             if telomers[chr_index_converted]:
                 raise ValueError(f"The FASTA file contains the same {chr_match} end multiple times")
-            start_telomer = self._extract_telomer(sequence)
-            sequence_reverse = sequence[::-1]
-            end_telomer = self._extract_telomer(sequence_reverse)
-            best_telomer = self._get_better_end(start_telomer, end_telomer)
+            start_telomer: Optional[str] = self._extract_telomer(sequence)
+            if start_telomer and len(start_telomer) >= len(sequence) / 2:
+                best_telomer: Optional[str] = start_telomer
+            else:
+                sequence_reverse = sequence[::-1]
+                end_telomer: Optional[str] = self._extract_telomer(sequence_reverse)
+                best_telomer: Optional[str] = self._get_better_end(start_telomer, end_telomer)
             telomers[chr_index_converted] = TelomereSequence(survivor_name=survivor_name,
                                                               sequence=best_telomer,
                                                               chromosome_end_id=chr_match,

@@ -1,0 +1,2 @@
+total chr ends with mutagenic zone found: 8
+total insertion count: 29,  total deletions count: 21, total mismatches count: 39

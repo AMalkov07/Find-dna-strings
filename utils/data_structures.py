@@ -25,7 +25,9 @@ class Config:
     pattern: str
     maximum_alignment_mutations: int
     skip_seeding: Optional[bool]
-    compare_file_path: str
+    compare_file_path: Optional[str]
+    min_pattern_length: int
+    graph_output: Optional[str]
 
 @dataclass
 class TemplateSwitchEvent:

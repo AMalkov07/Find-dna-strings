@@ -1,0 +1,220 @@
+______________________
+1L
+telomer span: 1-17, length: 17, pattern Start: 28, pattern end: 44, last_jump_size: N/A
+telomer span: 18-36, length: 19, pattern Start: 26, pattern end: 44, last_jump_size: 18
+telomer span: 37-48, length: 12, pattern Start: 33, pattern end: 44, last_jump_size: 11
+telomer span: 49-62, length: 14, pattern Start: 33, pattern end: 46, last_jump_size: 11
+telomer span: 63-588, length: 526, pattern Start: 5, pattern end: 2, last_jump_size: 41
+telomer span: 589-640, length: 52, pattern Start: 39, pattern end: 2, last_jump_size: 37
+telomer span: 641-728, length: 88, pattern Start: 39, pattern end: 38, last_jump_size: 37
+______________________
+1R
+telomer span: 1-30, length: 30, pattern Start: 15, pattern end: 44, last_jump_size: N/A
+telomer span: 31-74, length: 44, pattern Start: 11, pattern end: 54, last_jump_size: 33
+telomer span: 75-470, length: 396, pattern Start: 39, pattern end: 82, last_jump_size: 15
+telomer span: 471-492, length: 22, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+______________________
+2L
+telomer span: 1-17, length: 17, pattern Start: 26, pattern end: 42, last_jump_size: N/A
+telomer span: 18-49, length: 32, pattern Start: 13, pattern end: 44, last_jump_size: 29
+telomer span: 50-258, length: 209, pattern Start: 0, pattern end: 32, last_jump_size: 44
+______________________
+3L
+telomer span: 1-8, length: 8, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 9-15, length: 7, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 16-44, length: 29, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 45-58, length: 14, pattern Start: 31, pattern end: 44, last_jump_size: N/A
+telomer span: 59-68, length: 10, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 69-79, length: 11, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 80-89, length: 10, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 90-102, length: 13, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 103-112, length: 10, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 113-131, length: 19, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 132-145, length: 14, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 146-531, length: 386, pattern Start: 66, pattern end: 11, last_jump_size: N/A
+______________________
+3R
+telomer span: 1-8, length: 8, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 9-30, length: 22, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 31-49, length: 19, pattern Start: 21, pattern end: 39, last_jump_size: N/A
+telomer span: 50-70, length: 21, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 71-130, length: 60, pattern Start: 61, pattern end: 32, last_jump_size: N/A
+______________________
+4L
+telomer span: 1-13, length: 13, pattern Start: 32, pattern end: 44, last_jump_size: N/A
+telomer span: 14-93, length: 80, pattern Start: 11, pattern end: 2, last_jump_size: 33
+______________________
+5L
+telomer span: 1-32, length: 32, pattern Start: 67, pattern end: 10, last_jump_size: N/A
+______________________
+5R
+telomer span: 1-19, length: 19, pattern Start: 26, pattern end: 44, last_jump_size: N/A
+telomer span: 20-41, length: 22, pattern Start: 77, pattern end: 10, last_jump_size: 33
+telomer span: 42-44, length: 3, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+pos: 45: A mutation
+telomer span: 46-372, length: 327, pattern Start: 7, pattern end: 69, last_jump_size: N/A
+telomer span: 373-724, length: 352, pattern Start: 85, pattern end: 84, last_jump_size: 16
+telomer span: 725-921, length: 197, pattern Start: 70, pattern end: 2, last_jump_size: 14
+telomer span: 922-1185, length: 264, pattern Start: 39, pattern end: 38, last_jump_size: 37
+telomer span: 1186-1449, length: 264, pattern Start: 3, pattern end: 2, last_jump_size: 35
+telomer span: 1450-1744, length: 295, pattern Start: 39, pattern end: 69, last_jump_size: 37
+telomer span: 1745-2265, length: 521, pattern Start: 85, pattern end: 77, last_jump_size: 16
+telomer span: 2266-2302, length: 37, pattern Start: 3, pattern end: 39, last_jump_size: 14
+telomer span: 2303-2396, length: 94, pattern Start: 27, pattern end: 32, last_jump_size: 12
+telomer span: 2397-2427, length: 31, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+______________________
+6L
+telomer span: 1-17, length: 17, pattern Start: 38, pattern end: 54, last_jump_size: N/A
+______________________
+6R
+telomer span: 1-4, length: 4, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 5-29, length: 25, pattern Start: 15, pattern end: 39, last_jump_size: N/A
+telomer span: 30-37, length: 8, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+______________________
+7L
+telomer span: 1-8, length: 8, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 9-15, length: 7, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 16-44, length: 29, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 45-58, length: 14, pattern Start: 31, pattern end: 44, last_jump_size: N/A
+telomer span: 59-68, length: 10, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 69-79, length: 11, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 80-89, length: 10, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 90-102, length: 13, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 103-112, length: 10, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 113-131, length: 19, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 132-145, length: 14, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 146-531, length: 386, pattern Start: 66, pattern end: 11, last_jump_size: N/A
+______________________
+7R
+telomer span: 1-19, length: 19, pattern Start: 26, pattern end: 44, last_jump_size: N/A
+telomer span: 20-41, length: 22, pattern Start: 77, pattern end: 10, last_jump_size: 33
+telomer span: 42-269, length: 228, pattern Start: 3, pattern end: 54, last_jump_size: 7
+telomer span: 270-298, length: 29, pattern Start: 39, pattern end: 67, last_jump_size: 15
+telomer span: 299-363, length: 65, pattern Start: 26, pattern end: 2, last_jump_size: 41
+telomer span: 364-540, length: 177, pattern Start: 39, pattern end: 39, last_jump_size: 37
+______________________
+8L
+telomer span: 1-19, length: 19, pattern Start: 26, pattern end: 44, last_jump_size: N/A
+telomer span: 20-41, length: 22, pattern Start: 77, pattern end: 10, last_jump_size: 33
+telomer span: 42-44, length: 3, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+pos: 45: A mutation
+telomer span: 46-473, length: 428, pattern Start: 7, pattern end: 82, last_jump_size: N/A
+telomer span: 474-495, length: 22, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+______________________
+8R
+______________________
+9L
+telomer span: 1-2, length: 2, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 3-9, length: 7, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 10-29, length: 20, pattern Start: 20, pattern end: 39, last_jump_size: N/A
+telomer span: 30-299, length: 270, pattern Start: 64, pattern end: 69, last_jump_size: 25
+telomer span: 300-693, length: 394, pattern Start: 85, pattern end: 38, last_jump_size: 16
+telomer span: 694-723, length: 30, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 724-1184, length: 461, pattern Start: 70, pattern end: 2, last_jump_size: N/A
+______________________
+10L
+telomer span: 1-2, length: 2, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 3-9, length: 7, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 10-29, length: 20, pattern Start: 20, pattern end: 39, last_jump_size: N/A
+telomer span: 30-44, length: 15, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 45-54, length: 10, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 55-64, length: 10, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 65-79, length: 15, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 80-83, length: 4, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 84-97, length: 14, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 98-111, length: 14, pattern Start: 31, pattern end: 44, last_jump_size: N/A
+telomer span: 112-131, length: 20, pattern Start: 20, pattern end: 39, last_jump_size: 24
+telomer span: 132-146, length: 15, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 147-181, length: 35, pattern Start: 5, pattern end: 39, last_jump_size: N/A
+telomer span: 182-197, length: 16, pattern Start: 29, pattern end: 44, last_jump_size: 10
+telomer span: 198-206, length: 9, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 207-229, length: 23, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+______________________
+10R
+telomer span: 1-10, length: 10, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 11-216, length: 206, pattern Start: 78, pattern end: 19, last_jump_size: N/A
+telomer span: 217-317, length: 101, pattern Start: 27, pattern end: 39, last_jump_size: 8
+telomer span: 318-552, length: 235, pattern Start: 64, pattern end: 34, last_jump_size: 25
+telomer span: 553-571, length: 19, pattern Start: 28, pattern end: 46, last_jump_size: 6
+telomer span: 572-611, length: 40, pattern Start: 5, pattern end: 44, last_jump_size: 41
+telomer span: 612-640, length: 29, pattern Start: 11, pattern end: 39, last_jump_size: 33
+telomer span: 641-669, length: 29, pattern Start: 41, pattern end: 69, last_jump_size: 2
+telomer span: 670-725, length: 56, pattern Start: 71, pattern end: 38, last_jump_size: 2
+______________________
+11L
+telomer span: 1-23, length: 23, pattern Start: 17, pattern end: 39, last_jump_size: N/A
+telomer span: 24-44, length: 21, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 45-72, length: 28, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 73-502, length: 430, pattern Start: 67, pattern end: 56, last_jump_size: N/A
+telomer span: 503-612, length: 110, pattern Start: 18, pattern end: 39, last_jump_size: 38
+______________________
+11R
+telomer span: 1-4, length: 4, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 5-22, length: 18, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 23-146, length: 124, pattern Start: 3, pattern end: 38, last_jump_size: N/A
+telomer span: 147-534, length: 388, pattern Start: 3, pattern end: 38, last_jump_size: 35
+telomer span: 535-958, length: 424, pattern Start: 55, pattern end: 38, last_jump_size: 17
+______________________
+12L
+telomer span: 1-21, length: 21, pattern Start: 26, pattern end: 46, last_jump_size: N/A
+telomer span: 22-33, length: 12, pattern Start: 33, pattern end: 44, last_jump_size: 13
+telomer span: 34-53, length: 20, pattern Start: 25, pattern end: 44, last_jump_size: 19
+______________________
+12R
+telomer span: 1-8, length: 8, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 9-15, length: 7, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+______________________
+13L
+telomer span: 1-30, length: 30, pattern Start: 15, pattern end: 44, last_jump_size: N/A
+telomer span: 31-49, length: 19, pattern Start: 26, pattern end: 44, last_jump_size: 18
+______________________
+13R
+telomer span: 1-211, length: 211, pattern Start: 86, pattern end: 32, last_jump_size: N/A
+telomer span: 212-454, length: 243, pattern Start: 18, pattern end: 84, last_jump_size: 14
+telomer span: 455-858, length: 404, pattern Start: 83, pattern end: 46, last_jump_size: 1
+______________________
+14L
+telomer span: 1-21, length: 21, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 22-37, length: 16, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 38-40, length: 3, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+pos: 41: A mutation
+telomer span: 42-56, length: 15, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 57-68, length: 12, pattern Start: 33, pattern end: 44, last_jump_size: N/A
+telomer span: 69-90, length: 22, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 91-405, length: 315, pattern Start: 70, pattern end: 32, last_jump_size: N/A
+______________________
+14R
+telomer span: 1-19, length: 19, pattern Start: 26, pattern end: 44, last_jump_size: N/A
+telomer span: 20-41, length: 22, pattern Start: 77, pattern end: 10, last_jump_size: 33
+telomer span: 42-44, length: 3, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+pos: 45: A mutation
+telomer span: 46-812, length: 767, pattern Start: 7, pattern end: 69, last_jump_size: N/A
+______________________
+15L
+telomer span: 1-4, length: 4, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 5-12, length: 8, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 13-20, length: 8, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 21-186, length: 166, pattern Start: 50, pattern end: 39, last_jump_size: N/A
+______________________
+15R
+telomer span: 1-21, length: 21, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 22-37, length: 16, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 38-40, length: 3, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+pos: 41: A mutation
+telomer span: 42-56, length: 15, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 57-68, length: 12, pattern Start: 33, pattern end: 44, last_jump_size: N/A
+telomer span: 69-90, length: 22, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 91-281, length: 191, pattern Start: 70, pattern end: 84, last_jump_size: N/A
+telomer span: 282-399, length: 118, pattern Start: 3, pattern end: 32, last_jump_size: 7
+______________________
+16L
+telomer span: 1-8, length: 8, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 9-15, length: 7, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 16-115, length: 100, pattern Start: 79, pattern end: 2, last_jump_size: N/A
+telomer span: 116-123, length: 8, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+______________________
+16R
+telomer span: 1-14, length: 14, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 15-35, length: 21, pattern Start: 34, pattern end: 54, last_jump_size: N/A
+telomer span: 36-53, length: 18, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
+telomer span: 54-64, length: 11, pattern Start: ambiguous, pattern end: ambiguous, last_jump_size: N/A
