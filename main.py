@@ -13,6 +13,9 @@ from data_io.template_switching_exporters import TemplateSwitchingPrint
 from data_io.alignment_exporters import AlignmentPrint
 
 import pattern_finder_lcp
+from os.path import splitext
+
+import sys
 
 
 def run_analysis(config: Config) -> None:
@@ -27,6 +30,8 @@ def run_analysis(config: Config) -> None:
     if not pattern:
         raise ValueError("no good pattern was found")
 
+    sys.exit()
+
     # Step 3: Analyze sequences
     strategy = config.analysis_strategy
     if strategy == "template_switching":
@@ -34,6 +39,18 @@ def run_analysis(config: Config) -> None:
         analyzer = TemplateSwitchingStrategy(telomers, pattern, config)
         #template_switch_analysis: List[Optional[TemplateSwitchData]] = analyzer.execute()
         analyzer.execute()
+
+        ## STATS: ##
+        #base, ext = splitext(config.output_file)
+        #stats_file_name = f"{base}_stats.txt"
+        #stats_output_file = open(stats_file_name, 'w')
+        #total = 0
+        #for telomer in telomers:
+            #if telomer and telomer.analysis:
+                #total+=len(telomer.analysis.template_switch_event_indexes) - 1
+                #print(f"{telomer.chromosome_end_id}\n{len(telomer.analysis.template_switch_event_indexes)-1}\n", file=stats_output_file)
+        #print(f"{config.fasta_file_path}: {total}", file=stats_output_file)
+                
     else:
         print("performing alignment analysis")
         analyzer = AlignmentStrategy(telomers, pattern, config)

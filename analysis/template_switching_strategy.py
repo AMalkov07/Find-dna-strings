@@ -16,18 +16,22 @@ class TemplateSwitchingStrategy:
         offset = 0
         prev_window = ""
         current_analysis = TemplateSwitchData([], [])
+        first_unit_added = False
         for i, c in enumerate(telomer_str):
             if c == 'A' and len(prev_window) == 0:
                 #self.my_dict[key].template_switching_indexes.append(i + offset)
-                current_analysis.template_switch_event_indexes.append(i+offset)
-                current_analysis.template_switch_events.append(TemplateSwitchEvent(c, i+offset, i+offset, None, None, True))
+                if first_unit_added:
+                    current_analysis.template_switch_event_indexes.append(i+offset)
+                    current_analysis.template_switch_events.append(TemplateSwitchEvent(c, i+offset, i+offset, None, None, True))
                 continue
             curr_window = prev_window + c
             if len(curr_window) > n_pattern:
                 curr_window = curr_window[len(curr_window) - n_pattern:]
             if curr_window in doubled_pattern:
                 prev_window += c
-            else:
+            elif first_unit_added or len(curr_window) >= min(50, len(pattern)//2):
+                if not first_unit_added:
+                    first_unit_added = True
                 starting_pos = []
                 end_pos = []
                 window_beg = prev_window[:n_pattern]
@@ -63,9 +67,11 @@ class TemplateSwitchingStrategy:
                     current_analysis.template_switch_event_indexes.append(i+ 1 + offset)
                     current_analysis.template_switch_events.append(TemplateSwitchEvent(prev_window, i+1+offset, i+1+offset, None, None, True))
                     prev_window = ""
+            else:
+                prev_window = ""
 
         i = len(telomer_str) - 1
-        if prev_window != "":
+        if prev_window != "" and (first_unit_added or len(prev_window) >= min(50, len(pattern)//2)):
             starting_pos = []
             end_pos = []
             window_beg = prev_window[:n_pattern]

@@ -3,8 +3,6 @@ from collections import defaultdict, Counter
 from typing import List, Tuple, Dict, Set, Optional
 from utils.data_structures import TelomereSequence
 
-import sys
-
 class ChromosomeEndRepeatFinder:
     def __init__(self, sequences: Dict[str, str]):
         """
@@ -62,11 +60,108 @@ class ChromosomeEndRepeatFinder:
         
         return min(rotations)
     
-    def find_repeated_patterns_in_sequence(self, sequence: str, min_length: int = 100, 
-                                         max_length: int = 200) -> Dict[str, List[int]]:
+    def is_rotation(self, str1: str, str2: str) -> bool:
         """
-        Use suffix array + LCP to find all repeated patterns in a single sequence
-        Returns: Dict[canonical_pattern -> List[positions]]
+        Fast check if str2 is a rotation of str1 using the doubling trick
+        """
+        if len(str1) != len(str2):
+            return False
+        if str1 == str2:
+            return True
+        return str2 in (str1 + str1)
+    
+    def find_all_pattern_occurrences_fast(self, sequence: str, pattern: str) -> List[int]:
+        """
+        Fast pattern matching using doubling trick to find all occurrences (including rotations)
+        """
+        pattern_len = len(pattern)
+        doubled_pattern = pattern + pattern
+        all_positions = []
+        
+        # Find all occurrences in sequence
+        start = 0
+        while start <= len(sequence) - pattern_len:
+            pos = sequence.find(pattern, start)
+            if pos == -1:
+                break
+            all_positions.append(pos)
+            start = pos + 1
+        
+        # Also find rotations by checking if substrings match any rotation
+        # This is still expensive, so we'll do it differently...
+        return all_positions
+    
+    def consolidate_rotational_patterns(self, raw_patterns: Dict[str, Set[int]], 
+                                      sequence: str) -> Dict[str, List[int]]:
+        """
+        Consolidate rotational patterns early - keep only the best representative
+        and find ALL positions for that representative (including rotations)
+        """
+        print(f"    Consolidating rotational patterns from {len(raw_patterns)} raw patterns...")
+        
+        # Group patterns by their canonical rotation
+        canonical_groups = defaultdict(list)  # canonical -> [(pattern, positions), ...]
+        
+        for pattern, position_set in raw_patterns.items():
+            canonical = self.get_canonical_rotation(pattern)
+            canonical_groups[canonical].append((pattern, position_set))
+        
+        print(f"    Grouped into {len(canonical_groups)} canonical pattern families")
+        
+        # For each canonical group, find the best representative and all its positions
+        final_patterns = {}
+        
+        for canonical, pattern_list in canonical_groups.items():
+            # Find which rotation has the most occurrences
+            best_pattern = canonical
+            best_positions = set()
+            max_occurrences = 0
+            
+            for pattern, positions in pattern_list:
+                if len(positions) > max_occurrences:
+                    max_occurrences = len(positions)
+                    best_pattern = pattern
+                    best_positions = positions.copy()
+                elif len(positions) == max_occurrences:
+                    # Same number of occurrences, combine positions
+                    best_positions.update(positions)
+            
+            # Now find ALL occurrences of this pattern and its rotations efficiently
+            all_rotation_positions = self.find_all_rotations_efficiently(sequence, best_pattern)
+            
+            # Combine with known positions
+            all_rotation_positions.update(best_positions)
+            
+            final_patterns[canonical] = sorted(list(all_rotation_positions))
+        
+        return final_patterns
+    
+    def find_all_rotations_efficiently(self, sequence: str, pattern: str) -> Set[int]:
+        """
+        Efficiently find all positions where pattern or its rotations occur
+        Uses the doubling trick concept but optimized for sequence scanning
+        """
+        pattern_len = len(pattern)
+        all_positions = set()
+        
+        # Create doubled pattern for rotation checking
+        doubled_pattern = pattern + pattern
+        
+        # Scan sequence with sliding window
+        for i in range(len(sequence) - pattern_len + 1):
+            candidate = sequence[i:i + pattern_len]
+            
+            # Check if candidate is a rotation of pattern using doubling trick
+            if candidate in doubled_pattern:
+                all_positions.add(i)
+        
+        return all_positions
+    
+    def find_repeated_patterns_in_sequence(self, sequence: str, min_length: int, 
+                                         max_length: int) -> Dict[str, List[int]]:
+        """
+        Use suffix array + LCP to find all repeated patterns, with early rotation consolidation
+        Returns: Dict[canonical_pattern -> List[all_positions_including_rotations]]
         """
         print(f"  Building suffix array for {len(sequence):,} bp sequence...")
         suffix_array = self._build_suffix_array(sequence)
@@ -75,7 +170,7 @@ class ChromosomeEndRepeatFinder:
         lcp_array = self._build_lcp_array(sequence, suffix_array)
         
         print(f"  Extracting repeated patterns {min_length}-{max_length} bp...")
-        repeated_patterns = defaultdict(set)  # Use set to avoid duplicate positions
+        raw_patterns = defaultdict(set)  # Use set to avoid duplicate positions
         
         # Process LCP array to find repeated substrings
         for i, lcp_len in enumerate(lcp_array):
@@ -86,18 +181,17 @@ class ChromosomeEndRepeatFinder:
                 # Extract patterns of different lengths from this common prefix
                 max_extract = min(lcp_len, max_length)
                 
-                for length in range(min_length, max_extract + 1, 1):  # Step by 1 to catch all lengths
-                    if pos1 + length <= len(sequence) and pos2 + length <= len(sequence):
+                for length in range(min_length, max_extract + 1, 1):  # Larger step to reduce work
+                    if pos1 + length <= len(sequence):
                         pattern = sequence[pos1:pos1 + length]
-                        # Verify the pattern actually occurs at pos2 as well
-                        if sequence[pos2:pos2 + length] == pattern:
-                            canonical_pattern = self.get_canonical_rotation(pattern)
-                            
-                            repeated_patterns[canonical_pattern].add(pos1)
-                            repeated_patterns[canonical_pattern].add(pos2)
+                        # Don't canonicalize yet - we'll do it in consolidation step
+                        raw_patterns[pattern].add(pos1)
+                        raw_patterns[pattern].add(pos2)
         
-        # Convert sets back to sorted lists
-        return {pattern: sorted(list(positions)) for pattern, positions in repeated_patterns.items()}
+        print(f"    Found {len(raw_patterns)} raw patterns before rotation consolidation")
+        
+        # Consolidate rotational patterns and find all their positions
+        return self.consolidate_rotational_patterns(raw_patterns, sequence)
     
     def find_tandem_arrays_optimized(self, known_positions: List[int], pattern_len: int) -> List[Tuple[int, int, int]]:
         """
@@ -156,54 +250,29 @@ class ChromosomeEndRepeatFinder:
         
         return self.find_tandem_arrays_optimized(all_positions, pattern_len)
     
-    def find_all_rotations_positions(self, sequence: str, canonical_pattern: str, 
-                                    known_canonical_positions: List[int]) -> Dict[str, List[int]]:
+    def get_non_overlapping_positions(self, positions: List[int], pattern_len: int) -> List[int]:
         """
-        Efficiently find positions of all rotations by checking around known positions
-        Instead of scanning entire sequence, only check areas around known occurrences
+        Filter positions to get only non-overlapping occurrences
+        Uses greedy algorithm: take first position, skip all that overlap, take next, etc.
         """
-        pattern_len = len(canonical_pattern)
-        all_rotations = self.get_all_rotations(canonical_pattern)
-        rotation_positions = defaultdict(list)
+        if not positions:
+            return []
         
-        # Add known positions for canonical form
-        rotation_positions[canonical_pattern] = known_canonical_positions.copy()
+        sorted_positions = sorted(positions)
+        non_overlapping = []
+        last_end = -1
         
-        # For each known position, check if rotations exist nearby
-        search_radius = pattern_len  # Look within one pattern length
+        for pos in sorted_positions:
+            if pos >= last_end:  # No overlap with previous
+                non_overlapping.append(pos)
+                last_end = pos + pattern_len
         
-        for pos in known_canonical_positions:
-            # Define search window around this position
-            search_start = max(0, pos - search_radius)
-            search_end = min(len(sequence), pos + pattern_len + search_radius)
-            search_window = sequence[search_start:search_end]
-            
-            # Check each rotation in this window
-            for rotation in all_rotations:
-                if rotation != canonical_pattern:
-                    # Look for this rotation in the search window
-                    rotation_start = 0
-                    while rotation_start <= len(search_window) - pattern_len:
-                        found_pos = search_window.find(rotation, rotation_start)
-                        if found_pos == -1:
-                            break
-                        
-                        actual_pos = search_start + found_pos
-                        if actual_pos not in rotation_positions[rotation]:
-                            rotation_positions[rotation].append(actual_pos)
-                        
-                        rotation_start = found_pos + 1
-        
-        # Sort all position lists
-        for rotation in rotation_positions:
-            rotation_positions[rotation].sort()
-        
-        return dict(rotation_positions)
+        return non_overlapping
     
-    def analyze_all_sequences(self, min_length: int = 100, max_length: int = 200) -> Dict[str, Dict[str, any]]:
+    def analyze_all_sequences(self, min_length: int, max_length: int) -> Dict[str, Dict[str, any]]:
         """
         Analyze all sequences to find repeated patterns and their tandem arrays
-        OPTIMIZED VERSION - much faster than original
+        SUPER OPTIMIZED VERSION - handles rotations efficiently upfront
         Returns: Dict[seq_id -> Dict[pattern -> analysis_data]]
         """
         all_sequence_data = {}
@@ -211,49 +280,37 @@ class ChromosomeEndRepeatFinder:
         for seq_id, sequence in self.sequences.items():
             print(f"\nAnalyzing sequence {seq_id}...")
             
-            # Step 1: Find all repeated patterns using suffix array + LCP
-            # This gives us positions where we already know the canonical pattern occurs
+            # Step 1: Find all repeated patterns with rotation consolidation built-in
+            # This now returns canonical patterns with ALL positions (including rotations)
             repeated_patterns = self.find_repeated_patterns_in_sequence(sequence, min_length, max_length)
-            print(f"  Found {len(repeated_patterns)} repeated patterns")
+            print(f"  Found {len(repeated_patterns)} consolidated patterns")
             
-            # Step 2: For each repeated pattern, find tandem arrays (OPTIMIZED)
+            # Step 2: For each consolidated pattern, find tandem arrays using all positions
             sequence_analysis = {}
             
-            for canonical_pattern, canonical_positions in repeated_patterns.items():
-                if len(canonical_positions) >= 2:  # Must appear at least twice
-                    print(f"    Processing pattern of length {len(canonical_pattern)} with {len(canonical_positions)} occurrences...")
+            for canonical_pattern, all_positions in repeated_patterns.items():
+                if len(all_positions) >= 2:  # Must appear at least twice
+                    pattern_len = len(canonical_pattern)
                     
-                    # OPTIMIZATION: Instead of scanning entire sequence for each rotation,
-                    # use known positions to find rotations efficiently
-                    all_rotation_positions = self.find_all_rotations_positions(
-                        sequence, canonical_pattern, canonical_positions
-                    )
+                    # Get non-overlapping positions for proper counting
+                    non_overlapping_positions = self.get_non_overlapping_positions(all_positions, pattern_len)
                     
-                    # Find tandem arrays for each rotation using known positions
-                    all_tandem_arrays = []
+                    print(f"    Processing pattern of length {pattern_len}: "
+                          f"{len(all_positions)} total / {len(non_overlapping_positions)} non-overlapping occurrences")
                     
-                    for rotation, positions in all_rotation_positions.items():
-                        if len(positions) >= 2:
-                            # Use optimized tandem array detection with known positions
-                            rotation_tandems = self.find_tandem_arrays_optimized(positions, len(rotation))
-                            all_tandem_arrays.extend(rotation_tandems)
-                    
-                    # Remove overlapping tandem arrays (keep the longest)
-                    all_tandem_arrays = self.merge_overlapping_arrays(all_tandem_arrays)
-                    
-                    # Calculate total occurrences across all rotations
-                    total_positions = set()
-                    for positions in all_rotation_positions.values():
-                        total_positions.update(positions)
+                    # Find tandem arrays using all known positions (including overlapping)
+                    # The tandem detection itself handles overlap correctly
+                    tandem_arrays = self.find_tandem_arrays_optimized(all_positions, pattern_len)
                     
                     sequence_analysis[canonical_pattern] = {
-                        'positions': canonical_positions,  # Just canonical form positions
-                        'all_rotation_positions': all_rotation_positions,  # All rotation positions
-                        'total_occurrences': len(total_positions),  # Total across all rotations
-                        'tandem_arrays': all_tandem_arrays,
-                        'tandem_array_count': len(all_tandem_arrays),
-                        'total_tandem_copies': sum(copies for _, _, copies in all_tandem_arrays),
-                        'max_tandem_copies': max((copies for _, _, copies in all_tandem_arrays), default=0),
+                        'positions': all_positions,  # All positions including rotations and overlaps
+                        'non_overlapping_positions': non_overlapping_positions,  # Non-overlapping only
+                        'total_occurrences': len(all_positions),  # Total including overlaps
+                        'non_overlapping_occurrences': len(non_overlapping_positions),  # Non-overlapping count
+                        'tandem_arrays': tandem_arrays,
+                        'tandem_array_count': len(tandem_arrays),
+                        'total_tandem_copies': sum(copies for _, _, copies in tandem_arrays),
+                        'max_tandem_copies': max((copies for _, _, copies in tandem_arrays), default=0),
                         'pattern_length': len(canonical_pattern)
                     }
             
@@ -261,6 +318,23 @@ class ChromosomeEndRepeatFinder:
             print(f"  Found {len(sequence_analysis)} patterns with tandem arrays")
         
         return all_sequence_data
+    
+    def count_cross_sequence_pattern_occurrences(self, target_pattern: str, sequence: str) -> int:
+        """
+        Fast count of pattern occurrences (including rotations) in a sequence
+        Uses the doubling trick for efficient rotation matching
+        """
+        pattern_len = len(target_pattern)
+        doubled_target = target_pattern + target_pattern
+        count = 0
+        
+        # Scan sequence looking for the target pattern or any of its rotations
+        for i in range(len(sequence) - pattern_len + 1):
+            candidate = sequence[i:i + pattern_len]
+            if candidate in doubled_target:
+                count += 1
+        
+        return count
     
     def get_all_rotations(self, pattern: str) -> List[str]:
         """Get all circular rotations of a pattern"""
@@ -327,26 +401,45 @@ class ChromosomeEndRepeatFinder:
         pattern_length = len(pattern)
         avg_tandem_strength = total_tandem_copies / max(total_tandem_arrays, 1)
         
+        #score = (
+            #(sequence_coverage ** 1.2) *  # Strongly favor cross-sequence patterns
+            #(avg_tandem_strength ** 0.4) *  # Favor strong tandem arrays
+            #(pattern_length ** 100) *  # Modest preference for longer patterns
+            #math.log(total_occurrences + 1) *  # Logarithmic scaling for total occurrences
+            #math.log(max_single_array + 1)  # Bonus for very strong single arrays
+        #)
         score = (
-            (sequence_coverage ** 1.2) *  # Strongly favor cross-sequence patterns
-            (avg_tandem_strength ** 0.8) *  # Favor strong tandem arrays
-            (pattern_length ** 0.4) *  # Modest preference for longer patterns
-            math.log(total_occurrences + 1) *  # Logarithmic scaling for total occurrences
-            math.log(max_single_array + 1)  # Bonus for very strong single arrays
+            (pattern_length)  # Modest preference for longer patterns
         )
         
         return score
     
-    def find_best_cross_sequence_patterns(self, min_length: int = 100, max_length: int = 200,
-                                        min_sequences: int = 2, top_n: int = 20) -> List[Tuple[str, Dict, float]]:
+    def find_best_cross_sequence_patterns(self, min_length: int, max_length: int,
+                                        min_sequences: int = 2, top_n: int = 20,
+                                        scoring_weights: Dict[str, float] = None) -> List[Tuple[str, Dict, float]]:
         """
         Find the best patterns that appear across multiple sequences
+        
+        Args:
+            scoring_weights: Dict to customize scoring behavior:
+                - 'coverage_exp': Cross-sequence coverage weight (default 1.2)
+                - 'tandem_exp': Tandem array strength weight (default 0.8)
+                - 'length_exp': Pattern length weight (default 0.4)
+                - 'use_log_length': Use logarithmic scaling for length (default False)
+                
+        Example scoring_weights for emphasizing longer patterns:
+            {'length_exp': 0.8}  # Increase from 0.4 to 0.8
+            {'length_exp': 1.0}  # Equal weight to cross-sequence coverage
+            {'length_exp': 1.5}  # Strongly favor longer patterns
         """
         print("="*90)
         print("CROSS-SEQUENCE REPEAT PATTERN ANALYSIS")
         print("="*90)
         print(f"Pattern length range: {min_length}-{max_length} bp")
         print(f"Minimum sequences: {min_sequences}")
+        
+        if scoring_weights:
+            print(f"Custom scoring weights: {scoring_weights}")
         
         # Analyze all sequences
         all_data = self.analyze_all_sequences(min_length, max_length)
@@ -365,6 +458,7 @@ class ChromosomeEndRepeatFinder:
             sequences_with_pattern = sum(1 for seq_data in all_data.values() if pattern in seq_data)
             
             if sequences_with_pattern >= min_sequences:
+            #    score = self.score_cross_sequence_pattern(pattern, all_data, scoring_weights)
                 score = self.score_cross_sequence_pattern(pattern, all_data)
                 
                 # Compile comprehensive statistics
@@ -449,9 +543,37 @@ class ChromosomeEndRepeatFinder:
                 print(f"    ...{before[-30:]}[{array_seq[:60]}{'...' if len(array_seq) > 60 else ''}]{after[:30]}...")
 
 
-def analyze_chromosome_ends(sequences: Dict[str, str], min_pattern: int = 100, max_pattern: int = 200):
+def analyze_chromosome_ends(sequences: Dict[str, str], min_pattern: int, max_pattern: int,
+                          scoring_weights: Dict[str, float] = None):
     """
     Main analysis function for chromosome end repeat patterns
+    
+    Args:
+        sequences: Dict of sequence_id -> sequence_string
+        min_pattern: Minimum pattern length
+        max_pattern: Maximum pattern length
+        scoring_weights: Optional dict to customize scoring:
+            - 'coverage_exp': Weight for cross-sequence coverage (default 1.2)
+            - 'tandem_exp': Weight for tandem strength (default 0.8)
+            - 'length_exp': Weight for pattern length (default 0.4)
+            - 'use_log_length': Use log scaling for length (default False)
+            
+    Example usage:
+        # Default: modest preference for longer patterns
+        analyze_chromosome_ends(seqs)
+        
+        # Strong preference for longer patterns
+        analyze_chromosome_ends(seqs, scoring_weights={'length_exp': 1.2})
+        
+        # Extreme preference for longer patterns
+        analyze_chromosome_ends(seqs, scoring_weights={'length_exp': 2.0})
+        
+        # Balanced: equal weight to all factors
+        analyze_chromosome_ends(seqs, scoring_weights={
+            'coverage_exp': 1.0,
+            'tandem_exp': 1.0,
+            'length_exp': 1.0
+        })
     """
     print("CHROMOSOME END REPEAT ANALYSIS")
     print("="*90)
@@ -463,7 +585,8 @@ def analyze_chromosome_ends(sequences: Dict[str, str], min_pattern: int = 100, m
         min_length=min_pattern,
         max_length=max_pattern,
         min_sequences=2,
-        top_n=15
+        top_n=15,
+        scoring_weights=scoring_weights
     )
     
     if not results:
@@ -490,7 +613,7 @@ def analyze_chromosome_ends(sequences: Dict[str, str], min_pattern: int = 100, m
     print(f"best_pattern: {best_pattern}")
     for r in results:
         print(r)
-
+    
     return finder, best_pattern, results
 
 
@@ -572,6 +695,7 @@ def execute(telomeres: List[Optional[TelomereSequence]]) -> Optional[str]:
     if best_pattern:
       return best_pattern
     return None
+
 
 
 # Test the system

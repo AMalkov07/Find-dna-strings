@@ -24,7 +24,6 @@ class TemplateSwitchingPrint:
         primary_output: List[str] = ["______________________"]
         primary_output.append(telomer.chromosome_end_id)
         variants_file_output: List[str] = []
-
         last_end = None
         last_last_end = None
         last_length = None
@@ -45,7 +44,7 @@ class TemplateSwitchingPrint:
 
 
             if is_mutation:
-                primary_output.append(f"pos: {telomer_start}: {telomer_chunk} mutation")
+                primary_output.append(f"pos: {telomer_start}: {telomer_chunk} mutation, 10_unit_telomer_chunk: {telomer_str[telomer_start:telomer_start+10]}")
                 #variants_file_output.append(f"{strain_name},{chr_end},{repeat_num},1,{reference_start},{reference_end},N/A,N/A,N/A,N/A")
                 variants_file_output.append(f"{strain_name},{chr_end},,1,{telomer_start},{telomer_end},N/A,N/A,N/A,N/A")
                 last_last_end = None
@@ -68,7 +67,7 @@ class TemplateSwitchingPrint:
                 else:
                     jump_size = "N/A"
                     if_small_jump = "N/A"
-                primary_output.append(f"telomer span: {telomer_start}-{telomer_end}, length: {n_telomer_chunk}, pattern Start: {pattern_start}, pattern end: {pattern_end}, last_jump_size: {jump_size}")
+                primary_output.append(f"telomer span: {telomer_start}-{telomer_end}, length: {n_telomer_chunk}, pattern Start: {pattern_start}, pattern end: {pattern_end}, last_jump_size: {jump_size}, 10_unit_telomer_chunk: {telomer_str[telomer_start:telomer_start+10]}")
                 #variants_file_output.append(f"{strain_name},{chr_end},{repeat_num},{n_reference_chunk},{reference_start},{reference_end},{circleString_start},{circleString_end},{if_small_jump},{memory_jump_val}")
                 variants_file_output.append(f"{strain_name},{chr_end},{n_telomer_chunk},{telomer_start},{telomer_end},{pattern_start},{pattern_end},{if_small_jump},{memory_jump_val}")
                 last_last_end = last_end

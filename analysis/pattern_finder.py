@@ -191,7 +191,7 @@ class EfficientDNARepeatFinder:
         else:
             raise ValueError(f"Unknown scoring method: {method}")
     
-    def find_best_repeats_efficient(self, min_length: int = 100, max_length: int = 200, 
+    def find_best_repeats_efficient(self, min_length: int = 100, max_length: int = 300, 
                                   scoring_method: str = "log", min_repeats: int = 2) -> List[Tuple[str, int, float]]:
         """
         Efficiently find best repetitive patterns using suffix array approach
