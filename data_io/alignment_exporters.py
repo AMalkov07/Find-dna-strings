@@ -281,6 +281,7 @@ class AlignmentPrint:
             
         if self.fully_matching_alignments_in_chr_end:
             self.compare_alignment_count_match += 1
+        self.output.append(f"telomer: {telomer.sequence}")
         print("\n".join(self.output), file=main_output_file) 
 
     def _print_stats(self, alignment_analysis_data_grouped_by_chr: Dict[str, List[List[ImperfectAlignmentEvent]]], compare_file_data_grouped_by_chr: Optional[Dict[str, List[List[CsvLine]]]], stats_output_file) -> None:

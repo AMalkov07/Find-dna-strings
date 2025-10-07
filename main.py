@@ -30,7 +30,7 @@ def run_analysis(config: Config) -> None:
     if not pattern:
         raise ValueError("no good pattern was found")
 
-    sys.exit()
+    #sys.exit()
 
     # Step 3: Analyze sequences
     strategy = config.analysis_strategy
@@ -74,14 +74,6 @@ def run_analysis(config: Config) -> None:
         alignment_exporter = AlignmentPrint(telomers, config, pattern)
         alignment_exporter.print_analysis()
             
-
-'''
-        
-    # Step 4: Create graph
-    graph_gen = GraphGenerator()
-    graph_path = graph_gen.create_graph(results)
-    '''
-
 
 def main(args) -> None:
     config = Config(

@@ -24,12 +24,12 @@ class FastaReader:
 
     def _extract_header_info(self, header: str) -> Tuple[str, str, int]:
         #fix: add user input option for this regular expression and harded if statement below
-        match = re.search(r'^([^_]+)_(\d+)([LR])', header)
+        match = re.search(r'_(\d+)([LR])', header)
         if match:
-            survivor_name = match.group(1)
-            index = int(match.group(2))  # Extract the matched number
+            survivor_name = match.group(0)
+            index = int(match.group(1))  # Extract the matched number
             # Extract 'L' or 'R', or default to empty
-            modifier = match.group(3)
+            modifier = match.group(2)
             if modifier not in "LR":
                 raise ValueError(f"Invalid header format: {header}")
             index *= 2
@@ -37,7 +37,7 @@ class FastaReader:
                 index -= 1
 
             if 1 <= index <= self.max_ends:
-                return (survivor_name, match.group(2)+match.group(3), index - 1)  # Convert to 0-based indexing
+                return (survivor_name, match.group(1)+match.group(2), index - 1)  # Convert to 0-based indexing
         raise ValueError(f"Invalid header format: {header}")
 
     def _ac_tg_fraction(self, subseq) -> Tuple[float, str]:

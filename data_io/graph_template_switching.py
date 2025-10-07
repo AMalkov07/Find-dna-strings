@@ -56,6 +56,19 @@ class GraphTemplateSwitching:
         self.ax.get_yaxis().set_visible(False)
         self.ax.get_xaxis().set_visible(False)
 
+    def get_circular_jump_distance(self, i, j) -> int:
+
+        n = len(self.pattern)
+
+        forward = (j - i) % n       # steps forward (wraps around)
+        backward = (i - j) % n      # steps backward (wraps around)
+
+        if forward <= backward:
+            return forward
+        else:
+            return (-1 * backward)
+        
+
 
     def graph_alignment_analysis(self, telomere: TelomereSequence, chr_index: int) -> None:
         if not isinstance(telomere.analysis, TemplateSwitchData):
@@ -70,6 +83,9 @@ class GraphTemplateSwitching:
         y_index = (17 - (chr_index//2)/2)
 
         template_swtiches = telomere.analysis.template_switch_events
+
+        last_end = None
+        last_direction = "down"
 
         for curr_template_switch in template_swtiches:
             #self.ax.plot([(curr_template_switch.telomer_start+offset)*sign, (curr_template_switch.telomer_end+offset)*sign],
@@ -98,7 +114,25 @@ class GraphTemplateSwitching:
                 elif line_end > self.max_x:
                     self.max_x = line_end
 
+            if last_end is not None and isinstance(last_end, int) and isinstance(curr_template_switch.pattern_start, int):
+                jump_distance = self.get_circular_jump_distance(last_end, curr_template_switch.pattern_start)
+                if jump_distance < 0:
+                    str_jump_distance = str(jump_distance)
+                else:
+                    str_jump_distance = "+" + str(jump_distance)
+                if last_direction == "down":
+                    curr_y_index = y_index + .15
+                    last_direction = "up"
+                else:
+                    curr_y_index = y_index - .17
+                    last_direction = "down"
+                if sign == 1:
+                    curr_line_start = line_start - 45
+                else:
+                    curr_line_start = line_start - 5
+                self.ax.text(curr_line_start, curr_y_index, str_jump_distance, va="center", fontsize=3.5)
             
+            last_end = curr_template_switch.pattern_end
             offset+=40
 
     def save_graph(self):

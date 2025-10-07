@@ -11,9 +11,14 @@ class TemplateSwitchingPrint:
         self.config = config
         self.pattern = pattern
 
-    def _circular_distance(self, i: int, j: int, n) -> int:
-        diff = abs(i - j)
-        return min(diff, n-diff)  
+    def _circular_distance(self, i: int, j: int, n: int) -> int:
+        forward = (j - i) % n       # steps forward (wraps around)
+        backward = (i - j) % n      # steps backward (wraps around)
+
+        if forward <= backward:
+            return forward
+        else:
+            return (-1 * backward)
 
     def _chr_end_print(self, telomer: TelomereSequence, template_switch_analysis: TemplateSwitchData, main_output_file: TextIOWrapper, variants_output_file: TextIOWrapper) -> None:
         telomer_str: str = telomer.sequence
@@ -51,7 +56,7 @@ class TemplateSwitchingPrint:
                 last_end = None
                 last_length = None           
             else:
-                if last_last_end and last_last_end != "ambiguous" and pattern_start != "ambiguous":
+                if last_last_end is not None and last_last_end != "ambiguous" and pattern_start != "ambiguous":
                    if pattern_start >= last_last_end + last_length - 1 and pattern_start <= last_last_end + last_length +1:
                        memory_jump_val = True
                    else:
@@ -60,9 +65,11 @@ class TemplateSwitchingPrint:
                    memory_jump_val = "N/A" 
 
 
-                if last_end and last_end != "ambiguous" and pattern_start != "ambiguous":
+                if last_end is not None and last_end != "ambiguous" and pattern_start != "ambiguous":
                     jump_size = self._circular_distance(last_end, pattern_start, n_pattern) 
-                    if_small_jump = jump_size <= 5
+                    if_small_jump = abs(jump_size) <= 5
+                    if jump_size > 0:
+                        jump_size = "+" + str(jump_size)
                     
                 else:
                     jump_size = "N/A"
