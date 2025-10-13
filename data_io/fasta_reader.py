@@ -129,7 +129,7 @@ class FastaReader:
         output = dna_sequence[start:end]
         if dominant_type == "AC":
             output = str(Seq(output).reverse_complement())
-            output = output[::-1]
+            output = output[::-1] # <<<<<<<<<< important line about whether or not to reverse an ac string after getting the reverse compliment
         return output
 
     def _get_better_end(self, start_telomer: Optional[str], end_telomer: Optional[str]) -> Optional[str]:

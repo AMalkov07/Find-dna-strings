@@ -7,11 +7,11 @@ telomer span: 43-114, length: 72, pattern Start: 68, pattern end: 51, last_jump_
 ______________________
 2L
 telomer span: 51-258, length: 208, pattern Start: 1, pattern end: 32, last_jump_size: N/A, 10_unit_telomer_chunk: GTGGGTGTGG
-telomer span: 258-845, length: 588, pattern Start: 31, pattern end: 2, last_jump_size: 1, 10_unit_telomer_chunk: TGGGTGTGGG
+telomer span: 258-845, length: 588, pattern Start: 31, pattern end: 2, last_jump_size: -1, 10_unit_telomer_chunk: TGGGTGTGGG
 ______________________
 3L
 telomer span: 149-531, length: 383, pattern Start: 69, pattern end: 11, last_jump_size: N/A, 10_unit_telomer_chunk: TGGGTGTGGT
-telomer span: 531-588, length: 58, pattern Start: 73, pattern end: 42, last_jump_size: 26, 10_unit_telomer_chunk: GTGTGGTGTG
+telomer span: 531-588, length: 58, pattern Start: 73, pattern end: 42, last_jump_size: -26, 10_unit_telomer_chunk: GTGTGGTGTG
 ______________________
 3R
 telomer span: 10-115, length: 106, pattern Start: 73, pattern end: 2, last_jump_size: N/A, 10_unit_telomer_chunk: TGTGGTGTGT
@@ -20,33 +20,33 @@ telomer span: 123-538, length: 416, pattern Start: 12, pattern end: 75, last_jum
 ______________________
 4L
 telomer span: 15-93, length: 79, pattern Start: 12, pattern end: 2, last_jump_size: N/A, 10_unit_telomer_chunk: GTGTGTGGGT
-telomer span: 93-406, length: 314, pattern Start: 11, pattern end: 60, last_jump_size: 9, 10_unit_telomer_chunk: GTGTGTGTGG
+telomer span: 93-406, length: 314, pattern Start: 11, pattern end: 60, last_jump_size: +9, 10_unit_telomer_chunk: GTGTGTGTGG
 ______________________
 5L
 telomer span: 34-195, length: 162, pattern Start: 4, pattern end: 77, last_jump_size: N/A, 10_unit_telomer_chunk: GGTGTGGTGT
-telomer span: 195-224, length: 30, pattern Start: 76, pattern end: 17, last_jump_size: 1, 10_unit_telomer_chunk: TGGTGTGTGG
+telomer span: 195-224, length: 30, pattern Start: 76, pattern end: 17, last_jump_size: -1, 10_unit_telomer_chunk: TGGTGTGTGG
 ______________________
 5R
 telomer span: 46-1221, length: 1176, pattern Start: 7, pattern end: 38, last_jump_size: N/A, 10_unit_telomer_chunk: GTGGTGTGTG
-telomer span: 1222-1567, length: 346, pattern Start: 3, pattern end: 84, last_jump_size: 35, 10_unit_telomer_chunk: GGGTGTGGTG
-telomer span: 1568-1619, length: 52, pattern Start: 83, pattern end: 46, last_jump_size: 1, 10_unit_telomer_chunk: GGGTGTGTGG
-telomer span: 1619-1697, length: 79, pattern Start: 33, pattern end: 23, last_jump_size: 13, 10_unit_telomer_chunk: GGTGTGGGTG
+telomer span: 1222-1567, length: 346, pattern Start: 3, pattern end: 84, last_jump_size: -35, 10_unit_telomer_chunk: GGGTGTGGTG
+telomer span: 1568-1619, length: 52, pattern Start: 83, pattern end: 46, last_jump_size: -1, 10_unit_telomer_chunk: GGGTGTGTGG
+telomer span: 1619-1697, length: 79, pattern Start: 33, pattern end: 23, last_jump_size: -13, 10_unit_telomer_chunk: GGTGTGGGTG
 ______________________
 6L
 telomer span: 18-671, length: 654, pattern Start: 79, pattern end: 28, last_jump_size: N/A, 10_unit_telomer_chunk: TGTGTGGGTG
 ______________________
 6R
 telomer span: 31-270, length: 240, pattern Start: 63, pattern end: 38, last_jump_size: N/A, 10_unit_telomer_chunk: TGTGTGTGGG
-telomer span: 270-906, length: 637, pattern Start: 3, pattern end: 23, last_jump_size: 35, 10_unit_telomer_chunk: TGGGTGTGGT
+telomer span: 270-906, length: 637, pattern Start: 3, pattern end: 23, last_jump_size: -35, 10_unit_telomer_chunk: TGGGTGTGGT
 ______________________
 7L
 ______________________
 7R
 telomer span: 43-269, length: 227, pattern Start: 4, pattern end: 54, last_jump_size: N/A, 10_unit_telomer_chunk: GGTGTGGTGT
-telomer span: 270-298, length: 29, pattern Start: 39, pattern end: 67, last_jump_size: 15, 10_unit_telomer_chunk: GTGTGTGTGG
-telomer span: 299-363, length: 65, pattern Start: 26, pattern end: 2, last_jump_size: 41, 10_unit_telomer_chunk: TGTGTGGGTG
-telomer span: 364-540, length: 177, pattern Start: 39, pattern end: 39, last_jump_size: 37, 10_unit_telomer_chunk: GTGTGTGTGG
-telomer span: 540-658, length: 119, pattern Start: 79, pattern end: 21, last_jump_size: 40, 10_unit_telomer_chunk: TGTGTGGGTG
+telomer span: 270-298, length: 29, pattern Start: 39, pattern end: 67, last_jump_size: -15, 10_unit_telomer_chunk: GTGTGTGTGG
+telomer span: 299-363, length: 65, pattern Start: 26, pattern end: 2, last_jump_size: -41, 10_unit_telomer_chunk: TGTGTGGGTG
+telomer span: 364-540, length: 177, pattern Start: 39, pattern end: 39, last_jump_size: +37, 10_unit_telomer_chunk: GTGTGTGTGG
+telomer span: 540-658, length: 119, pattern Start: 79, pattern end: 21, last_jump_size: +40, 10_unit_telomer_chunk: TGTGTGGGTG
 ______________________
 8L
 telomer span: 46-473, length: 428, pattern Start: 7, pattern end: 82, last_jump_size: N/A, 10_unit_telomer_chunk: GTGGTGTGTG
@@ -64,25 +64,25 @@ telomer span: 230-655, length: 426, pattern Start: 17, pattern end: 2, last_jump
 ______________________
 10R
 telomer span: 12-324, length: 313, pattern Start: 79, pattern end: 39, last_jump_size: N/A, 10_unit_telomer_chunk: GTGTGGGTGT
-telomer span: 324-1006, length: 683, pattern Start: 64, pattern end: 42, last_jump_size: 25, 10_unit_telomer_chunk: TGTGTGTGGG
+telomer span: 324-1006, length: 683, pattern Start: 64, pattern end: 42, last_jump_size: +25, 10_unit_telomer_chunk: TGTGTGTGGG
 ______________________
 11L
 telomer span: 46-422, length: 377, pattern Start: 32, pattern end: 56, last_jump_size: N/A, 10_unit_telomer_chunk: GGTGTGGGTG
-telomer span: 423-532, length: 110, pattern Start: 18, pattern end: 39, last_jump_size: 38, 10_unit_telomer_chunk: GGGTGTGGTG
-telomer span: 532-786, length: 255, pattern Start: 79, pattern end: 69, last_jump_size: 40, 10_unit_telomer_chunk: TGTGTGGGTG
+telomer span: 423-532, length: 110, pattern Start: 18, pattern end: 39, last_jump_size: -38, 10_unit_telomer_chunk: GGGTGTGGTG
+telomer span: 532-786, length: 255, pattern Start: 79, pattern end: 69, last_jump_size: +40, 10_unit_telomer_chunk: TGTGTGGGTG
 ______________________
 11R
 telomer span: 24-146, length: 123, pattern Start: 4, pattern end: 38, last_jump_size: N/A, 10_unit_telomer_chunk: GGTGTGGTGT
-telomer span: 147-534, length: 388, pattern Start: 3, pattern end: 38, last_jump_size: 35, 10_unit_telomer_chunk: GGGTGTGGTG
-telomer span: 535-958, length: 424, pattern Start: 55, pattern end: 38, last_jump_size: 17, 10_unit_telomer_chunk: GGGTGTGGTG
-telomer span: 958-1227, length: 270, pattern Start: 3, pattern end: 8, last_jump_size: 35, 10_unit_telomer_chunk: TGGGTGTGGT
+telomer span: 147-534, length: 388, pattern Start: 3, pattern end: 38, last_jump_size: -35, 10_unit_telomer_chunk: GGGTGTGGTG
+telomer span: 535-958, length: 424, pattern Start: 55, pattern end: 38, last_jump_size: +17, 10_unit_telomer_chunk: GGGTGTGGTG
+telomer span: 958-1227, length: 270, pattern Start: 3, pattern end: 8, last_jump_size: -35, 10_unit_telomer_chunk: TGGGTGTGGT
 ______________________
 12L
 telomer span: 41-310, length: 270, pattern Start: 27, pattern end: 32, last_jump_size: N/A, 10_unit_telomer_chunk: GTGTGGGTGT
-telomer span: 311-367, length: 57, pattern Start: 70, pattern end: 38, last_jump_size: 38, 10_unit_telomer_chunk: GGGTGTGGTG
-telomer span: 368-631, length: 264, pattern Start: 3, pattern end: 2, last_jump_size: 35, 10_unit_telomer_chunk: GGGTGTGGTG
-telomer span: 632-662, length: 31, pattern Start: 39, pattern end: 69, last_jump_size: 37, 10_unit_telomer_chunk: GTGTGTGTGG
-telomer span: 662-1312, length: 651, pattern Start: 33, pattern end: 67, last_jump_size: 36, 10_unit_telomer_chunk: GGTGTGGGTG
+telomer span: 311-367, length: 57, pattern Start: 70, pattern end: 38, last_jump_size: +38, 10_unit_telomer_chunk: GGGTGTGGTG
+telomer span: 368-631, length: 264, pattern Start: 3, pattern end: 2, last_jump_size: -35, 10_unit_telomer_chunk: GGGTGTGGTG
+telomer span: 632-662, length: 31, pattern Start: 39, pattern end: 69, last_jump_size: +37, 10_unit_telomer_chunk: GTGTGTGTGG
+telomer span: 662-1312, length: 651, pattern Start: 33, pattern end: 67, last_jump_size: -36, 10_unit_telomer_chunk: GGTGTGGGTG
 ______________________
 13L
 telomer span: 10-115, length: 106, pattern Start: 73, pattern end: 2, last_jump_size: N/A, 10_unit_telomer_chunk: TGTGGTGTGT
@@ -91,11 +91,11 @@ telomer span: 123-501, length: 379, pattern Start: 12, pattern end: 38, last_jum
 ______________________
 13R
 telomer span: 43-429, length: 387, pattern Start: 56, pattern end: 2, last_jump_size: N/A, 10_unit_telomer_chunk: GGTGTGGTGT
-telomer span: 429-860, length: 432, pattern Start: 39, pattern end: 30, last_jump_size: 37, 10_unit_telomer_chunk: GGTGTGTGTG
+telomer span: 429-860, length: 432, pattern Start: 39, pattern end: 30, last_jump_size: +37, 10_unit_telomer_chunk: GGTGTGTGTG
 ______________________
 14L
 telomer span: 92-405, length: 314, pattern Start: 71, pattern end: 32, last_jump_size: N/A, 10_unit_telomer_chunk: GGTGTGGTGT
-telomer span: 405-887, length: 483, pattern Start: 31, pattern end: 73, last_jump_size: 1, 10_unit_telomer_chunk: TGGGTGTGGG
+telomer span: 405-887, length: 483, pattern Start: 31, pattern end: 73, last_jump_size: -1, 10_unit_telomer_chunk: TGGGTGTGGG
 ______________________
 14R
 telomer span: 45-1674, length: 1630, pattern Start: 7, pattern end: 52, last_jump_size: N/A, 10_unit_telomer_chunk: TGTGGTGTGT
@@ -105,8 +105,8 @@ telomer span: 21-180, length: 160, pattern Start: 51, pattern end: 34, last_jump
 ______________________
 15R
 telomer span: 92-281, length: 190, pattern Start: 71, pattern end: 84, last_jump_size: N/A, 10_unit_telomer_chunk: GGTGTGGTGT
-telomer span: 282-399, length: 118, pattern Start: 3, pattern end: 32, last_jump_size: 7, 10_unit_telomer_chunk: GGGTGTGGTG
-telomer span: 399-464, length: 66, pattern Start: 31, pattern end: 8, last_jump_size: 1, 10_unit_telomer_chunk: TGGGTGTGGG
+telomer span: 282-399, length: 118, pattern Start: 3, pattern end: 32, last_jump_size: +7, 10_unit_telomer_chunk: GGGTGTGGTG
+telomer span: 399-464, length: 66, pattern Start: 31, pattern end: 8, last_jump_size: -1, 10_unit_telomer_chunk: TGGGTGTGGG
 ______________________
 16L
 telomer span: 10-115, length: 106, pattern Start: 73, pattern end: 2, last_jump_size: N/A, 10_unit_telomer_chunk: TGTGGTGTGT

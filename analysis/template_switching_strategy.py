@@ -5,12 +5,27 @@ class TemplateSwitchingStrategy:
     def __init__(self, telomeres: List[Optional[TelomereSequence]], pattern: str, config: Config):
         self.telomers: List[Optional[TelomereSequence]] = telomeres
         self.pattern: str = pattern
+        self.doubled_pattern = pattern + pattern
         self.config = config
+
+    def _find_all_starts(self, window: str, offset: int) -> List[int]:
+        tmp_doubled_pattern = self.doubled_pattern
+        n_pattern = len(self.pattern)
+        output_starting_pos: List[int] = []
+        while True:
+            start = tmp_doubled_pattern.find(window) + 1
+            if start == 0:
+                break
+            start += offset
+            output_starting_pos.append(start % n_pattern)
+            tmp_doubled_pattern = tmp_doubled_pattern[start + len(window):]
+        return output_starting_pos
+            
         
     #Fix: read through this again and break up into other functions
     def _identify_template_switches(self, telomer_str: str) -> Optional[TemplateSwitchData]:
         pattern = self.pattern
-        doubled_pattern = pattern + pattern
+        doubled_pattern = self.doubled_pattern
         n_telomer = len(telomer_str)
         n_pattern = len(self.pattern)
         offset = 0
@@ -35,23 +50,10 @@ class TemplateSwitchingStrategy:
                 starting_pos = []
                 end_pos = []
                 window_beg = prev_window[:n_pattern]
-                tmp_doubled_pattern= doubled_pattern
-                while True:
-                    start = tmp_doubled_pattern.find(window_beg) + 1
-                    if start == 0:
-                        break
-                    starting_pos.append(start % n_pattern)
-                    tmp_doubled_pattern = tmp_doubled_pattern[start + len(window_beg):]
-                tmp_doubled_pattern = doubled_pattern
+                starting_pos = self._find_all_starts(window_beg, 0) 
                 if len(prev_window) > n_pattern:
                     window_end = prev_window[len(prev_window) - n_pattern:]
-                    while True:
-                        end = tmp_doubled_pattern.find(window_end) + 1
-                        if end == 0:
-                            break
-                        end += n_pattern - 1
-                        end_pos.append(end % n_pattern)
-                        tmp_doubled_pattern = tmp_doubled_pattern[end + 1:]
+                    end_pos = self._find_all_starts(window_end, n_pattern - 1)
                 else:
                     end_pos.append(starting_pos[0] + min(n_pattern, len(prev_window)) - 1)
                     end_pos[0] = end_pos[0] % n_pattern
@@ -75,23 +77,10 @@ class TemplateSwitchingStrategy:
             starting_pos = []
             end_pos = []
             window_beg = prev_window[:n_pattern]
-            tmp_doubled_pattern= doubled_pattern
-            while True:
-                start = tmp_doubled_pattern.find(window_beg) + 1
-                if start == 0:
-                    break
-                starting_pos.append(start % n_pattern)
-                tmp_doubled_pattern = tmp_doubled_pattern[start + len(window_beg):]
-            tmp_doubled_pattern = doubled_pattern
+            starting_pos = self._find_all_starts(window_beg, 0)
             if len(prev_window) > n_pattern:
                 window_end = prev_window[len(prev_window) - n_pattern:]
-                while True:
-                    end = tmp_doubled_pattern.find(window_end) + 1
-                    if end == 0:
-                        break
-                    end += n_pattern - 1
-                    end_pos.append(end % n_pattern)
-                    tmp_doubled_pattern = tmp_doubled_pattern[end + 1:]
+                end_pos = self._find_all_starts(window_end, n_pattern - 1)
             else:
                 end_pos.append(starting_pos[0] + min(n_pattern, len(prev_window)) - 1)
                 end_pos[0] = end_pos[0] % n_pattern

@@ -37,6 +37,9 @@ class TemplateSwitchEvent:
     pattern_start: Any
     pattern_end: Any
     is_mutation: bool
+    #insertion_events: List[Tuple[int, str]] = [] 
+    #mismatch_events: List[Tuple[int, str, str]] = []
+
 
 
 #fix: find a beetter way to connect the 2 arrays

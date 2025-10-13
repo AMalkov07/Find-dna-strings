@@ -10,8 +10,8 @@ class AlignmentStrategy:
         self.telomers = telomeres
         self.pattern = pattern
         self.config = config
-        self.alignment_settings = AlignmentSettings(match=5, mismatch=-4, gap_open=10, gap_extend=2)
-        #self.alignment_settings = AlignmentSettings(match=47, mismatch=-40, gap_open=100, gap_extend=24)
+        #self.alignment_settings = AlignmentSettings(match=5, mismatch=-4, gap_open=10, gap_extend=2)
+        self.alignment_settings = AlignmentSettings(match=47, mismatch=-40, gap_open=100, gap_extend=24)
 
     def _identify_perfect_alignments(self, telomer_str: str) -> List[int]:
         pattern = self.pattern
