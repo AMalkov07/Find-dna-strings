@@ -97,7 +97,7 @@ class GraphTemplateSwitching:
             if curr_template_switch.is_mutation:
                 vert_line_pos = line_start
                 self.ax.plot([vert_line_pos, vert_line_pos],
-                            [y_index-.1, y_index+.1], color='red', linestyle='-', lw=1)
+                            [y_index-.1, y_index+.1], color='orange', linestyle='-', lw=1)
                 
 
             else:
@@ -108,6 +108,20 @@ class GraphTemplateSwitching:
                     vert_line_pos = line_start + ((i+1) * self.perfect_arrow_distance) * sign
                     self.ax.plot([vert_line_pos, vert_line_pos],
                                 [y_index-.1, y_index+.1], color='blue', linestyle='-', lw=1)
+
+                for ins in curr_template_switch.insertion_events:
+                    index = ins[0]
+                    self.ax.plot([line_start+index*sign, line_start+index*sign],
+                                 [y_index-.1, y_index+.1], color='gold', linestyle='-', lw=1)
+                for dele in curr_template_switch.deletion_events:
+                    index = dele[0]
+                    self.ax.plot([line_start+index*sign, line_start+index*sign],
+                                 [y_index-.1, y_index+.1], color='purple', linestyle='-', lw=1)
+                for mis in curr_template_switch.mismatch_events:
+                    index = mis[0]
+                    self.ax.plot([line_start+index*sign, line_start+index*sign],
+                                 [y_index-.1, y_index+.1], color='red', linestyle='-', lw=1)
+
 
                 if sign -1 and line_end < self.min_x:
                     self.min_x = line_end
