@@ -5,7 +5,7 @@ from typing import List, Optional
 from utils.data_structures import Config, TelomereSequence, TemplateSwitchData, AlignmentData
 from data_io.fasta_reader import FastaReader
 from analysis.alignment_strategy import AlignmentStrategy
-from analysis.template_switching_strategy import TemplateSwitchingStrategy
+from analysis.template_switching_strategy_2 import TemplateSwitchingStrategy
 from data_io.graph_alignment import GraphAlignment
 from data_io.graph_template_switching import GraphTemplateSwitching
 from data_io.template_switching_exporters import TemplateSwitchingPrint
@@ -26,7 +26,7 @@ def run_analysis(config: Config) -> None:
     # step 2: find pattern
     pattern: Optional[str] = config.pattern
     if not pattern:
-        pattern = pattern_finder_execute(telomers)
+        pattern = pattern_finder_execute(telomers, config)
     if not pattern:
         raise ValueError("no good pattern was found")
 
