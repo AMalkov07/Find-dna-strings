@@ -147,8 +147,8 @@ if __name__ == "__main__":
                         help="used for comparing the output of the program to Ivan's CSV files")
     parser.add_argument("-mam", "--maximum_alignment_mutations", type=int, default=12,
                         help="determines the cutoff for a valid mutation. Default is 1 mutations per 12 bps")
-    parser.add_argument("-mla", "--mutation_lookahead", type=int, default=10,
-                        help="only used for template switching strategy, Determines how many bps after a potential mutation must match in order to be considered a valid mutation instead of a template swtich. (Default is 10)")
+    parser.add_argument("-mla", "--mutation_lookahead", type=int, default=20,
+                        help="only used for template switching strategy, Determines how many bps after a potential mutation must match in order to be considered a valid mutation instead of a template swtich. (Default is 20)")
                 
     args = parser.parse_args()
 

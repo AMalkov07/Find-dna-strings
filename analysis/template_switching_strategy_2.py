@@ -171,7 +171,7 @@ class TemplateSwitchingStrategy:
         # Check for single base mismatch
         # long[i+1] != circle[j+1], but long[i+2:i+11] == circle[j+2:j+11]
         mismatch_match = True
-        for k in range(1, lookahead):
+        for k in range(0, lookahead):
             if long_pos + k + 1 >= len(self.long):
                 mismatch_match = False
                 break
@@ -320,18 +320,18 @@ class TemplateSwitchingStrategy:
                     length += 1
                     long_pos += 1
                     circle_pos += 1
-                    mismatch_events.append((mutation['long_pos'], mutation['long_base'], mutation['circle_base']))
+                    mismatch_events.append((mutation['long_pos']-long_start, mutation['long_base'], mutation['circle_base']))
                 elif mutation['type'] == 'insertion':
                     # Insertion in long: long advances, circle stays
                     length += 1
                     long_pos += 1
-                    insertion_events.append((mutation['long_pos'], mutation['inserted_base']))
+                    insertion_events.append((mutation['long_pos']-long_start, mutation['inserted_base']))
                     # circle_pos stays the same
                 elif mutation['type'] == 'deletion':
                     # Deletion in long: circle advances, long stays
                     # Don't increment length (no new base in long)
                     circle_pos += 1
-                    deletion_events.append((mutation['circle_pos'], mutation['deleted_base']))
+                    deletion_events.append((mutation['long_pos']-long_start, mutation['deleted_base']))
                     # long_pos stays the same
         
         # Get the sequence
