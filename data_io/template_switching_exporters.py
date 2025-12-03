@@ -46,7 +46,7 @@ class TemplateSwitchingPrint:
         if len(mismatches_str) > 0:
             mismatches_str = mismatches_str[:-2] + ")"
             mutation_parts.append(mismatches_str)
-        mutation_string = ",\t".join(mutation_parts)
+        mutation_string = ", ".join(mutation_parts)
         return mutation_string
 
     def _chr_end_print(self, telomer: TelomereSequence, template_switch_analysis: TemplateSwitchData, main_output_file: TextIOWrapper, variants_output_file: TextIOWrapper) -> None:
@@ -107,7 +107,7 @@ class TemplateSwitchingPrint:
                     jump_size = "N/A"
                     if_small_jump = "N/A"
                 mutation_string = self._create_mutaiton_string(insertions, deletions, mismatches)
-                primary_output.append(f"telomer span: {telomer_start}-{telomer_end}, length: {n_telomer_chunk}, pattern Start: {pattern_start}, pattern end: {pattern_end}, last_jump_size: {jump_size}, 10_unit_telomer_chunk: {telomer_str[telomer_start:telomer_start+10]}, mutations: {mutation_string}")
+                primary_output.append(f"telomer span: {telomer_start}-{telomer_end}, length: {n_telomer_chunk}, pattern Start: {pattern_start}, pattern end: {pattern_end}, last_jump_size: {jump_size}, 10_unit_telomer_chunk: {telomer_str[telomer_start:telomer_start+10]}, {mutation_string}")
                 #variants_file_output.append(f"{strain_name},{chr_end},{repeat_num},{n_reference_chunk},{reference_start},{reference_end},{circleString_start},{circleString_end},{if_small_jump},{memory_jump_val}")
                 variants_file_output.append(f"{strain_name},{chr_end},{n_telomer_chunk},{telomer_start},{telomer_end},{pattern_start},{pattern_end},{if_small_jump},{memory_jump_val}")
                 last_last_end = last_end
