@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from os.path import splitext
 from _io import TextIOWrapper
 
@@ -19,6 +19,35 @@ class TemplateSwitchingPrint:
             return forward
         else:
             return (-1 * backward)
+
+    def _create_mutaiton_string(self, insertions: List[Tuple[int, str]], deletions: List[Tuple[int, str]], mismatches: List[Tuple[int, str, str]]) -> str:
+        mutation_parts: List[str] = []
+        insertions_str = "" 
+        deletions_str = ""
+        mismatches_str = ""
+        if len(insertions) > 0:
+            insertions_str = "Insertions: ("
+        for ins in insertions:
+            insertions_str += f"{ins[0]}, "
+        if len(insertions_str) > 0:
+            insertions_str = insertions_str[:-2] + ")"
+            mutation_parts.append(insertions_str)
+        if len(deletions) > 0:
+            deletions_str = "Deletions: ("
+        for dele in deletions:
+            deletions_str += f"{dele[0]}, "
+        if len(deletions_str) > 0:
+            deletions_str = deletions_str[:-2] + ")"
+            mutation_parts.append(deletions_str)
+        if len(mismatches) > 0:
+            mismatches_str = "Mismatches: ("
+        for mm in mismatches:
+            mismatches_str += f"{mm[0]}, "
+        if len(mismatches_str) > 0:
+            mismatches_str = mismatches_str[:-2] + ")"
+            mutation_parts.append(mismatches_str)
+        mutation_string = ",\t".join(mutation_parts)
+        return mutation_string
 
     def _chr_end_print(self, telomer: TelomereSequence, template_switch_analysis: TemplateSwitchData, main_output_file: TextIOWrapper, variants_output_file: TextIOWrapper) -> None:
         telomer_str: str = telomer.sequence
@@ -46,6 +75,9 @@ class TemplateSwitchingPrint:
             is_mutation: bool = template_switch_info.is_mutation
             strain_name: str = telomer.survivor_name
             chr_end: str = telomer.chromosome_end_id
+            insertions: List[Tuple[int, str]] = template_switch_info.insertion_events
+            deletions: List[Tuple[int, str]] = template_switch_info.deletion_events
+            mismatches: List[Tuple[int, str, str]] = template_switch_info.mismatch_events
 
 
             if is_mutation:
@@ -74,7 +106,8 @@ class TemplateSwitchingPrint:
                 else:
                     jump_size = "N/A"
                     if_small_jump = "N/A"
-                primary_output.append(f"telomer span: {telomer_start}-{telomer_end}, length: {n_telomer_chunk}, pattern Start: {pattern_start}, pattern end: {pattern_end}, last_jump_size: {jump_size}, 10_unit_telomer_chunk: {telomer_str[telomer_start:telomer_start+10]}")
+                mutation_string = self._create_mutaiton_string(insertions, deletions, mismatches)
+                primary_output.append(f"telomer span: {telomer_start}-{telomer_end}, length: {n_telomer_chunk}, pattern Start: {pattern_start}, pattern end: {pattern_end}, last_jump_size: {jump_size}, 10_unit_telomer_chunk: {telomer_str[telomer_start:telomer_start+10]}, mutations: {mutation_string}")
                 #variants_file_output.append(f"{strain_name},{chr_end},{repeat_num},{n_reference_chunk},{reference_start},{reference_end},{circleString_start},{circleString_end},{if_small_jump},{memory_jump_val}")
                 variants_file_output.append(f"{strain_name},{chr_end},{n_telomer_chunk},{telomer_start},{telomer_end},{pattern_start},{pattern_end},{if_small_jump},{memory_jump_val}")
                 last_last_end = last_end

@@ -86,7 +86,8 @@ def main(args) -> None:
         skip_seeding=args.skip_seeding,
         compare_file_path=args.compare_output,
         min_pattern_length=args.min_length,
-        graph_output=args.graph_output
+        graph_output=args.graph_output,
+        mutation_lookahead=args.mutation_lookahead
     )
 
     # check if file exists
@@ -146,6 +147,9 @@ if __name__ == "__main__":
                         help="used for comparing the output of the program to Ivan's CSV files")
     parser.add_argument("-mam", "--maximum_alignment_mutations", type=int, default=12,
                         help="determines the cutoff for a valid mutation. Default is 1 mutations per 12 bps")
+    parser.add_argument("-mla", "--mutation_lookahead", type=int, default=10,
+                        help="only used for template switching strategy, Determines how many bps after a potential mutation must match in order to be considered a valid mutation instead of a template swtich. (Default is 10)")
+                
     args = parser.parse_args()
 
     main(args)

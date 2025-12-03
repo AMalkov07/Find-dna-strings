@@ -28,6 +28,7 @@ class Config:
     compare_file_path: Optional[str]
     min_pattern_length: int
     graph_output: Optional[str]
+    mutation_lookahead: int
 
 @dataclass
 class TemplateSwitchEvent:
@@ -37,8 +38,9 @@ class TemplateSwitchEvent:
     pattern_start: Any
     pattern_end: Any
     is_mutation: bool
-    #insertion_events: List[Tuple[int, str]] = [] 
-    #mismatch_events: List[Tuple[int, str, str]] = []
+    insertion_events: List[Tuple[int, str]]
+    deletion_events: List[Tuple[int, str]]
+    mismatch_events: List[Tuple[int, str, str]]
 
 
 

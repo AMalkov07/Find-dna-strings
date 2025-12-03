@@ -1,6 +1,6 @@
 
 from utils.data_structures import TelomereSequence, Config, TemplateSwitchEvent, TemplateSwitchData
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 
 class MatchResult:
@@ -34,6 +34,7 @@ class TemplateSwitchingStrategy:
         self.circle_len = len(circular_dna)
         self.config = config
         self.current_analysis = TemplateSwitchData([], [])
+        self.mutation_lookahead = config.mutation_lookahead
     
     def find_uninterrupted_segments(self):
         """
@@ -64,15 +65,8 @@ class TemplateSwitchingStrategy:
                 # We'll extend from one of the possible positions to get the length
                 event = self._extend_match(i, result.positions[0], result.length, 
                                             ambiguous=True, possible_positions=result.positions)
-            else:  # mutation
-                # Base pair not in circle
-                #segment = Segment(
-                    #long_start=i,
-                    #long_end=i + 1,
-                    #sequence=self.long[i],
-                    #segment_type='mutation'
-                #)
-                event = TemplateSwitchEvent(self.long[i], i, i, None, None, True)
+            else: 
+                event = TemplateSwitchEvent(self.long[i], i, i, None, None, True, [], [], [])
             
             if added_first or len(event.telomer_chunk) >= min(50, self.circle_len//2):
                 if not added_first:
@@ -155,27 +149,190 @@ class TemplateSwitchingStrategy:
                 return [matches[0]]
         
         return matches
+
+        
+    def _detect_mutation(self, long_pos, circle_pos):
+        """
+        Detect if there's a recoverable mutation (mismatch, insertion, or deletion).
+        
+        Args:
+            long_pos: Current position in long DNA
+            circle_pos: Current position in circular DNA
+        
+        Returns:
+            Dictionary with mutation info or None if no recoverable mutation
+        """
+        lookahead = self.mutation_lookahead
+        
+        # Make sure we have enough room to look ahead
+        if long_pos + lookahead > len(self.long):
+            return None
+        
+        # Check for single base mismatch
+        # long[i+1] != circle[j+1], but long[i+2:i+11] == circle[j+2:j+11]
+        mismatch_match = True
+        for k in range(1, lookahead):
+            if long_pos + k + 1 >= len(self.long):
+                mismatch_match = False
+                break
+            if self.long[long_pos + k + 1] != self.circular[(circle_pos + k + 1) % self.circle_len]:
+                mismatch_match = False
+                break
+        
+        if mismatch_match:
+            return {
+                'type': 'mismatch',
+                'long_pos': long_pos,
+                'circle_pos': circle_pos,
+                'long_base': self.long[long_pos],
+                'circle_base': self.circular[circle_pos % self.circle_len]
+            }
+        
+        # Check for insertion
+        # long[i+1] != circle[j+1], but long[i+2:i+11] == circle[j+1:j+10]
+        insertion_match = True
+        for k in range(lookahead - 1):
+            if long_pos + k + 2 >= len(self.long):
+                insertion_match = False
+                break
+            if self.long[long_pos + k + 2] != self.circular[(circle_pos + k + 1) % self.circle_len]:
+                insertion_match = False
+                break
+        
+        if insertion_match:
+            return {
+                'type': 'insertion',
+                'long_pos': long_pos,
+                'circle_pos': circle_pos,
+                'inserted_base': self.long[long_pos]
+            }
+        
+        # Check for deletion
+        # long[i+1] != circle[j+1], but long[i+1:i+10] == circle[j+2:j+11]
+        deletion_match = True
+        for k in range(lookahead - 1):
+            if long_pos + k + 1 >= len(self.long):
+                deletion_match = False
+                break
+            if self.long[long_pos + k + 1] != self.circular[(circle_pos + k + 2) % self.circle_len]:
+                deletion_match = False
+                break
+        
+        if deletion_match:
+            return {
+                'type': 'deletion',
+                'long_pos': long_pos,
+                'circle_pos': circle_pos,
+                'deleted_base': self.circular[circle_pos % self.circle_len]
+            }
+        
+        return None
+
+
+    #def _extend_match(self, long_start, circle_start, min_length, 
+                     #ambiguous=False, possible_positions=None):
+        #"""
+        #Extend a match as far as possible without jumps.
+        #We already know the first min_length characters match uniquely.
+        
+        #Returns a Segment object.
+        #"""
+        #length = min_length
+        #circle_pos = circle_start + min_length
+        #long_pos = long_start + min_length
+        #mutations = []
+        
+        ## Extend while characters match and follow circular sequence
+        #while long_pos < len(self.long):
+            #if self.long[long_pos] != self.circular[circle_pos % self.circle_len]:
+                #break
+            
+            #length += 1
+            #long_pos += 1
+            #circle_pos += 1
+        
+        ## Get the sequence
+        #sequence = self.long[long_start:long_start + length]
+        
+        #if ambiguous:
+            #return TemplateSwitchEvent(
+                #sequence,
+                #long_start,
+                #long_start + length,
+                #'ambiguous',
+                #'ambiguous',
+                #False
+            #)
+        #else:
+            ## Determine actual circle end position and if it wraps
+            #actual_circle_end = circle_start + length
+            #wraps = actual_circle_end >= self.circle_len
+            #circle_end = actual_circle_end % self.circle_len
+            
+            ## If circle_end is 0 and we wrapped, it means we ended exactly at the circle length
+            #if circle_end == 0 and wraps:
+                #circle_end = self.circle_len
+            
+            #return TemplateSwitchEvent(
+                #sequence,
+                #long_start,
+                #long_start + length,
+                #circle_start,
+                #circle_end,
+                #False
+            #)
     
     def _extend_match(self, long_start, circle_start, min_length, 
                      ambiguous=False, possible_positions=None):
         """
-        Extend a match as far as possible without jumps.
-        We already know the first min_length characters match uniquely.
+        Extend a match as far as possible, detecting mutations along the way.
+        We already know the first min_length characters match.
         
         Returns a Segment object.
         """
         length = min_length
         circle_pos = circle_start + min_length
         long_pos = long_start + min_length
+        insertion_events: List[Tuple[int, str]] = []
+        deletion_events: List[Tuple[int, str]] = []
+        mismatch_events: List[Tuple[int, str, str]] = []
         
-        # Extend while characters match and follow circular sequence
+        # Extend while characters match (or we can detect mutations)
         while long_pos < len(self.long):
-            if self.long[long_pos] != self.circular[circle_pos % self.circle_len]:
-                break
+            long_base = self.long[long_pos]
+            circle_base = self.circular[circle_pos % self.circle_len]
             
-            length += 1
-            long_pos += 1
-            circle_pos += 1
+            if long_base == circle_base:
+                # Perfect match, continue
+                length += 1
+                long_pos += 1
+                circle_pos += 1
+            else:
+                # Mismatch detected - check for mutation types
+                mutation = self._detect_mutation(long_pos, circle_pos % self.circle_len)
+                
+                if mutation is None:
+                    # No recoverable mutation, end of segment
+                    break
+                
+                if mutation['type'] == 'mismatch':
+                    # Single base mismatch: both advance by 1
+                    length += 1
+                    long_pos += 1
+                    circle_pos += 1
+                    mismatch_events.append((mutation['long_pos'], mutation['long_base'], mutation['circle_base']))
+                elif mutation['type'] == 'insertion':
+                    # Insertion in long: long advances, circle stays
+                    length += 1
+                    long_pos += 1
+                    insertion_events.append((mutation['long_pos'], mutation['inserted_base']))
+                    # circle_pos stays the same
+                elif mutation['type'] == 'deletion':
+                    # Deletion in long: circle advances, long stays
+                    # Don't increment length (no new base in long)
+                    circle_pos += 1
+                    deletion_events.append((mutation['circle_pos'], mutation['deleted_base']))
+                    # long_pos stays the same
         
         # Get the sequence
         sequence = self.long[long_start:long_start + length]
@@ -187,11 +344,14 @@ class TemplateSwitchingStrategy:
                 long_start + length,
                 'ambiguous',
                 'ambiguous',
-                False
+                False,
+                insertion_events,
+                deletion_events,
+                mismatch_events
             )
         else:
             # Determine actual circle end position and if it wraps
-            actual_circle_end = circle_start + length
+            actual_circle_end = circle_pos
             wraps = actual_circle_end >= self.circle_len
             circle_end = actual_circle_end % self.circle_len
             
@@ -205,7 +365,10 @@ class TemplateSwitchingStrategy:
                 long_start + length,
                 circle_start,
                 circle_end,
-                False
+                False,
+                insertion_events,
+                deletion_events,
+                mismatch_events
             )
     
     def print_segments(self):
