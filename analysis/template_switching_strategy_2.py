@@ -35,6 +35,8 @@ class TemplateSwitchingStrategy:
         self.config = config
         self.current_analysis = TemplateSwitchData([], [])
         self.mutation_lookahead = config.mutation_lookahead
+        self.max_insertion_size = config.max_insertion_size
+        self.max_deletion_size = config.max_deletion_size
     
     def find_uninterrupted_segments(self):
         """
@@ -163,6 +165,9 @@ class TemplateSwitchingStrategy:
             Dictionary with mutation info or None if no recoverable mutation
         """
         lookahead = self.mutation_lookahead
+        doubled_circle = self.circular + self.circular
+
+        
         
         # Make sure we have enough room to look ahead
         if long_pos + lookahead > len(self.long):
@@ -170,14 +175,21 @@ class TemplateSwitchingStrategy:
         
         # Check for single base mismatch
         # long[i+1] != circle[j+1], but long[i+2:i+11] == circle[j+2:j+11]
+        #mismatch_match = True
+        #for k in range(lookahead):
+            #if long_pos + k + 1 >= len(self.long):
+                #mismatch_match = False
+                #break
+            #if self.long[long_pos + k + 1] != self.circular[(circle_pos + k + 1) % self.circle_len]:
+                #mismatch_match = False
+                #break
+        
         mismatch_match = True
-        for k in range(0, lookahead):
-            if long_pos + k + 1 >= len(self.long):
-                mismatch_match = False
-                break
-            if self.long[long_pos + k + 1] != self.circular[(circle_pos + k + 1) % self.circle_len]:
-                mismatch_match = False
-                break
+        if long_pos+lookahead+1 >= len(self.long) or circle_pos+lookahead+1 >= len(doubled_circle):
+            mismatch_match = False
+        elif self.long[long_pos + 1: long_pos + 1 + lookahead] != doubled_circle[circle_pos + 1: circle_pos + 1 + lookahead]:
+            mismatch_match = False
+        
         
         if mismatch_match:
             return {
@@ -185,102 +197,73 @@ class TemplateSwitchingStrategy:
                 'long_pos': long_pos,
                 'circle_pos': circle_pos,
                 'long_base': self.long[long_pos],
-                'circle_base': self.circular[circle_pos % self.circle_len]
+                'circle_base': self.circular[circle_pos % self.circle_len],
+                'mutation_size': 1 
             }
         
         # Check for insertion
         # long[i+1] != circle[j+1], but long[i+2:i+11] == circle[j+1:j+10]
         insertion_match = True
-        for k in range(lookahead - 1):
-            if long_pos + k + 2 >= len(self.long):
+        #for i in range(1, self.max_insertion_size + 1):
+            #for k in range(lookahead):
+                #if long_pos + k + i >= len(self.long):
+                    #break
+                #if self.long[long_pos + k + i] != self.circular[(circle_pos + k) % self.circle_len]:
+                    #break
+        insertion_size = 1
+        while insertion_size < self.max_insertion_size + 1:
+            if long_pos + lookahead + insertion_size >= len(self.long) or circle_pos + lookahead >= len(doubled_circle):
                 insertion_match = False
-                break
-            if self.long[long_pos + k + 2] != self.circular[(circle_pos + k + 1) % self.circle_len]:
+            elif self.long[long_pos+insertion_size:long_pos+insertion_size+lookahead] != doubled_circle[circle_pos:circle_pos+lookahead]:
                 insertion_match = False
-                break
+            else:
+                insertion_match = True
+                break  # Found a valid insertion size
+            insertion_size += 1
         
         if insertion_match:
             return {
                 'type': 'insertion',
                 'long_pos': long_pos,
                 'circle_pos': circle_pos,
-                'inserted_base': self.long[long_pos]
+                'inserted_base': self.long[long_pos:long_pos + insertion_size],
+                'mutation_size': insertion_size
             }
         
         # Check for deletion
         # long[i+1] != circle[j+1], but long[i+1:i+10] == circle[j+2:j+11]
         deletion_match = True
-        for k in range(lookahead - 1):
-            if long_pos + k + 1 >= len(self.long):
+        #for k in range(lookahead):
+            #if long_pos + k >= len(self.long):
+                #deletion_match = False
+                #break
+            #if self.long[long_pos + k] != self.circular[(circle_pos + k + 1) % self.circle_len]:
+                #deletion_match = False
+                #break
+
+        deletion_size = 1
+        while deletion_size < self.max_insertion_size + 1:
+            if long_pos+lookahead >= len(self.long) or circle_pos+lookahead+deletion_size >= len(doubled_circle):
                 deletion_match = False
-                break
-            if self.long[long_pos + k + 1] != self.circular[(circle_pos + k + 2) % self.circle_len]:
+            elif self.long[long_pos:long_pos+lookahead] != doubled_circle[circle_pos+deletion_size:circle_pos+lookahead+deletion_size]:
                 deletion_match = False
-                break
+            else:
+                deletion_match = True
+                break  # Found a valid deletion size
+            deletion_size += 1
         
         if deletion_match:
             return {
                 'type': 'deletion',
                 'long_pos': long_pos,
                 'circle_pos': circle_pos,
-                'deleted_base': self.circular[circle_pos % self.circle_len]
+                'deleted_base': self.circular[circle_pos % self.circle_len:(circle_pos + deletion_size) % self.circle_len],
+                'mutation_size': deletion_size
             }
         
         return None
 
 
-    #def _extend_match(self, long_start, circle_start, min_length, 
-                     #ambiguous=False, possible_positions=None):
-        #"""
-        #Extend a match as far as possible without jumps.
-        #We already know the first min_length characters match uniquely.
-        
-        #Returns a Segment object.
-        #"""
-        #length = min_length
-        #circle_pos = circle_start + min_length
-        #long_pos = long_start + min_length
-        #mutations = []
-        
-        ## Extend while characters match and follow circular sequence
-        #while long_pos < len(self.long):
-            #if self.long[long_pos] != self.circular[circle_pos % self.circle_len]:
-                #break
-            
-            #length += 1
-            #long_pos += 1
-            #circle_pos += 1
-        
-        ## Get the sequence
-        #sequence = self.long[long_start:long_start + length]
-        
-        #if ambiguous:
-            #return TemplateSwitchEvent(
-                #sequence,
-                #long_start,
-                #long_start + length,
-                #'ambiguous',
-                #'ambiguous',
-                #False
-            #)
-        #else:
-            ## Determine actual circle end position and if it wraps
-            #actual_circle_end = circle_start + length
-            #wraps = actual_circle_end >= self.circle_len
-            #circle_end = actual_circle_end % self.circle_len
-            
-            ## If circle_end is 0 and we wrapped, it means we ended exactly at the circle length
-            #if circle_end == 0 and wraps:
-                #circle_end = self.circle_len
-            
-            #return TemplateSwitchEvent(
-                #sequence,
-                #long_start,
-                #long_start + length,
-                #circle_start,
-                #circle_end,
-                #False
-            #)
     
     def _extend_match(self, long_start, circle_start, min_length, 
                      ambiguous=False, possible_positions=None):
@@ -323,14 +306,15 @@ class TemplateSwitchingStrategy:
                     mismatch_events.append((mutation['long_pos']-long_start, mutation['long_base'], mutation['circle_base']))
                 elif mutation['type'] == 'insertion':
                     # Insertion in long: long advances, circle stays
-                    length += 1
-                    long_pos += 1
-                    insertion_events.append((mutation['long_pos']-long_start, mutation['inserted_base']))
+                    length += mutation['mutation_size']
+                    long_pos += mutation['mutation_size']
+                    for i in range(mutation['mutation_size']):
+                        insertion_events.append((mutation['long_pos']-long_start, mutation['inserted_base']))
                     # circle_pos stays the same
                 elif mutation['type'] == 'deletion':
                     # Deletion in long: circle advances, long stays
                     # Don't increment length (no new base in long)
-                    circle_pos += 1
+                    circle_pos += mutation['mutation_size']
                     deletion_events.append((mutation['long_pos']-long_start, mutation['deleted_base']))
                     # long_pos stays the same
         
