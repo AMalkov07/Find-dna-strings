@@ -37,6 +37,7 @@ class TemplateSwitchingStrategy:
         self.mutation_lookahead = config.mutation_lookahead
         self.max_insertion_size = config.max_insertion_size
         self.max_deletion_size = config.max_deletion_size
+        self.no_mutations = config.no_mutations
     
     def find_uninterrupted_segments(self):
         """
@@ -291,8 +292,12 @@ class TemplateSwitchingStrategy:
                 long_pos += 1
                 circle_pos += 1
             else:
+                if self.no_mutations:
+                    # If mutations are disabled, stop at first mismatch
+                    mutation = None
                 # Mismatch detected - check for mutation types
-                mutation = self._detect_mutation(long_pos, circle_pos % self.circle_len)
+                else:
+                    mutation = self._detect_mutation(long_pos, circle_pos % self.circle_len)
                 
                 if mutation is None:
                     # No recoverable mutation, end of segment

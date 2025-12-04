@@ -89,7 +89,8 @@ def main(args) -> None:
         graph_output=args.graph_output,
         mutation_lookahead=args.mutation_lookahead,
         max_insertion_size=args.max_insertion_size,
-        max_deletion_size=args.max_deletion_size
+        max_deletion_size=args.max_deletion_size,
+        no_mutations=args.no_mutations
     )
 
     # check if file exists
@@ -155,6 +156,8 @@ if __name__ == "__main__":
                         help="only used for template switching strategy, Determines the maximum insertion size that is considered instead of template switching (Default is 3)")
     parser.add_argument("-mds", "--max_deletion_size", type=int, default=3,
                         help="only used for template switching strategy, Determines the maximum deletion size that is considered instead of template switching (Default is 3)")
+    parser.add_argument("-nm", "--no_mutations", type=bool, default=False,
+                        help="only used for template switching strategy, avoids attempting to find mutations (Default is False)")
                 
     args = parser.parse_args()
 

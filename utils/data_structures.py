@@ -31,6 +31,7 @@ class Config:
     mutation_lookahead: int
     max_deletion_size: int
     max_insertion_size: int
+    no_mutations: bool
 
 @dataclass
 class TemplateSwitchEvent:
