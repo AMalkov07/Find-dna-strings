@@ -405,15 +405,12 @@ class ChromosomeEndRepeatFinder:
         pattern_length = len(pattern)
         avg_tandem_strength = total_tandem_copies / max(total_tandem_arrays, 1)
         
-        #score = (
-            #(sequence_coverage ** 1.2) *  # Strongly favor cross-sequence patterns
-            #(avg_tandem_strength ** 0.4) *  # Favor strong tandem arrays
-            #(pattern_length ** 100) *  # Modest preference for longer patterns
-            #math.log(total_occurrences + 1) *  # Logarithmic scaling for total occurrences
-            #math.log(max_single_array + 1)  # Bonus for very strong single arrays
-        #)
         score = (
-            (pattern_length)  # Modest preference for longer patterns
+            (sequence_coverage ** 1.2) *  # Strongly favor cross-sequence patterns
+            (avg_tandem_strength ** 0.4) *  # Favor strong tandem arrays
+            (pattern_length ** 100) *  # Modest preference for longer patterns
+            math.log(total_occurrences + 1) *  # Logarithmic scaling for total occurrences
+            math.log(max_single_array + 1)  # Bonus for very strong single arrays
         )
         
         return score
