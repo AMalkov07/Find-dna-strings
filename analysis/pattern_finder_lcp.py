@@ -56,13 +56,9 @@ class ChromosomeEndRepeatFinder:
         """
         if not pattern:
             return pattern
-        
-        rotations = []
-        for i in range(len(pattern)):
-            rotation = pattern[i:] + pattern[:i]
-            rotations.append(rotation)
-        
-        return min(rotations)
+        n = len(pattern)
+        doubled = pattern + pattern
+        return min(doubled[i:i+n] for i in range(n))
     
     def is_rotation(self, str1: str, str2: str) -> bool:
         """
@@ -108,32 +104,17 @@ class ChromosomeEndRepeatFinder:
             canonical = self.get_canonical_rotation(pattern)
             canonical_groups[canonical].append((pattern, position_set))
         
-        # For each canonical group, find the best representative and all its positions
+        # For each canonical group, union all positions already found for every rotation.
+        # The LCP analysis records every position where each rotation appears (≥2 times),
+        # so the union is complete — no need to rescan the full sequence again.
         final_patterns = {}
-        
+
         for canonical, pattern_list in canonical_groups.items():
-            # Find which rotation has the most occurrences
-            best_pattern = canonical
-            best_positions = set()
-            max_occurrences = 0
-            
-            for pattern, positions in pattern_list:
-                if len(positions) > max_occurrences:
-                    max_occurrences = len(positions)
-                    best_pattern = pattern
-                    best_positions = positions.copy()
-                elif len(positions) == max_occurrences:
-                    # Same number of occurrences, combine positions
-                    best_positions.update(positions)
-            
-            # Now find ALL occurrences of this pattern and its rotations efficiently
-            all_rotation_positions = self.find_all_rotations_efficiently(sequence, best_pattern)
-            
-            # Combine with known positions
-            all_rotation_positions.update(best_positions)
-            
-            final_patterns[canonical] = sorted(list(all_rotation_positions))
-        
+            all_positions: Set[int] = set()
+            for _, positions in pattern_list:
+                all_positions.update(positions)
+            final_patterns[canonical] = sorted(all_positions)
+
         return final_patterns
     
     def find_all_rotations_efficiently(self, sequence: str, pattern: str) -> Set[int]:
