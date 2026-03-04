@@ -17,7 +17,7 @@ class ChromosomeEndRepeatFinder:
         print(f"Loaded {len(self.sequences)} sequences")
         self.pattern_file = pattern_file
         for seq_id, seq in self.sequences.items():
-            pattern_file.write(f"  {seq_id}: {len(seq):,} bp\n")
+            pattern_file.write(f"  {seq_id:<8}  {len(seq):>10,} bp\n")
     
     def _build_suffix_array(self, sequence: str) -> List[int]:
         """Build suffix array for a sequence"""
@@ -101,16 +101,12 @@ class ChromosomeEndRepeatFinder:
         Consolidate rotational patterns early - keep only the best representative
         and find ALL positions for that representative (including rotations)
         """
-        self.pattern_file.write(f"    Consolidating rotational patterns from {len(raw_patterns)} raw patterns...\n")
-        
         # Group patterns by their canonical rotation
         canonical_groups = defaultdict(list)  # canonical -> [(pattern, positions), ...]
-        
+
         for pattern, position_set in raw_patterns.items():
             canonical = self.get_canonical_rotation(pattern)
             canonical_groups[canonical].append((pattern, position_set))
-        
-        self.pattern_file.write(f"    Grouped into {len(canonical_groups)} canonical pattern families\n")
         
         # For each canonical group, find the best representative and all its positions
         final_patterns = {}
@@ -167,13 +163,8 @@ class ChromosomeEndRepeatFinder:
         Use suffix array + LCP to find all repeated patterns, with early rotation consolidation
         Returns: Dict[canonical_pattern -> List[all_positions_including_rotations]]
         """
-        self.pattern_file.write(f"  Building suffix array for {len(sequence):,} bp sequence...\n")
         suffix_array = self._build_suffix_array(sequence)
-        
-        self.pattern_file.write(f"  Building LCP array...\n")
         lcp_array = self._build_lcp_array(sequence, suffix_array)
-        
-        self.pattern_file.write(f"  Extracting repeated patterns {min_length}-{max_length} bp...\n")
         raw_patterns = defaultdict(set)  # Use set to avoid duplicate positions
         
         # Process LCP array to find repeated substrings
@@ -191,8 +182,6 @@ class ChromosomeEndRepeatFinder:
                         # Don't canonicalize yet - we'll do it in consolidation step
                         raw_patterns[pattern].add(pos1)
                         raw_patterns[pattern].add(pos2)
-        
-        self.pattern_file.write(f"    Found {len(raw_patterns)} raw patterns before rotation consolidation\n")
         
         # Consolidate rotational patterns and find all their positions
         return self.consolidate_rotational_patterns(raw_patterns, sequence)
@@ -282,29 +271,29 @@ class ChromosomeEndRepeatFinder:
         all_sequence_data = {}
         
         for seq_id, sequence in self.sequences.items():
-            self.pattern_file.write(f"\nAnalyzing sequence {seq_id}...\n")
-            
+            self.pattern_file.write(f"  Analyzing {seq_id} ({len(sequence):,} bp)...")
+
             # Step 1: Find all repeated patterns with rotation consolidation built-in
             # This now returns canonical patterns with ALL positions (including rotations)
             repeated_patterns = self.find_repeated_patterns_in_sequence(sequence, min_length, max_length)
-            self.pattern_file.write(f"  Found {len(repeated_patterns)} consolidated patterns\n")
-            
+
             # Step 2: For each consolidated pattern, find tandem arrays using all positions
             sequence_analysis = {}
-            
+
             for canonical_pattern, all_positions in repeated_patterns.items():
                 if len(all_positions) >= 2:  # Must appear at least twice
                     pattern_len = len(canonical_pattern)
-                    
+
                     # Get non-overlapping positions for proper counting
                     non_overlapping_positions = self.get_non_overlapping_positions(all_positions, pattern_len)
                     
-                    self.pattern_file.write(f"    Processing pattern of length {pattern_len}: "
-                          f"{len(all_positions)} total / {len(non_overlapping_positions)} non-overlapping occurrences\n")
-                    
-                    # Find tandem arrays using all known positions (including overlapping)
-                    # The tandem detection itself handles overlap correctly
-                    tandem_arrays = self.find_tandem_arrays_optimized(all_positions, pattern_len)
+                    # Find tandem arrays using non-overlapping positions.
+                    # all_positions is dense (every rotation match within a tandem array hits
+                    # every offset), so consecutive entries differ by 1 rather than pattern_len,
+                    # causing the tandem detector to find nothing.  Non-overlapping positions
+                    # are spaced >= pattern_len apart, so adjacent tandem copies sit at exactly
+                    # pattern_len intervals and are correctly detected.
+                    tandem_arrays = self.find_tandem_arrays_optimized(non_overlapping_positions, pattern_len)
                     
                     sequence_analysis[canonical_pattern] = {
                         'positions': all_positions,  # All positions including rotations and overlaps
@@ -319,7 +308,7 @@ class ChromosomeEndRepeatFinder:
                     }
             
             all_sequence_data[seq_id] = sequence_analysis
-            self.pattern_file.write(f"  Found {len(sequence_analysis)} patterns with tandem arrays\n")
+            self.pattern_file.write(f" {len(sequence_analysis)} patterns with tandem arrays\n")
         
         return all_sequence_data
     
@@ -347,6 +336,52 @@ class ChromosomeEndRepeatFinder:
             rotation = pattern[i:] + pattern[:i]
             rotations.append(rotation)
         return rotations
+
+    def get_minimal_period(self, pattern: str) -> int:
+        """
+        Find the minimal period of a string using the KMP failure function.
+        Returns the length of the shortest substring Q such that pattern = Q^k for some k >= 1.
+        If the pattern is primitive (no shorter period divides evenly), returns len(pattern).
+        """
+        n = len(pattern)
+        if n == 0:
+            return 0
+        fail = [0] * n
+        j = 0
+        for i in range(1, n):
+            while j > 0 and pattern[i] != pattern[j]:
+                j = fail[j - 1]
+            if pattern[i] == pattern[j]:
+                j += 1
+            fail[i] = j
+        period = n - fail[n - 1]
+        return period if n % period == 0 else n
+
+    def _filter_tandem_duplicates(self, scored_patterns: List, qualified_patterns: Set[str],
+                                  min_length: int) -> List:
+        """
+        Remove patterns that are exact tandem repetitions of a shorter primitive pattern
+        already present in the qualified candidate set.
+
+        Example: a 130 bp pattern that equals [65 bp][65 bp] is dropped when the 65 bp
+        canonical pattern is already a qualified candidate.
+        """
+        filtered = []
+        for pattern, stats, score in scored_patterns:
+            period = self.get_minimal_period(pattern)
+            if period < len(pattern) and period >= min_length:
+                # Pattern is a tandem repeat of its primitive root
+                primitive_root = pattern[:period]
+                canonical_root = self.get_canonical_rotation(primitive_root)
+                if canonical_root in qualified_patterns:
+                    repeats = len(pattern) // period
+                    self.pattern_file.write(
+                        f"    [filter] Dropping {len(pattern)} bp pattern "
+                        f"(= {period} bp primitive × {repeats})\n"
+                    )
+                    continue
+            filtered.append((pattern, stats, score))
+        return filtered
     
     def merge_overlapping_arrays(self, arrays: List[Tuple[int, int, int]]) -> List[Tuple[int, int, int]]:
         """Merge overlapping tandem arrays, keeping the longest/strongest"""
@@ -407,8 +442,8 @@ class ChromosomeEndRepeatFinder:
         
         score = (
             (sequence_coverage ** 1.2) *  # Strongly favor cross-sequence patterns
-            (avg_tandem_strength ** 0.4) *  # Favor strong tandem arrays
-            (pattern_length ** 100) *  # Modest preference for longer patterns
+            (avg_tandem_strength ** 0.8) *  # Favor strong tandem arrays
+            (pattern_length ** 0.2) *  # Modest preference for longer patterns
             math.log(total_occurrences + 1) *  # Logarithmic scaling for total occurrences
             math.log(max_single_array + 1)  # Bonus for very strong single arrays
         )
@@ -433,8 +468,6 @@ class ChromosomeEndRepeatFinder:
             {'length_exp': 1.0}  # Equal weight to cross-sequence coverage
             {'length_exp': 1.5}  # Strongly favor longer patterns
         """
-        self.pattern_file.write("="*90+"\n")
-        print("CROSS-SEQUENCE REPEAT PATTERN ANALYSIS\n")
         self.pattern_file.write("="*90+"\n")
         self.pattern_file.write(f"Pattern length range: {min_length}-{max_length} bp\n")
         self.pattern_file.write(f"Minimum sequences: {min_sequences}\n")
@@ -467,7 +500,12 @@ class ChromosomeEndRepeatFinder:
                 scored_patterns.append((pattern, stats, score))
         
         self.pattern_file.write(f"Found {len(scored_patterns)} patterns in {min_sequences}+ sequences\n")
-        
+
+        # Filter out patterns that are exact tandem duplications of shorter primitives
+        qualified_patterns = {p for p, _, _ in scored_patterns}
+        scored_patterns = self._filter_tandem_duplicates(scored_patterns, qualified_patterns, min_length)
+        self.pattern_file.write(f"After tandem-duplicate filtering: {len(scored_patterns)} patterns\n")
+
         # Sort by score and return top patterns
         scored_patterns.sort(key=lambda x: x[2], reverse=True)
         return scored_patterns[:top_n]
@@ -578,9 +616,17 @@ def analyze_chromosome_ends(sequences: Dict[str, str], pattern_file: TextIOWrapp
     """
     pattern_file.write("CHROMOSOME END REPEAT ANALYSIS\n")
     pattern_file.write("="*90 + "\n")
-    
+    pattern_file.write(f"  Pattern length range : {min_pattern}–{max_pattern} bp\n")
+    pattern_file.write(f"  Sequences            : {len(sequences)}\n")
+    pattern_file.write("="*90 + "\n\n")
+    pattern_file.write(f"{'Sequence':<8}  {'Length':>10}\n")
+    pattern_file.write("-"*25 + "\n")
+
     finder = ChromosomeEndRepeatFinder(sequences, pattern_file)
-    
+    pattern_file.write("\n" + "="*90 + "\n")
+    pattern_file.write("PER-SEQUENCE ANALYSIS\n")
+    pattern_file.write("="*90 + "\n")
+
     # Find best cross-sequence patterns
     results = finder.find_best_cross_sequence_patterns(
         min_length=min_pattern,
@@ -593,28 +639,53 @@ def analyze_chromosome_ends(sequences: Dict[str, str], pattern_file: TextIOWrapp
     if not results:
         pattern_file.write("No cross-sequence patterns found!\n")
         return finder, None, results
-    
-    # Display results table
+
+    n_seqs = len(finder.sequences)
+
+    # ── Top candidates table ───────────────────────────────────────────────
     pattern_file.write(f"\n{'='*90}\n")
-    pattern_file.write("TOP CROSS-SEQUENCE PATTERNS\n")
-    pattern_file.write("="*90 + '\n')
-    pattern_file.write(f"{'Rank':>4} {'Length':>6} {'Seqs':>4} {'Arrays':>6} {'Copies':>7} {'Max Array':>9} {'Score':>8} {'Pattern Preview':>30}\n")
+    pattern_file.write("TOP CANDIDATE PATTERNS\n")
+    pattern_file.write("="*90 + "\n")
+    pattern_file.write(f"{'Rank':>4}  {'Length':>6}  {'Seqs':>5}  {'Arrays':>6}  {'Copies':>6}  {'MaxArr':>6}  {'Score':>8}  Pattern Preview\n")
     pattern_file.write("-"*90 + "\n")
-    
+
     for i, (pattern, stats, score) in enumerate(results):
-        preview = pattern[:25] + "..." if len(pattern) > 25 else pattern
-        pattern_file.write(f"{i+1:4d} {stats['pattern_length']:6d} {len(stats['sequences_present']):4d} \n"
-                           f"{stats['total_tandem_arrays']:6d} {stats['total_tandem_copies']:7d} \n"
-                           f"{stats['max_tandem_array']:9d} {score:8.2f} {preview:>30}\n")
-    
-    # Detailed analysis of top pattern
+        preview = pattern[:40] + "..." if len(pattern) > 40 else pattern
+        seqs = len(stats['sequences_present'])
+        pattern_file.write(
+            f"{i+1:4d}  {stats['pattern_length']:6d}  {seqs:4d}/{n_seqs:<3d}"
+            f"  {stats['total_tandem_arrays']:6d}  {stats['total_tandem_copies']:6d}"
+            f"  {stats['max_tandem_array']:6d}  {score:8.2f}  {preview}\n"
+        )
+
+    # ── Best pattern summary ───────────────────────────────────────────────
     best_pattern, best_stats, best_score = results[0]
+    best_seqs = len(best_stats['sequences_present'])
+
+    pattern_file.write(f"\n{'='*90}\n")
+    pattern_file.write("BEST PATTERN\n")
+    pattern_file.write("="*90 + "\n")
+    pattern_file.write(f"  Length  : {best_stats['pattern_length']} bp\n")
+    pattern_file.write(f"  Present : {best_seqs}/{n_seqs} sequences\n")
+    pattern_file.write(f"  Arrays  : {best_stats['total_tandem_arrays']} total, largest {best_stats['max_tandem_array']} copies\n")
+    pattern_file.write(f"  Score   : {best_score:.2f}\n")
+    pattern_file.write(f"  Sequence:\n    {best_pattern}\n")
+
+    # Print summary to screen
+    print(f"\n{'='*70}")
+    print(f"BEST PATTERN FOUND")
+    print(f"{'='*70}")
+    print(f"  Length  : {best_stats['pattern_length']} bp")
+    print(f"  Present : {best_seqs}/{n_seqs} sequences")
+    print(f"  Arrays  : {best_stats['total_tandem_arrays']} total, largest {best_stats['max_tandem_array']} copies")
+    print(f"  Score   : {best_score:.2f}")
+    print(f"  Sequence:")
+    print(f"    {best_pattern}")
+    print(f"{'='*70}\n")
+
+    # ── Per-sequence visualization for best pattern ────────────────────────
     finder.visualize_pattern_across_sequences(best_pattern, best_stats)
 
-    pattern_file.write(f"best_pattern: {best_pattern}\n")
-    for r in results:
-        pattern_file.write(f"{r}\n")
-    
     return finder, best_pattern, results
 
 
