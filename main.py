@@ -99,6 +99,7 @@ def main(args) -> None:
         no_mutations=args.no_mutations,
         population_mode=args.population_mode,
         telomere_threshold=args.telomere_threshold,
+        workers=args.workers,
     )
 
     # check if file exists
@@ -170,6 +171,9 @@ if __name__ == "__main__":
     parser.add_argument("-tt", "--telomere_threshold", type=float, default=0.75,
                         help="minimum TG or AC fraction for a window to be considered telomeric (default: 0.75). "
                              "Lower this for raw nanopore reads; use 0.9 for clean assembled sequences.")
+    parser.add_argument("-w", "--workers", type=int, default=None,
+                        help="number of parallel worker processes (default: read from NSLOTS env var "
+                             "(SGE), otherwise use all available CPUs). Set this to match your qsub -pe slot count.")
     parser.add_argument("-pm", "--population_mode", action="store_true",
                         help="run in population mode: takes a FASTA of raw telomere reads (no chr-end structure required), "
                              "scores patterns by per-read coverage, and reports a circle detection confidence score. "

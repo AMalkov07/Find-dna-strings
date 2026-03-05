@@ -1,8 +1,95 @@
 from utils.data_structures import TelomereSequence
 from typing import Dict, List, Tuple, Optional
+from concurrent.futures import ProcessPoolExecutor
 from Bio import SeqIO
 from Bio.Seq import Seq
 import re
+
+
+def _process_read_ends(args: Tuple) -> Tuple[str, Optional[str], Optional[str]]:
+    """
+    Module-level worker for ProcessPoolExecutor — extract telomeres from both ends of one read.
+    Must be module-level (not a method) so multiprocessing can pickle it.
+    Returns (header, start_telomer, end_telomer).
+    """
+    import re as _re
+    from Bio.Seq import Seq as _Seq
+
+    header, sequence, threshold = args
+
+    def ac_tg_fraction(subseq):
+        ac = sum(1 for b in subseq if b in ('A', 'C'))
+        tg = sum(1 for b in subseq if b in ('T', 'G'))
+        if ac >= tg:
+            return ac / len(subseq), "AC"
+        return tg / len(subseq), "TG"
+
+    def count_opposite(subseq, dom):
+        bad = ('T', 'G') if dom == "AC" else ('A', 'C')
+        return sum(1 for b in subseq if b in bad)
+
+    def first_opposite_idx(subseq, dom):
+        bad = ('T', 'G') if dom == "AC" else ('A', 'C')
+        for i, b in enumerate(subseq):
+            if b in bad:
+                return i
+        return None
+
+    def extract_telomer(seq, window_size=40, ignore_last=10, opp_stop_win=15, opp_stop_count=3):
+        seq = seq.upper()
+        n = len(seq)
+        if n < window_size + ignore_last:
+            return None
+        detect_start = max(0, n - ignore_last - window_size)
+        detect_end = n - ignore_last
+        frac, dominant_type = ac_tg_fraction(seq[detect_start:detect_end])
+        if frac < threshold:
+            return None
+        start = detect_start
+        while start > 0:
+            cs = start - 1
+            window = seq[cs:cs + window_size]
+            if len(window) < window_size:
+                break
+            frac, _ = ac_tg_fraction(window)
+            if frac < threshold:
+                break
+            opp_win = seq[cs:cs + opp_stop_win]
+            if count_opposite(opp_win, dominant_type) >= opp_stop_count:
+                rev_idx = first_opposite_idx(opp_win[::-1], dominant_type)
+                if rev_idx is not None:
+                    start = cs + (len(opp_win) - rev_idx)
+                break
+            start = cs
+        end = detect_end
+        while end < n:
+            ws = max(end - window_size, start)
+            window = seq[ws:end]
+            if len(window) < window_size:
+                window = seq[max(0, n - window_size):n]
+            frac, _ = ac_tg_fraction(window)
+            if frac < threshold:
+                break
+            ows = max(end - opp_stop_win, start)
+            opp_win = seq[ows:end]
+            if count_opposite(opp_win, dominant_type) >= opp_stop_count:
+                idx = first_opposite_idx(opp_win, dominant_type)
+                if idx is not None:
+                    end = ows + idx
+                break
+            end += 1
+        out = seq[start:end]
+        if dominant_type == "AC":
+            out = str(_Seq(out).reverse_complement())[::-1]
+        return out
+
+    start_tel = extract_telomer(sequence)
+    if start_tel and _re.search(r'(.)\1{19,}', start_tel):
+        start_tel = None
+    end_tel = extract_telomer(sequence[::-1])
+    if end_tel and _re.search(r'(.)\1{19,}', end_tel):
+        end_tel = None
+    return header, start_tel, end_tel
 
 class FastaReader:
     def __init__(self, fasta_file_path: str, max_ends: int):
@@ -144,7 +231,8 @@ class FastaReader:
         return end_telomer
     
         
-    def parse_fasta_population(self, threshold: float = 0.75) -> Tuple[Dict[str, str], int]:
+    def parse_fasta_population(self, threshold: float = 0.75,
+                               max_workers: Optional[int] = None) -> Tuple[Dict[str, str], int]:
         """
         Population mode: check both ends of each read for telomeric sequence.
         Returns (telomere_dict, total_reads) where telomere_dict maps
@@ -157,14 +245,12 @@ class FastaReader:
         """
         fasta_extract = self._read_fasta()
         telomeres: Dict[str, str] = {}
-        for header, sequence in fasta_extract:
-            start_telomer = self._extract_telomer(sequence, threshold=threshold)
-            if start_telomer and re.search(r'(.)\1{19,}', start_telomer):
-                start_telomer = None
-            sequence_reverse = sequence[::-1]
-            end_telomer = self._extract_telomer(sequence_reverse, threshold=threshold)
-            if end_telomer and re.search(r'(.)\1{19,}', end_telomer):
-                end_telomer = None
+
+        args = [(header, sequence, threshold) for header, sequence in fasta_extract]
+        with ProcessPoolExecutor(max_workers=max_workers) as executor:
+            results = list(executor.map(_process_read_ends, args))
+
+        for header, start_telomer, end_telomer in results:
             if start_telomer and end_telomer:
                 telomeres[f"{header}_start"] = start_telomer
                 telomeres[f"{header}_end"] = end_telomer

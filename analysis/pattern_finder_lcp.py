@@ -1,19 +1,132 @@
 import math
+import os
 from collections import defaultdict, Counter
+from concurrent.futures import ProcessPoolExecutor
 from typing import List, Tuple, Dict, Set, Optional
 from utils.data_structures import TelomereSequence, Config
 
 from os.path import splitext
 from _io import TextIOWrapper
 
+
+def _resolve_workers(workers: Optional[int]) -> Optional[int]:
+    """Return explicit workers count, or read NSLOTS (SGE), or None (let ProcessPoolExecutor decide)."""
+    if workers is not None:
+        return workers
+    nslots = os.environ.get('NSLOTS')
+    return int(nslots) if nslots else None
+
+
+def _analyze_single_sequence(args: Tuple) -> Tuple[str, Dict]:
+    """
+    Module-level worker for ProcessPoolExecutor — analyze one sequence for repeated patterns.
+    Must be module-level (not a method) so multiprocessing can pickle it.
+    """
+    seq_id, sequence, min_length, max_length = args
+    n = len(sequence)
+
+    # ── Suffix array ──────────────────────────────────────────────────────────
+    suffix_array = sorted(range(n), key=lambda i: sequence[i:])
+
+    # ── LCP array ─────────────────────────────────────────────────────────────
+    lcp_array = []
+    for i in range(n - 1):
+        s1, s2 = suffix_array[i], suffix_array[i + 1]
+        common = 0
+        limit = min(n - s1, n - s2)
+        for j in range(limit):
+            if sequence[s1 + j] == sequence[s2 + j]:
+                common += 1
+            else:
+                break
+        lcp_array.append(common)
+
+    # ── Raw repeated patterns via LCP ─────────────────────────────────────────
+    raw_patterns: Dict[str, set] = defaultdict(set)
+    for i, lcp_len in enumerate(lcp_array):
+        if lcp_len >= min_length:
+            pos1 = suffix_array[i]
+            pos2 = suffix_array[i + 1]
+            max_extract = min(lcp_len, max_length)
+            for length in range(min_length, max_extract + 1):
+                if pos1 + length <= n:
+                    pattern = sequence[pos1:pos1 + length]
+                    raw_patterns[pattern].add(pos1)
+                    raw_patterns[pattern].add(pos2)
+
+    # ── Consolidate rotational patterns ───────────────────────────────────────
+    canonical_groups: Dict[str, list] = defaultdict(list)
+    for pattern, position_set in raw_patterns.items():
+        p_len = len(pattern)
+        doubled = pattern + pattern
+        canonical = min(doubled[i:i + p_len] for i in range(p_len))
+        canonical_groups[canonical].append(position_set)
+
+    repeated_patterns: Dict[str, List[int]] = {}
+    for canonical, pos_sets in canonical_groups.items():
+        all_pos: set = set()
+        for ps in pos_sets:
+            all_pos.update(ps)
+        repeated_patterns[canonical] = sorted(all_pos)
+
+    # ── Build per-sequence analysis ───────────────────────────────────────────
+    sequence_analysis: Dict = {}
+    for canonical_pattern, all_positions in repeated_patterns.items():
+        if len(all_positions) < 2:
+            continue
+        pattern_len = len(canonical_pattern)
+
+        # Non-overlapping positions (greedy)
+        non_overlapping: List[int] = []
+        last_end = -1
+        for pos in all_positions:  # already sorted
+            if pos >= last_end:
+                non_overlapping.append(pos)
+                last_end = pos + pattern_len
+
+        # Tandem arrays
+        tandem_arrays: List[Tuple[int, int, int]] = []
+        sp = non_overlapping
+        i = 0
+        while i < len(sp):
+            cur = sp[i]
+            count = 1
+            for j in range(i + 1, len(sp)):
+                if sp[j] == cur + pattern_len:
+                    count += 1
+                    cur = sp[j]
+                else:
+                    break
+            if count >= 2:
+                tandem_arrays.append((sp[i], cur + pattern_len, count))
+                i += count
+            else:
+                i += 1
+
+        sequence_analysis[canonical_pattern] = {
+            'positions': all_positions,
+            'non_overlapping_positions': non_overlapping,
+            'total_occurrences': len(all_positions),
+            'non_overlapping_occurrences': len(non_overlapping),
+            'tandem_arrays': tandem_arrays,
+            'tandem_array_count': len(tandem_arrays),
+            'total_tandem_copies': sum(c for _, _, c in tandem_arrays),
+            'max_tandem_copies': max((c for _, _, c in tandem_arrays), default=0),
+            'pattern_length': pattern_len,
+        }
+
+    return seq_id, sequence_analysis
+
 class ChromosomeEndRepeatFinder:
-    def __init__(self, sequences: Dict[str, str], pattern_file: TextIOWrapper):
+    def __init__(self, sequences: Dict[str, str], pattern_file: TextIOWrapper,
+                 max_workers: Optional[int] = None):
         """
         Initialize with multiple DNA sequences (e.g., chromosome ends)
         sequences: Dict mapping sequence_id -> sequence_string
         """
         self.sequences = {seq_id: seq.upper().replace('N', '') for seq_id, seq in sequences.items()}
         self.sequence_ids = list(self.sequences.keys())
+        self.max_workers = max_workers
         print(f"Loaded {len(self.sequences)} sequences")
         self.pattern_file = pattern_file
         if len(self.sequences) <= 50:
@@ -251,52 +364,23 @@ class ChromosomeEndRepeatFinder:
     
     def analyze_all_sequences(self, min_length: int, max_length: int) -> Dict[str, Dict[str, any]]:
         """
-        Analyze all sequences to find repeated patterns and their tandem arrays
-        SUPER OPTIMIZED VERSION - handles rotations efficiently upfront
+        Analyze all sequences to find repeated patterns and their tandem arrays.
+        Runs in parallel using ProcessPoolExecutor — one worker per sequence.
         Returns: Dict[seq_id -> Dict[pattern -> analysis_data]]
         """
+        args = [(sid, seq, min_length, max_length) for sid, seq in self.sequences.items()]
+
+        with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
+            results = list(executor.map(_analyze_single_sequence, args))
+
         all_sequence_data = {}
-        
-        for seq_id, sequence in self.sequences.items():
-            self.pattern_file.write(f"  Analyzing {seq_id} ({len(sequence):,} bp)...")
-
-            # Step 1: Find all repeated patterns with rotation consolidation built-in
-            # This now returns canonical patterns with ALL positions (including rotations)
-            repeated_patterns = self.find_repeated_patterns_in_sequence(sequence, min_length, max_length)
-
-            # Step 2: For each consolidated pattern, find tandem arrays using all positions
-            sequence_analysis = {}
-
-            for canonical_pattern, all_positions in repeated_patterns.items():
-                if len(all_positions) >= 2:  # Must appear at least twice
-                    pattern_len = len(canonical_pattern)
-
-                    # Get non-overlapping positions for proper counting
-                    non_overlapping_positions = self.get_non_overlapping_positions(all_positions, pattern_len)
-                    
-                    # Find tandem arrays using non-overlapping positions.
-                    # all_positions is dense (every rotation match within a tandem array hits
-                    # every offset), so consecutive entries differ by 1 rather than pattern_len,
-                    # causing the tandem detector to find nothing.  Non-overlapping positions
-                    # are spaced >= pattern_len apart, so adjacent tandem copies sit at exactly
-                    # pattern_len intervals and are correctly detected.
-                    tandem_arrays = self.find_tandem_arrays_optimized(non_overlapping_positions, pattern_len)
-                    
-                    sequence_analysis[canonical_pattern] = {
-                        'positions': all_positions,  # All positions including rotations and overlaps
-                        'non_overlapping_positions': non_overlapping_positions,  # Non-overlapping only
-                        'total_occurrences': len(all_positions),  # Total including overlaps
-                        'non_overlapping_occurrences': len(non_overlapping_positions),  # Non-overlapping count
-                        'tandem_arrays': tandem_arrays,
-                        'tandem_array_count': len(tandem_arrays),
-                        'total_tandem_copies': sum(copies for _, _, copies in tandem_arrays),
-                        'max_tandem_copies': max((copies for _, _, copies in tandem_arrays), default=0),
-                        'pattern_length': len(canonical_pattern)
-                    }
-            
+        for seq_id, sequence_analysis in results:
+            seq_len = len(self.sequences[seq_id])
+            self.pattern_file.write(
+                f"  Analyzed {seq_id} ({seq_len:,} bp): {len(sequence_analysis)} patterns\n"
+            )
             all_sequence_data[seq_id] = sequence_analysis
-            self.pattern_file.write(f" {len(sequence_analysis)} patterns with tandem arrays\n")
-        
+
         return all_sequence_data
     
     def count_cross_sequence_pattern_occurrences(self, target_pattern: str, sequence: str) -> int:
@@ -844,7 +928,8 @@ def _create_stats_file(output_file) -> TextIOWrapper:
 
 def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrapper,
                              min_pattern: int, max_pattern: int,
-                             total_raw_reads: Optional[int] = None):
+                             total_raw_reads: Optional[int] = None,
+                             max_workers: Optional[int] = None):
     """
     Top-level function for population mode: find repeat patterns and assess
     whether a t-circle is present in the read set.
@@ -862,7 +947,7 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
         pattern_file.write(f"  Total reads          : {len(sequences)}\n")
     pattern_file.write("="*90 + "\n\n")
 
-    finder = ChromosomeEndRepeatFinder(sequences, pattern_file)
+    finder = ChromosomeEndRepeatFinder(sequences, pattern_file, max_workers=max_workers)
     pattern_file.write("\n" + "="*90 + "\n")
     pattern_file.write("PER-READ ANALYSIS\n")
     pattern_file.write("="*90 + "\n")
@@ -974,8 +1059,14 @@ def pattern_finder_execute_population(config: Config) -> Optional[str]:
 
     pattern_file = _create_stats_file(config.output_file)
 
+    max_workers = _resolve_workers(config.workers)
+    if max_workers:
+        print(f"  Using {max_workers} worker processes")
+
     reader = FastaReader(config.fasta_file_path, max_ends=0)
-    sequences, total_raw = reader.parse_fasta_population(threshold=config.telomere_threshold)
+    sequences, total_raw = reader.parse_fasta_population(
+        threshold=config.telomere_threshold, max_workers=max_workers
+    )
 
     if not sequences:
         raise ValueError("No telomeric sequences found in FASTA file")
@@ -991,7 +1082,7 @@ def pattern_finder_execute_population(config: Config) -> Optional[str]:
 
     _, best_pattern, _ = analyze_population_reads(
         sequences, pattern_file, config.min_pattern_length, config.max_pattern_length,
-        total_raw_reads=total_raw,
+        total_raw_reads=total_raw, max_workers=max_workers,
     )
     return best_pattern
 
