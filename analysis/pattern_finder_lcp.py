@@ -16,8 +16,14 @@ class ChromosomeEndRepeatFinder:
         self.sequence_ids = list(self.sequences.keys())
         print(f"Loaded {len(self.sequences)} sequences")
         self.pattern_file = pattern_file
-        for seq_id, seq in self.sequences.items():
-            pattern_file.write(f"  {seq_id:<8}  {len(seq):>10,} bp\n")
+        if len(self.sequences) <= 50:
+            for seq_id, seq in self.sequences.items():
+                pattern_file.write(f"  {seq_id:<8}  {len(seq):>10,} bp\n")
+        else:
+            lengths = [len(seq) for seq in self.sequences.values()]
+            pattern_file.write(f"  (listing omitted — {len(self.sequences)} reads)\n")
+            pattern_file.write(f"  Length range : {min(lengths):,} – {max(lengths):,} bp\n")
+            pattern_file.write(f"  Mean length  : {sum(lengths) // len(lengths):,} bp\n")
     
     def _build_suffix_array(self, sequence: str) -> List[int]:
         """Build suffix array for a sequence"""
@@ -430,7 +436,101 @@ class ChromosomeEndRepeatFinder:
         )
         
         return score
-    
+
+    def score_population_pattern(self, pattern: str, all_data: Dict) -> Tuple[float, float, float, float]:
+        """
+        Score a pattern for population mode (telomere read analysis).
+
+        Scoring is based on per-read coverage fraction: how much of each positive
+        read is explained by tandem copies of the pattern.  High coverage strongly
+        indicates the read came from a t-circle.
+
+        Returns (score, positive_read_fraction, mean_coverage, mean_max_copies)
+        """
+        pattern_length = len(pattern)
+        total_reads = len(self.sequences)
+        coverages: List[float] = []
+        max_copies_list: List[int] = []
+
+        for seq_id, seq_data in all_data.items():
+            if pattern not in seq_data:
+                continue
+            data = seq_data[pattern]
+            n_copies = data['non_overlapping_occurrences']
+            if n_copies < 2:
+                continue
+            read_length = len(self.sequences[seq_id])
+            coverage = min(1.0, n_copies * pattern_length / read_length)
+            coverages.append(coverage)
+            max_copies_list.append(data['max_tandem_copies'])
+
+        if not coverages:
+            return 0.0, 0.0, 0.0, 0.0
+
+        positive_read_fraction = len(coverages) / total_reads
+        mean_coverage = sum(coverages) / len(coverages)
+        mean_max_copies = sum(max_copies_list) / len(max_copies_list)
+
+        score = (
+            (positive_read_fraction ** 0.8) *   # prevalence across reads
+            (mean_coverage ** 1.5) *             # per-read coverage (key t-circle signal)
+            ((mean_max_copies + 1) ** 0.4) *     # tandem strength
+            (pattern_length ** 0.1)              # very mild length preference
+        )
+        return score, positive_read_fraction, mean_coverage, mean_max_copies
+
+    def find_best_population_patterns(self, min_length: int, max_length: int,
+                                      min_reads: int = 2, top_n: int = 15) -> List[Tuple[str, Dict, float]]:
+        """
+        Find best repeat patterns in population (read) mode.
+        Scores patterns by per-read coverage rather than cross-sequence presence.
+        Returns list of (pattern, stats, score) triples — same shape as
+        find_best_cross_sequence_patterns so downstream code can be shared.
+        Population-specific stats are stored in stats['population'].
+        """
+        self.pattern_file.write("="*90 + "\n")
+        self.pattern_file.write(f"Pattern length range: {min_length}-{max_length} bp\n")
+        self.pattern_file.write(f"Total reads: {len(self.sequences)}\n")
+        self.pattern_file.write(f"Minimum reads for candidate: {min_reads}\n")
+
+        all_data = self.analyze_all_sequences(min_length, max_length)
+
+        all_patterns: Set[str] = set()
+        for seq_data in all_data.values():
+            all_patterns.update(seq_data.keys())
+        self.pattern_file.write(f"\nFound {len(all_patterns)} unique patterns across all reads\n")
+
+        scored_patterns: List[Tuple[str, Dict, float]] = []
+        for pattern in all_patterns:
+            reads_with_pattern = sum(
+                1 for seq_data in all_data.values()
+                if pattern in seq_data and seq_data[pattern]['non_overlapping_occurrences'] >= 2
+            )
+            if reads_with_pattern < min_reads:
+                continue
+
+            score, pos_frac, mean_cov, mean_copies = self.score_population_pattern(pattern, all_data)
+            stats = self.compile_pattern_statistics(pattern, all_data)
+            stats['population'] = {
+                'positive_reads': reads_with_pattern,
+                'total_reads': len(self.sequences),
+                'positive_read_fraction': pos_frac,
+                'mean_coverage': mean_cov,
+                'mean_max_copies': mean_copies,
+                'circle_confidence': pos_frac * mean_cov,
+            }
+            scored_patterns.append((pattern, stats, score))
+
+        self.pattern_file.write(f"Found {len(scored_patterns)} candidate patterns in {min_reads}+ reads\n")
+
+        # Reuse tandem-duplicate filter
+        qualified = {p for p, _, _ in scored_patterns}
+        scored_patterns = self._filter_tandem_duplicates(scored_patterns, qualified, min_length)
+        self.pattern_file.write(f"After tandem-duplicate filtering: {len(scored_patterns)} patterns\n")
+
+        scored_patterns.sort(key=lambda x: x[2], reverse=True)
+        return scored_patterns[:top_n]
+
     def find_best_cross_sequence_patterns(self, min_length: int, max_length: int,
                                         min_sequences: int = 2, top_n: int = 20,
                                         scoring_weights: Dict[str, float] = None) -> List[Tuple[str, Dict, float]]:
@@ -742,6 +842,112 @@ def _create_stats_file(output_file) -> TextIOWrapper:
     pattern_output_file = open(pattern_file_name, 'w')
     return pattern_output_file
 
+def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrapper,
+                             min_pattern: int, max_pattern: int,
+                             total_raw_reads: Optional[int] = None):
+    """
+    Top-level function for population mode: find repeat patterns and assess
+    whether a t-circle is present in the read set.
+
+    Analogous to analyze_chromosome_ends() but uses per-read coverage scoring
+    instead of cross-sequence presence scoring, and outputs a circle confidence score.
+    """
+    pattern_file.write("POPULATION TELOMERE READ ANALYSIS\n")
+    pattern_file.write("="*90 + "\n")
+    pattern_file.write(f"  Pattern length range : {min_pattern}–{max_pattern} bp\n")
+    if total_raw_reads is not None:
+        pattern_file.write(f"  Total raw reads      : {total_raw_reads}\n")
+        pattern_file.write(f"  Telomeric reads      : {len(sequences)}\n")
+    else:
+        pattern_file.write(f"  Total reads          : {len(sequences)}\n")
+    pattern_file.write("="*90 + "\n\n")
+
+    finder = ChromosomeEndRepeatFinder(sequences, pattern_file)
+    pattern_file.write("\n" + "="*90 + "\n")
+    pattern_file.write("PER-READ ANALYSIS\n")
+    pattern_file.write("="*90 + "\n")
+
+    results = finder.find_best_population_patterns(
+        min_length=min_pattern,
+        max_length=max_pattern,
+        min_reads=2,
+        top_n=15,
+    )
+
+    if not results:
+        pattern_file.write("No repeated patterns found across reads.\n")
+        print("No repeated patterns found in the reads.")
+        return finder, None, results
+
+    n_reads = len(finder.sequences)
+
+    # ── Top candidates table ───────────────────────────────────────────────
+    pattern_file.write(f"\n{'='*90}\n")
+    pattern_file.write("TOP CANDIDATE PATTERNS\n")
+    pattern_file.write("="*90 + "\n")
+    pattern_file.write(
+        f"{'Rank':>4}  {'Length':>6}  {'Reads':>9}  "
+        f"{'MeanCov':>8}  {'MeanCop':>8}  {'CircConf':>9}  {'Score':>8}  Pattern Preview\n"
+    )
+    pattern_file.write("-"*90 + "\n")
+
+    for i, (pattern, stats, score) in enumerate(results):
+        pop = stats['population']
+        preview = pattern[:40] + "..." if len(pattern) > 40 else pattern
+        pattern_file.write(
+            f"{i+1:4d}  {stats['pattern_length']:6d}  "
+            f"{pop['positive_reads']:4d}/{n_reads:<4d}  "
+            f"{pop['mean_coverage']:8.1%}  "
+            f"{pop['mean_max_copies']:8.1f}  "
+            f"{pop['circle_confidence']:9.3f}  "
+            f"{score:8.2f}  {preview}\n"
+        )
+
+    # ── Circle detection verdict ───────────────────────────────────────────
+    best_pattern, best_stats, best_score = results[0]
+    pop = best_stats['population']
+    conf = pop['circle_confidence']
+
+    if conf >= 0.4:
+        verdict = "STRONG CIRCLE SIGNAL"
+    elif conf >= 0.2:
+        verdict = "MODERATE CIRCLE SIGNAL"
+    elif conf >= 0.1:
+        verdict = "WEAK / AMBIGUOUS SIGNAL"
+    else:
+        verdict = "NO CIRCLE DETECTED"
+
+    pattern_file.write(f"\n{'='*90}\n")
+    pattern_file.write("CIRCLE DETECTION RESULT\n")
+    pattern_file.write("="*90 + "\n")
+    pattern_file.write(f"  Verdict            : {verdict}\n")
+    pattern_file.write(f"  Circle confidence  : {conf:.3f}\n")
+    pattern_file.write(f"  Reads with pattern : {pop['positive_reads']}/{n_reads} ({pop['positive_read_fraction']:.1%})\n")
+    pattern_file.write(f"  Mean read coverage : {pop['mean_coverage']:.1%}\n")
+    pattern_file.write(f"  Mean tandem copies : {pop['mean_max_copies']:.1f}\n")
+    pattern_file.write(f"\n{'='*90}\n")
+    pattern_file.write("BEST PATTERN\n")
+    pattern_file.write("="*90 + "\n")
+    pattern_file.write(f"  Length  : {best_stats['pattern_length']} bp\n")
+    pattern_file.write(f"  Score   : {best_score:.2f}\n")
+    pattern_file.write(f"  Sequence:\n    {best_pattern}\n")
+
+    # Print to screen
+    print(f"\n{'='*70}")
+    print(f"CIRCLE DETECTION: {verdict}")
+    print(f"{'='*70}")
+    print(f"  Confidence  : {conf:.3f}")
+    print(f"  Reads       : {pop['positive_reads']}/{n_reads} ({pop['positive_read_fraction']:.1%})")
+    print(f"  Coverage    : {pop['mean_coverage']:.1%} mean per positive read")
+    print(f"  Copies      : {pop['mean_max_copies']:.1f} mean tandem copies per positive read")
+    print(f"  Pattern     : {best_stats['pattern_length']} bp")
+    print(f"    {best_pattern}")
+    print(f"{'='*70}\n")
+
+    finder.visualize_pattern_across_sequences(best_pattern, best_stats)
+    return finder, best_pattern, results
+
+
 def pattern_finder_execute(telomeres: List[Optional[TelomereSequence]], config: Config) -> Optional[str]:
     pattern_file = _create_stats_file(config.output_file)
     test_dict: Dict[str, str] = {}
@@ -749,11 +955,45 @@ def pattern_finder_execute(telomeres: List[Optional[TelomereSequence]], config: 
         if telomer and telomer.sequence:
             test_dict[telomer.chromosome_end_id] = telomer.sequence
 
-    finder, best_pattern, results = analyze_chromosome_ends(test_dict, pattern_file, 50, 300)
+    finder, best_pattern, results = analyze_chromosome_ends(
+        test_dict, pattern_file, config.min_pattern_length, config.max_pattern_length
+    )
 
     if best_pattern:
-      return best_pattern
+        return best_pattern
     return None
+
+
+def pattern_finder_execute_population(config: Config) -> Optional[str]:
+    """
+    Entry point for population mode pattern finding.
+    Extracts telomeric regions from both ends of each read, converts all to
+    TG orientation, then runs population scoring and prints a circle detection verdict.
+    """
+    from data_io.fasta_reader import FastaReader
+
+    pattern_file = _create_stats_file(config.output_file)
+
+    reader = FastaReader(config.fasta_file_path, max_ends=0)
+    sequences, total_raw = reader.parse_fasta_population(threshold=config.telomere_threshold)
+
+    if not sequences:
+        raise ValueError("No telomeric sequences found in FASTA file")
+
+    # Write extracted telomeric reads to a FASTA file
+    base, ext = splitext(config.output_file)
+    telomere_fasta_path = f"{base}_telomeres.fasta"
+    with open(telomere_fasta_path, 'w') as tf:
+        for read_id, seq in sequences.items():
+            tf.write(f">{read_id}\n{seq}\n")
+    print(f"  Telomere extraction: {len(sequences)} telomeric reads from {total_raw} total reads")
+    print(f"  Telomeric reads written to: {telomere_fasta_path}")
+
+    _, best_pattern, _ = analyze_population_reads(
+        sequences, pattern_file, config.min_pattern_length, config.max_pattern_length,
+        total_raw_reads=total_raw,
+    )
+    return best_pattern
 
 
 

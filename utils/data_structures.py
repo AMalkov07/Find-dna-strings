@@ -27,11 +27,14 @@ class Config:
     skip_seeding: Optional[bool]
     compare_file_path: Optional[str]
     min_pattern_length: int
+    max_pattern_length: int
     graph_output: Optional[str]
     mutation_lookahead: int
     max_deletion_size: int
     max_insertion_size: int
     no_mutations: bool
+    population_mode: bool = False
+    telomere_threshold: float = 0.75
 
 @dataclass
 class TemplateSwitchEvent:

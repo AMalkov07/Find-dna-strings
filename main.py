@@ -11,7 +11,7 @@ from data_io.graph_template_switching import GraphTemplateSwitching
 from data_io.template_switching_exporters import TemplateSwitchingPrint
 from data_io.alignment_exporters import AlignmentPrint
 
-from analysis.pattern_finder_lcp import pattern_finder_execute
+from analysis.pattern_finder_lcp import pattern_finder_execute, pattern_finder_execute_population
 
 from os.path import splitext
 
@@ -19,6 +19,11 @@ import sys
 
 
 def run_analysis(config: Config) -> None:
+    # Population mode: pattern finding only, no alignment/graphing
+    if config.population_mode:
+        pattern_finder_execute_population(config)
+        return
+
     # Step 1: Read sequences
     reader = FastaReader(config.fasta_file_path, config.max_ends)
     telomers: List[Optional[TelomereSequence]]  = reader.parse_fasta()
@@ -86,11 +91,14 @@ def main(args) -> None:
         skip_seeding=args.skip_seeding,
         compare_file_path=args.compare_output,
         min_pattern_length=args.min_length,
+        max_pattern_length=args.max_length,
         graph_output=args.graph_output,
         mutation_lookahead=args.mutation_lookahead,
         max_insertion_size=args.max_insertion_size,
         max_deletion_size=args.max_deletion_size,
-        no_mutations=args.no_mutations
+        no_mutations=args.no_mutations,
+        population_mode=args.population_mode,
+        telomere_threshold=args.telomere_threshold,
     )
 
     # check if file exists
@@ -101,9 +109,10 @@ def main(args) -> None:
     if os.path.getsize(config.fasta_file_path) == 0:
         raise ValueError("The FASTA file is empty.")
 
-    # check if valid analysis strategy
-    if config.analysis_strategy != "template_switching" and config.analysis_strategy != "alignment":
-        raise ValueError("invalid strategy name")
+    # check if valid analysis strategy (not required in population mode)
+    if not config.population_mode:
+        if config.analysis_strategy != "template_switching" and config.analysis_strategy != "alignment":
+            raise ValueError("invalid strategy name")
 
     # check if compare file path exists
     if config.compare_file_path and not os.path.isfile(config.compare_file_path):
@@ -158,7 +167,14 @@ if __name__ == "__main__":
                         help="only used for template switching strategy, Determines the maximum deletion size that is considered instead of template switching (Default is 3)")
     parser.add_argument("-nm", "--no_mutations", type=bool, default=False,
                         help="only used for template switching strategy, avoids attempting to find mutations (Default is False)")
-                
+    parser.add_argument("-tt", "--telomere_threshold", type=float, default=0.75,
+                        help="minimum TG or AC fraction for a window to be considered telomeric (default: 0.75). "
+                             "Lower this for raw nanopore reads; use 0.9 for clean assembled sequences.")
+    parser.add_argument("-pm", "--population_mode", action="store_true",
+                        help="run in population mode: takes a FASTA of raw telomere reads (no chr-end structure required), "
+                             "scores patterns by per-read coverage, and reports a circle detection confidence score. "
+                             "Alignment/graphing steps are skipped.")
+
     args = parser.parse_args()
 
     main(args)

@@ -1,5 +1,5 @@
 from utils.data_structures import TelomereSequence
-from typing import List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional
 from Bio import SeqIO
 from Bio.Seq import Seq
 import re
@@ -144,6 +144,32 @@ class FastaReader:
         return end_telomer
     
         
+    def parse_fasta_population(self, threshold: float = 0.75) -> Tuple[Dict[str, str], int]:
+        """
+        Population mode: check both ends of each read for telomeric sequence.
+        Returns (telomere_dict, total_reads) where telomere_dict maps
+        read_id -> telomere_sequence (all in TG orientation).
+        Reads with telomeres on both ends produce two entries (_start / _end).
+
+        threshold: minimum TG or AC fraction to qualify as telomeric.
+          Use a lower value than the default 0.9 for raw nanopore reads
+          since sequencing errors reduce the apparent fraction.
+        """
+        fasta_extract = self._read_fasta()
+        telomeres: Dict[str, str] = {}
+        for header, sequence in fasta_extract:
+            start_telomer = self._extract_telomer(sequence, threshold=threshold)
+            sequence_reverse = sequence[::-1]
+            end_telomer = self._extract_telomer(sequence_reverse, threshold=threshold)
+            if start_telomer and end_telomer:
+                telomeres[f"{header}_start"] = start_telomer
+                telomeres[f"{header}_end"] = end_telomer
+            elif start_telomer:
+                telomeres[header] = start_telomer
+            elif end_telomer:
+                telomeres[header] = end_telomer
+        return telomeres, len(fasta_extract)
+
     def parse_fasta(self) -> List[Optional[TelomereSequence]]:
         """
         Entry point: fasta file path (from constructor)
