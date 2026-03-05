@@ -159,8 +159,12 @@ class FastaReader:
         telomeres: Dict[str, str] = {}
         for header, sequence in fasta_extract:
             start_telomer = self._extract_telomer(sequence, threshold=threshold)
+            if start_telomer and re.search(r'(.)\1{19,}', start_telomer):
+                start_telomer = None
             sequence_reverse = sequence[::-1]
             end_telomer = self._extract_telomer(sequence_reverse, threshold=threshold)
+            if end_telomer and re.search(r'(.)\1{19,}', end_telomer):
+                end_telomer = None
             if start_telomer and end_telomer:
                 telomeres[f"{header}_start"] = start_telomer
                 telomeres[f"{header}_end"] = end_telomer
