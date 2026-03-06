@@ -9,6 +9,15 @@ from os.path import splitext
 from _io import TextIOWrapper
 
 
+def _is_two_base_alternating(pattern: str) -> bool:
+    """Return True if pattern consists entirely of two bases alternating (e.g. GTGTGT, ACACAC)."""
+    if len(pattern) < 2:
+        return False
+    even_bases = set(pattern[0::2])
+    odd_bases = set(pattern[1::2])
+    return len(even_bases) == 1 and len(odd_bases) == 1 and even_bases != odd_bases
+
+
 def _resolve_workers(workers: Optional[int]) -> Optional[int]:
     """Return explicit workers count, or read NSLOTS (SGE), or None (let ProcessPoolExecutor decide)."""
     if workers is not None:
@@ -586,6 +595,8 @@ class ChromosomeEndRepeatFinder:
 
         scored_patterns: List[Tuple[str, Dict, float]] = []
         for pattern in all_patterns:
+            if _is_two_base_alternating(pattern):
+                continue
             reads_with_pattern = sum(
                 1 for seq_data in all_data.values()
                 if pattern in seq_data and seq_data[pattern]['non_overlapping_occurrences'] >= 2
@@ -654,8 +665,10 @@ class ChromosomeEndRepeatFinder:
         scored_patterns = []
         
         for pattern in all_patterns:
+            if _is_two_base_alternating(pattern):
+                continue
             sequences_with_pattern = sum(1 for seq_data in all_data.values() if pattern in seq_data)
-            
+
             if sequences_with_pattern >= min_sequences:
             #    score = self.score_cross_sequence_pattern(pattern, all_data, scoring_weights)
                 score = self.score_cross_sequence_pattern(pattern, all_data)
