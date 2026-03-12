@@ -565,10 +565,10 @@ class ChromosomeEndRepeatFinder:
         mean_max_copies = sum(max_copies_list) / len(max_copies_list)
 
         score = (
-            (positive_read_fraction ** 0.8) *   # prevalence across reads
+            (positive_read_fraction ** 0.5) *   # prevalence across reads (diminishing returns)
             (mean_coverage ** 1.5) *             # per-read coverage (key t-circle signal)
-            ((mean_max_copies + 1) ** 0.4) *     # tandem strength
-            (pattern_length ** 0.1)              # very mild length preference
+            ((mean_max_copies + 1) ** 1.0) *     # tandem strength (linear — high copies strongly rewarded)
+            (pattern_length ** 0.3)              # meaningful length preference
         )
         return score, positive_read_fraction, mean_coverage, mean_max_copies
 
@@ -999,6 +999,21 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
             f"{pop['mean_max_copies']:8.1f}  "
             f"{pop['circle_confidence']:9.3f}  "
             f"{score:8.2f}  {preview}\n"
+        )
+
+    # ── Full sequences for all candidates ─────────────────────────────────
+    pattern_file.write(f"\n{'='*90}\n")
+    pattern_file.write("FULL PATTERN SEQUENCES\n")
+    pattern_file.write("="*90 + "\n")
+    for i, (pattern, stats, score) in enumerate(results):
+        pop = stats['population']
+        pattern_file.write(
+            f"  Rank {i+1}  ({stats['pattern_length']} bp  "
+            f"reads={pop['positive_reads']}/{n_reads}  "
+            f"cov={pop['mean_coverage']:.1%}  "
+            f"copies={pop['mean_max_copies']:.1f}  "
+            f"score={score:.2f})\n"
+            f"    {pattern}\n"
         )
 
     # ── Circle detection verdict ───────────────────────────────────────────
