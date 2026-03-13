@@ -371,11 +371,13 @@ class ChromosomeEndRepeatFinder:
         
         return non_overlapping
     
-    def analyze_all_sequences(self, min_length: int, max_length: int) -> Dict[str, Dict[str, any]]:
+    def analyze_all_sequences(self, min_length: int, max_length: int,
+                              verbose: bool = True) -> Dict[str, Dict[str, any]]:
         """
         Analyze all sequences to find repeated patterns and their tandem arrays.
         Runs in parallel using ProcessPoolExecutor — one worker per sequence.
         Returns: Dict[seq_id -> Dict[pattern -> analysis_data]]
+        verbose=False suppresses the per-sequence progress lines (used in population mode).
         """
         args = [(sid, seq, min_length, max_length) for sid, seq in self.sequences.items()]
 
@@ -384,10 +386,11 @@ class ChromosomeEndRepeatFinder:
 
         all_sequence_data = {}
         for seq_id, sequence_analysis in results:
-            seq_len = len(self.sequences[seq_id])
-            self.pattern_file.write(
-                f"  Analyzed {seq_id} ({seq_len:,} bp): {len(sequence_analysis)} patterns\n"
-            )
+            if verbose:
+                seq_len = len(self.sequences[seq_id])
+                self.pattern_file.write(
+                    f"  Analyzed {seq_id} ({seq_len:,} bp): {len(sequence_analysis)} patterns\n"
+                )
             all_sequence_data[seq_id] = sequence_analysis
 
         return all_sequence_data
@@ -581,17 +584,11 @@ class ChromosomeEndRepeatFinder:
         find_best_cross_sequence_patterns so downstream code can be shared.
         Population-specific stats are stored in stats['population'].
         """
-        self.pattern_file.write("="*90 + "\n")
-        self.pattern_file.write(f"Pattern length range: {min_length}-{max_length} bp\n")
-        self.pattern_file.write(f"Total reads: {len(self.sequences)}\n")
-        self.pattern_file.write(f"Minimum reads for candidate: {min_reads}\n")
-
-        all_data = self.analyze_all_sequences(min_length, max_length)
+        all_data = self.analyze_all_sequences(min_length, max_length, verbose=False)
 
         all_patterns: Set[str] = set()
         for seq_data in all_data.values():
             all_patterns.update(seq_data.keys())
-        self.pattern_file.write(f"\nFound {len(all_patterns)} unique patterns across all reads\n")
 
         scored_patterns: List[Tuple[str, Dict, float]] = []
         for pattern in all_patterns:
@@ -616,12 +613,9 @@ class ChromosomeEndRepeatFinder:
             }
             scored_patterns.append((pattern, stats, score))
 
-        self.pattern_file.write(f"Found {len(scored_patterns)} candidate patterns in {min_reads}+ reads\n")
-
         # Reuse tandem-duplicate filter
         qualified = {p for p, _, _ in scored_patterns}
         scored_patterns = self._filter_tandem_duplicates(scored_patterns, qualified, min_length)
-        self.pattern_file.write(f"After tandem-duplicate filtering: {len(scored_patterns)} patterns\n")
 
         scored_patterns.sort(key=lambda x: x[2], reverse=True)
         return scored_patterns[:top_n]
@@ -961,9 +955,6 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
     pattern_file.write("="*90 + "\n\n")
 
     finder = ChromosomeEndRepeatFinder(sequences, pattern_file, max_workers=max_workers)
-    pattern_file.write("\n" + "="*90 + "\n")
-    pattern_file.write("PER-READ ANALYSIS\n")
-    pattern_file.write("="*90 + "\n")
 
     results = finder.find_best_population_patterns(
         min_length=min_pattern,
