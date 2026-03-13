@@ -36,6 +36,7 @@ class Config:
     population_mode: bool = False
     telomere_threshold: float = 0.75
     workers: Optional[int] = None
+    population_search_mode: Optional[str] = None
 
 @dataclass
 class TemplateSwitchEvent:

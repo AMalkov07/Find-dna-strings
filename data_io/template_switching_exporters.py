@@ -122,11 +122,11 @@ class TemplateSwitchingPrint:
         print(final_variant_string, file=variants_output_file)
 
 
-    def print_analysis(self) -> None:
+    def print_analysis(self, file_mode: str = 'w') -> None:
         output_file_name = self.config.output_file
         base, ext = splitext(output_file_name)
         variants_filename = f"{base}_variants.vcf"
-        main_output_file = open(output_file_name, 'w')
+        main_output_file = open(output_file_name, file_mode)
         variants_output_file = open(variants_filename, 'w')
         for telomer in self.telomers:
             if telomer and telomer.sequence:

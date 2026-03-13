@@ -314,8 +314,8 @@ class AlignmentPrint:
 
 
 
-    def print_analysis(self) -> None:
-        main_output_file = open(self.config.output_file, 'w')
+    def print_analysis(self, file_mode: str = 'w') -> None:
+        main_output_file = open(self.config.output_file, file_mode)
         base, ext = splitext(self.config.output_file)
         stats_file_name = f"{base}_stats.txt"
         stats_output_file = open(stats_file_name, 'w')

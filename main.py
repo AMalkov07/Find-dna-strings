@@ -12,6 +12,7 @@ from data_io.template_switching_exporters import TemplateSwitchingPrint
 from data_io.alignment_exporters import AlignmentPrint
 
 from analysis.pattern_finder_lcp import pattern_finder_execute, pattern_finder_execute_population
+from analysis.population_search import population_search_execute
 
 from os.path import splitext
 
@@ -19,9 +20,12 @@ import sys
 
 
 def run_analysis(config: Config) -> None:
-    # Population mode: pattern finding only, no alignment/graphing
+    # Population mode
     if config.population_mode:
-        pattern_finder_execute_population(config)
+        if config.population_search_mode:
+            population_search_execute(config)
+        else:
+            pattern_finder_execute_population(config)
         return
 
     # Step 1: Read sequences
@@ -100,6 +104,7 @@ def main(args) -> None:
         population_mode=args.population_mode,
         telomere_threshold=args.telomere_threshold,
         workers=args.workers,
+        population_search_mode=args.population_search_mode,
     )
 
     # check if file exists
@@ -109,6 +114,12 @@ def main(args) -> None:
     # check if files empty
     if os.path.getsize(config.fasta_file_path) == 0:
         raise ValueError("The FASTA file is empty.")
+
+    # check population search mode requirements
+    if config.population_search_mode and not config.population_mode:
+        raise ValueError("--population_search_mode requires --population_mode (-pm)")
+    if config.population_search_mode and not config.pattern:
+        raise ValueError("--population_search_mode requires a pattern (-p / --pattern)")
 
     # check if valid analysis strategy (not required in population mode)
     if not config.population_mode:
@@ -174,6 +185,14 @@ if __name__ == "__main__":
     parser.add_argument("-w", "--workers", type=int, default=None,
                         help="number of parallel worker processes (default: read from NSLOTS env var "
                              "(SGE), otherwise use all available CPUs). Set this to match your qsub -pe slot count.")
+    parser.add_argument("-psm", "--population_search_mode",
+                        choices=['perfect', 'alignment', 'template_switching'],
+                        default=None,
+                        help="search for a specific pattern (-p) in population reads. "
+                             "Requires -pm and -p. Modes: 'perfect' (exact tandem copy "
+                             "count histogram + matching reads FASTA), 'alignment' or "
+                             "'template_switching' (full analysis on the top 20 reads "
+                             "by copy count).")
     parser.add_argument("-pm", "--population_mode", action="store_true",
                         help="run in population mode: takes a FASTA of raw telomere reads (no chr-end structure required), "
                              "scores patterns by per-read coverage, and reports a circle detection confidence score. "
