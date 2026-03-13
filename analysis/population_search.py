@@ -183,6 +183,18 @@ def _run_imperfect(sequences: Dict[str, str], pattern: str,
     else:
         analyzer = AlignmentStrategy(telomere_objects, pattern, search_config)
         analyzer.execute()
+        # Build per-read copy counts (perfect + imperfect alignments) for histogram
+        copy_counts = []
+        for t in telomere_objects:
+            if t.analysis is not None:
+                n = len(t.analysis.perfect_alignments) + len(t.analysis.imperfect_alignments)
+                if n > 0:
+                    copy_counts.append(n)
+        with open(out_path, 'a') as f:
+            f.write("TANDEM COPY COUNT DISTRIBUTION (perfect + imperfect alignments)\n")
+            f.write("-" * 70 + "\n")
+            _write_histogram(f, copy_counts)
+            f.write("\n")
         AlignmentPrint(telomere_objects, search_config, pattern).print_analysis(file_mode='a')
 
     print(f"  {mode} search : top {len(top)} of {len(ranked)} positive reads analyzed")
