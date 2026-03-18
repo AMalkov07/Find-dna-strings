@@ -100,12 +100,30 @@ def _process_read_ends(args: Tuple) -> Tuple[str, Optional[str], Optional[str]]:
                 max_run = run
         return max_run / n >= threshold
 
+    def _trim_trailing_alternating(seq, min_run=10):
+        n = len(seq)
+        if n < min_run:
+            return seq
+        run = 1
+        for i in range(n - 2, -1, -1):
+            if seq[i] != seq[i + 1] and (run < 2 or seq[i] == seq[i + 2]):
+                run += 1
+            else:
+                break
+        if run > min_run:
+            return seq[:n - run]
+        return seq
+
     start_tel = extract_telomer(sequence)
+    if start_tel:
+        start_tel = _trim_trailing_alternating(start_tel)
     if start_tel and _re.search(r'(.)\1{19,}', start_tel):
         start_tel = None
     if start_tel and _is_dinucleotide_repeat(start_tel):
         start_tel = None
     end_tel = extract_telomer(sequence[::-1])
+    if end_tel:
+        end_tel = _trim_trailing_alternating(end_tel)
     if end_tel and _re.search(r'(.)\1{19,}', end_tel):
         end_tel = None
     if end_tel and _is_dinucleotide_repeat(end_tel):
