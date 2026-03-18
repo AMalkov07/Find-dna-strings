@@ -83,11 +83,32 @@ def _process_read_ends(args: Tuple) -> Tuple[str, Optional[str], Optional[str]]:
             out = str(_Seq(out).reverse_complement())[::-1]
         return out
 
+    def _is_dinucleotide_repeat(seq, threshold=0.75):
+        n = len(seq)
+        if n < 4:
+            return False
+        max_run = 1
+        run = 1
+        for i in range(1, n):
+            if seq[i] != seq[i - 1] and (run < 2 or seq[i] == seq[i - 2]):
+                run += 1
+            elif seq[i] != seq[i - 1]:
+                run = 2
+            else:
+                run = 1
+            if run > max_run:
+                max_run = run
+        return max_run / n >= threshold
+
     start_tel = extract_telomer(sequence)
     if start_tel and _re.search(r'(.)\1{19,}', start_tel):
         start_tel = None
+    if start_tel and _is_dinucleotide_repeat(start_tel):
+        start_tel = None
     end_tel = extract_telomer(sequence[::-1])
     if end_tel and _re.search(r'(.)\1{19,}', end_tel):
+        end_tel = None
+    if end_tel and _is_dinucleotide_repeat(end_tel):
         end_tel = None
     return header, start_tel, end_tel
 
