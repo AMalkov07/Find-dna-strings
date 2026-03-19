@@ -83,26 +83,22 @@ def _process_read_ends(args: Tuple) -> Tuple[str, Optional[str], Optional[str]]:
             out = str(_Seq(out).reverse_complement())[::-1]
         return out
 
-    def _is_dinucleotide_repeat(seq, threshold=0.75):
+    def _is_dinucleotide_repeat(seq, max_run_length=50):
         n = len(seq)
         if n < 4:
             return False
-        total_alternating = 0
+        max_run = 1
         run = 1
         for i in range(1, n):
             if seq[i] != seq[i - 1] and (run < 2 or seq[i] == seq[i - 2]):
                 run += 1
             elif seq[i] != seq[i - 1]:
-                if run >= 2:
-                    total_alternating += run
                 run = 2
             else:
-                if run >= 2:
-                    total_alternating += run
                 run = 1
-        if run >= 2:
-            total_alternating += run
-        return total_alternating / n >= threshold
+            if run > max_run:
+                max_run = run
+        return max_run >= max_run_length
 
     def _trim_trailing_alternating(seq, min_run=10):
         n = len(seq)
