@@ -574,7 +574,8 @@ class ChromosomeEndRepeatFinder:
         score = (
             (len(coverages) ** 0.8) *            # number of positive reads
             (mean_repeats ** 0.8) *              # avg pattern repeats per read
-            (mean_max_copies ** 1.0)             # avg tandem copies per read
+            (mean_max_copies ** 1.0) *           # avg tandem copies per read
+            (pattern_length ** 0.3)              # modest preference for longer patterns
         )
         return score, positive_read_fraction, mean_coverage, mean_max_copies, mean_repeats
 
