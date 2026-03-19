@@ -533,20 +533,22 @@ class ChromosomeEndRepeatFinder:
         
         return score
 
-    def score_population_pattern(self, pattern: str, all_data: Dict) -> Tuple[float, float, float, float]:
+    def score_population_pattern(self, pattern: str, all_data: Dict) -> Tuple[float, float, float, float, float]:
         """
         Score a pattern for population mode (telomere read analysis).
 
-        Scoring is based on per-read coverage fraction: how much of each positive
-        read is explained by tandem copies of the pattern.  High coverage strongly
-        indicates the read came from a t-circle.
+        Scoring weights:
+        1. Number of reads containing the pattern (read count)
+        2. Average non-overlapping occurrences per positive read (mean repeats)
+        3. Average max tandem copies per positive read (mean tandem)
 
-        Returns (score, positive_read_fraction, mean_coverage, mean_max_copies)
+        Returns (score, positive_read_fraction, mean_coverage, mean_max_copies, mean_repeats)
         """
         pattern_length = len(pattern)
         total_reads = len(self.sequences)
         coverages: List[float] = []
         max_copies_list: List[int] = []
+        repeat_counts: List[int] = []
 
         for seq_id, seq_data in all_data.items():
             if pattern not in seq_data:
@@ -559,21 +561,22 @@ class ChromosomeEndRepeatFinder:
             coverage = min(1.0, n_copies * pattern_length / read_length)
             coverages.append(coverage)
             max_copies_list.append(data['max_tandem_copies'])
+            repeat_counts.append(n_copies)
 
         if not coverages:
-            return 0.0, 0.0, 0.0, 0.0
+            return 0.0, 0.0, 0.0, 0.0, 0.0
 
         positive_read_fraction = len(coverages) / total_reads
         mean_coverage = sum(coverages) / len(coverages)
         mean_max_copies = sum(max_copies_list) / len(max_copies_list)
+        mean_repeats = sum(repeat_counts) / len(repeat_counts)
 
         score = (
-            (positive_read_fraction ** 0.5) *   # prevalence across reads (diminishing returns)
-            (mean_coverage ** 1.5) *             # per-read coverage (key t-circle signal)
-            ((mean_max_copies + 1) ** 1.0) *     # tandem strength (linear — high copies strongly rewarded)
-            (pattern_length ** 0.3)              # meaningful length preference
+            (len(coverages) ** 0.8) *            # number of positive reads
+            (mean_repeats ** 0.8) *              # avg pattern repeats per read
+            (mean_max_copies ** 1.0)             # avg tandem copies per read
         )
-        return score, positive_read_fraction, mean_coverage, mean_max_copies
+        return score, positive_read_fraction, mean_coverage, mean_max_copies, mean_repeats
 
     def find_best_population_patterns(self, min_length: int, max_length: int,
                                       min_reads: int = 2, top_n: int = 15) -> List[Tuple[str, Dict, float]]:
@@ -601,7 +604,7 @@ class ChromosomeEndRepeatFinder:
             if reads_with_pattern < min_reads:
                 continue
 
-            score, pos_frac, mean_cov, mean_copies = self.score_population_pattern(pattern, all_data)
+            score, pos_frac, mean_cov, mean_copies, mean_reps = self.score_population_pattern(pattern, all_data)
             stats = self.compile_pattern_statistics(pattern, all_data)
             stats['population'] = {
                 'positive_reads': reads_with_pattern,
@@ -609,6 +612,7 @@ class ChromosomeEndRepeatFinder:
                 'positive_read_fraction': pos_frac,
                 'mean_coverage': mean_cov,
                 'mean_max_copies': mean_copies,
+                'mean_repeats': mean_reps,
                 'circle_confidence': pos_frac * mean_cov,
             }
             scored_patterns.append((pattern, stats, score))
@@ -976,7 +980,7 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
     pattern_file.write("="*90 + "\n")
     pattern_file.write(
         f"{'Rank':>4}  {'Length':>6}  {'Reads':>9}  "
-        f"{'MeanCov':>8}  {'MeanCop':>8}  {'CircConf':>9}  {'Score':>8}  Pattern Preview\n"
+        f"{'MeanRep':>8}  {'MeanTan':>8}  {'CircConf':>9}  {'Score':>8}  Pattern Preview\n"
     )
     pattern_file.write("-"*90 + "\n")
 
@@ -986,7 +990,7 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
         pattern_file.write(
             f"{i+1:4d}  {stats['pattern_length']:6d}  "
             f"{pop['positive_reads']:4d}/{n_reads:<4d}  "
-            f"{pop['mean_coverage']:8.1%}  "
+            f"{pop['mean_repeats']:8.1f}  "
             f"{pop['mean_max_copies']:8.1f}  "
             f"{pop['circle_confidence']:9.3f}  "
             f"{score:8.2f}  {preview}\n"
@@ -1001,8 +1005,8 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
         pattern_file.write(
             f"  Rank {i+1}  ({stats['pattern_length']} bp  "
             f"reads={pop['positive_reads']}/{n_reads}  "
-            f"cov={pop['mean_coverage']:.1%}  "
-            f"copies={pop['mean_max_copies']:.1f}  "
+            f"repeats={pop['mean_repeats']:.1f}  "
+            f"tandem={pop['mean_max_copies']:.1f}  "
             f"score={score:.2f})\n"
             f"    {pattern}\n"
         )
@@ -1027,7 +1031,7 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
     pattern_file.write(f"  Verdict            : {verdict}\n")
     pattern_file.write(f"  Circle confidence  : {conf:.3f}\n")
     pattern_file.write(f"  Reads with pattern : {pop['positive_reads']}/{n_reads} ({pop['positive_read_fraction']:.1%})\n")
-    pattern_file.write(f"  Mean read coverage : {pop['mean_coverage']:.1%}\n")
+    pattern_file.write(f"  Mean repeats/read  : {pop['mean_repeats']:.1f}\n")
     pattern_file.write(f"  Mean tandem copies : {pop['mean_max_copies']:.1f}\n")
     pattern_file.write(f"\n{'='*90}\n")
     pattern_file.write("BEST PATTERN\n")
@@ -1042,8 +1046,8 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
     print(f"{'='*70}")
     print(f"  Confidence  : {conf:.3f}")
     print(f"  Reads       : {pop['positive_reads']}/{n_reads} ({pop['positive_read_fraction']:.1%})")
-    print(f"  Coverage    : {pop['mean_coverage']:.1%} mean per positive read")
-    print(f"  Copies      : {pop['mean_max_copies']:.1f} mean tandem copies per positive read")
+    print(f"  Repeats     : {pop['mean_repeats']:.1f} mean repeats per positive read")
+    print(f"  Tandem      : {pop['mean_max_copies']:.1f} mean tandem copies per positive read")
     print(f"  Pattern     : {best_stats['pattern_length']} bp")
     print(f"    {best_pattern}")
     print(f"{'='*70}\n")
