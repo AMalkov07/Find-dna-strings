@@ -87,18 +87,22 @@ def _process_read_ends(args: Tuple) -> Tuple[str, Optional[str], Optional[str]]:
         n = len(seq)
         if n < 4:
             return False
-        max_run = 1
+        total_alternating = 0
         run = 1
         for i in range(1, n):
             if seq[i] != seq[i - 1] and (run < 2 or seq[i] == seq[i - 2]):
                 run += 1
             elif seq[i] != seq[i - 1]:
+                if run >= 2:
+                    total_alternating += run
                 run = 2
             else:
+                if run >= 2:
+                    total_alternating += run
                 run = 1
-            if run > max_run:
-                max_run = run
-        return max_run / n >= threshold
+        if run >= 2:
+            total_alternating += run
+        return total_alternating / n >= threshold
 
     def _trim_trailing_alternating(seq, min_run=10):
         n = len(seq)
