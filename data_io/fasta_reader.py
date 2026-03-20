@@ -35,7 +35,7 @@ def _process_read_ends(args: Tuple) -> Tuple[str, Optional[str], Optional[str]]:
                 return i
         return None
 
-    def extract_telomer(seq, window_size=40, ignore_last=10, opp_stop_win=15, opp_stop_count=3):
+    def extract_telomer(seq, window_size=40, ignore_last=10, opp_stop_win=15, opp_stop_count=3, lookahead_offset=20):
         seq = seq.upper()
         n = len(seq)
         if n < window_size + ignore_last:
@@ -56,6 +56,15 @@ def _process_read_ends(args: Tuple) -> Tuple[str, Optional[str], Optional[str]]:
                 break
             opp_win = seq[cs:cs + opp_stop_win]
             if count_opposite(opp_win, dominant_type) >= opp_stop_count:
+                # Look-ahead: check if sequence is still telomeric past this cluster
+                la_start = max(0, cs - lookahead_offset)
+                if la_start + window_size <= n:
+                    la_win = seq[la_start:la_start + window_size]
+                    la_frac, _ = ac_tg_fraction(la_win)
+                    if la_frac >= threshold:
+                        # Still telomeric beyond the cluster — skip over it
+                        start = cs
+                        continue
                 rev_idx = first_opposite_idx(opp_win[::-1], dominant_type)
                 if rev_idx is not None:
                     start = cs + (len(opp_win) - rev_idx)
@@ -73,6 +82,15 @@ def _process_read_ends(args: Tuple) -> Tuple[str, Optional[str], Optional[str]]:
             ows = max(end - opp_stop_win, start)
             opp_win = seq[ows:end]
             if count_opposite(opp_win, dominant_type) >= opp_stop_count:
+                # Look-ahead: check if sequence is still telomeric past this cluster
+                la_start = end
+                if la_start + window_size <= n:
+                    la_win = seq[la_start:la_start + window_size]
+                    la_frac, _ = ac_tg_fraction(la_win)
+                    if la_frac >= threshold:
+                        # Still telomeric beyond the cluster — skip over it
+                        end += 1
+                        continue
                 idx = first_opposite_idx(opp_win, dominant_type)
                 if idx is not None:
                     end = ows + idx
@@ -190,14 +208,14 @@ class FastaReader:
         return None
 
     #fix add user variables for most of the inputs to below function
-    def _extract_telomer(self, dna_sequence: str, window_size: int = 40, threshold: float = .9, ignore_last: int = 10, opposite_stop_window: int = 15, opposite_stop_count: int = 3) -> Optional[str]:
+    def _extract_telomer(self, dna_sequence: str, window_size: int = 40, threshold: float = .9, ignore_last: int = 10, opposite_stop_window: int = 15, opposite_stop_count: int = 3, lookahead_offset: int = 20) -> Optional[str]:
 
         seq_str = str(dna_sequence).upper()
         n = len(seq_str)
         if n < window_size + ignore_last:
             return None  # Too short to evaluate
 
-        
+
         # --- Step 1: Check detection window ([-50:-10])
         detect_start = max(0, n - ignore_last - window_size)
         detect_end = n - ignore_last
@@ -221,11 +239,20 @@ class FastaReader:
             # Check for opposite bases stop condition
             opp_window = seq_str[candidate_start:candidate_start + opposite_stop_window]
             if self._count_opposite_bases(opp_window, dominant_type) >= opposite_stop_count:
+                # Look-ahead: check if sequence is still telomeric past this cluster
+                la_start = max(0, candidate_start - lookahead_offset)
+                if la_start + window_size <= n:
+                    la_win = seq_str[la_start:la_start + window_size]
+                    la_frac, _ = self._ac_tg_fraction(la_win)
+                    if la_frac >= threshold:
+                        # Still telomeric beyond the cluster — skip over it
+                        start = candidate_start
+                        continue
                 reversed_idx = self._find_first_opposite_index(opp_window[::-1], dominant_type)
                 if reversed_idx is not None:
                     start = candidate_start + (len(opp_window) - reversed_idx)
                 break
-            
+
             start = candidate_start
 
         # --- Step 3: Extend forward (into ignored region if possible)
@@ -244,11 +271,19 @@ class FastaReader:
             opp_window_start = max(end - opposite_stop_window, start)
             opp_window = seq_str[opp_window_start:end]
             if self._count_opposite_bases(opp_window, dominant_type) >= opposite_stop_count:
+                # Look-ahead: check if sequence is still telomeric past this cluster
+                la_start = end
+                if la_start + window_size <= n:
+                    la_win = seq_str[la_start:la_start + window_size]
+                    la_frac, _ = self._ac_tg_fraction(la_win)
+                    if la_frac >= threshold:
+                        # Still telomeric beyond the cluster — skip over it
+                        end += 1
+                        continue
                 idx = self._find_first_opposite_index(opp_window, dominant_type)
                 if idx is not None:
                     end = opp_window_start + idx  # stop just before first opposite base
                 break
-
 
             end += 1
 
