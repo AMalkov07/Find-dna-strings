@@ -7,13 +7,14 @@ from the "CONSOLIDATED CIRCLE FAMILIES — REPRESENTATIVE SEQUENCES" section), s
 every extracted telomere read (<base>_output_telomeres.fasta) and classify it by
 how the family's circle appears in it:
 
-  CIRCULARIZED   - the read contains a TANDEM of the circle (>= 2 copies), i.e.
-                   the doubled representative aligns into the read at >= identity.
-                   Strong evidence the read circularized this unit.
-  SINGLE INSTANCE- the read contains ONE clean copy (the representative aligns at
-                   >= identity over its full length) but no tandem. Weaker; the
-                   first (suffix-array) pass misses these because it needs >=2
-                   in-read repeats.
+  CIRCULARIZED    - the read contains a TANDEM of the circle (>= 2 adjacent copies),
+                    i.e. the doubled representative aligns into the read at >= identity.
+                    Strongest evidence (rolling-circle signature).
+  MULTI-COPY      - the read contains >= 2 copies of the circle that are NOT tandem
+                    (dispersed across the read). Medium evidence: stronger than one
+                    copy, weaker than a clean tandem.
+  SINGLE INSTANCE - the read contains exactly ONE clean copy. Weakest; the first
+                    (suffix-array) pass misses these because it needs >=2 in-read repeats.
 
 Matching is rotation-aware (via the doubled representative) and error-tolerant
 (edit distance), so nanopore errors don't break it. It is deliberately strict
@@ -42,7 +43,7 @@ try:
 except ImportError:
     sys.exit("ERROR: this script needs biopython (pip install biopython)")
 
-DEFAULT_IDENTITY = 0.90
+DEFAULT_IDENTITY = 0.98
 COPY_CAP = 8  # cap the reported tandem-copy estimate
 
 _FAMILY_RE = re.compile(
@@ -82,18 +83,43 @@ def copy_estimate(rep: str, read: str, identity: float) -> int:
     return best
 
 
+def count_occurrences(rep: str, read: str, identity: float, cap: int = 20) -> int:
+    """Number of non-overlapping full-length matches of rep in read at >= identity.
+    Greedy: repeatedly take the best match, cut it out, re-scan."""
+    n = 0
+    s = read
+    L = len(rep)
+    while len(s) >= L and n < cap:
+        r = edlib.align(rep, s, mode="HW", task="locations")
+        if not r["locations"] or (1 - r["editDistance"] / L) < identity:
+            break
+        st, en = r["locations"][0]
+        s = s[:st] + s[en + 1:]   # remove matched region, look for the next copy
+        n += 1
+    return n
+
+
 def classify_read(rep: str, rep2: str, read: str, identity: float) -> Tuple[str, float, int]:
-    """Return (category, best_identity, copies). category in {circularized, single, ''}."""
+    """Return (category, best_identity, copies).
+    category in {circularized, multi, single, ''}:
+      circularized - >=2 TANDEM copies (doubled rep aligns; rolling-circle signature)
+      multi        - >=2 copies but NOT tandem (dispersed across the read)
+      single       - exactly one clean copy
+    """
     if len(read) < len(rep):
         return "", 0.0, 0
-    # tandem (>=2 copies) first
+    # tandem (>=2 adjacent copies) — strongest evidence
     id2 = hw_identity(rep2, read)
     if id2 >= identity:
         return "circularized", id2, copy_estimate(rep, read, identity)
     id1 = hw_identity(rep, read)
-    if id1 >= identity:
-        return "single", id1, 1
-    return "", max(id1, 0.0), 0
+    if id1 < identity:
+        return "", max(id1, 0.0), 0
+    # at least one copy, but no tandem — count how many (dispersed)
+    occ = count_occurrences(rep, read, identity)
+    if occ >= 2:
+        return "multi", id1, occ
+    return "single", id1, 1
 
 
 def process(pattern_path: str, identity: float, top_families: int,
@@ -125,26 +151,31 @@ def process(pattern_path: str, identity: float, top_families: int,
         out.write("=" * 90 + "\n")
         out.write(f"  telomere reads scanned : {len(reads)}\n")
         out.write(f"  identity threshold      : {identity:.0%} (full-length, rotation/indel tolerant)\n")
-        out.write("  CIRCULARIZED = read has >=2 tandem copies of the family circle\n")
-        out.write("  SINGLE       = read has exactly one clean copy (no tandem)\n")
+        out.write("  CIRCULARIZED = read has >=2 TANDEM copies (rolling-circle signature; strongest)\n")
+        out.write("  MULTI-COPY   = read has >=2 copies but NOT tandem (dispersed; medium)\n")
+        out.write("  SINGLE       = read has exactly one clean copy (weakest)\n")
         out.write("=" * 90 + "\n\n")
 
         for fam_no, rep in families:
             rep2 = rep + rep
             circ: List[Tuple[str, float, int]] = []
+            multi: List[Tuple[str, float, int]] = []
             single: List[Tuple[str, float, int]] = []
             for rid, seq in reads.items():
                 cat, ident, copies = classify_read(rep, rep2, seq, identity)
                 if cat == "circularized":
                     circ.append((rid, ident, copies))
+                elif cat == "multi":
+                    multi.append((rid, ident, copies))
                 elif cat == "single":
                     single.append((rid, ident, copies))
             circ.sort(key=lambda x: (-x[2], -x[1]))
+            multi.sort(key=lambda x: (-x[2], -x[1]))
             single.sort(key=lambda x: -x[1])
 
             out.write("#" * 90 + "\n")
             out.write(f"FAMILY {fam_no}  |  representative {len(rep)} bp  |  "
-                      f"circularized: {len(circ)} reads  |  single-instance: {len(single)} reads\n")
+                      f"circularized: {len(circ)}  |  multi-copy: {len(multi)}  |  single: {len(single)}\n")
             out.write(f"representative: {rep}\n")
             out.write("#" * 90 + "\n")
 
@@ -153,13 +184,18 @@ def process(pattern_path: str, identity: float, top_families: int,
                 cp = f"{copies}{'+' if copies >= COPY_CAP else ''}"
                 out.write(f">{rid}  copies={cp}  id={ident:.2f}\n{reads[rid]}\n")
 
+            out.write(f"\n--- MULTI-COPY (>=2 non-tandem copies, >= {identity:.0%} id) : {len(multi)} reads ---\n")
+            for rid, ident, copies in multi:
+                cp = f"{copies}{'+' if copies >= 20 else ''}"
+                out.write(f">{rid}  copies={cp}  id={ident:.2f}\n{reads[rid]}\n")
+
             out.write(f"\n--- SINGLE INSTANCE (1 copy, >= {identity:.0%} id) : {len(single)} reads ---\n")
             for rid, ident, _ in single:
                 out.write(f">{rid}  copies=1  id={ident:.2f}\n{reads[rid]}\n")
             out.write("\n")
 
             print(f"  {os.path.basename(pattern_path)}  Family {fam_no} ({len(rep)}bp): "
-                  f"{len(circ)} circularized, {len(single)} single")
+                  f"{len(circ)} circularized, {len(multi)} multi-copy, {len(single)} single")
     print(f"  -> {out_path}")
 
 
@@ -168,7 +204,10 @@ def main(argv: List[str]) -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("files", nargs="+", help="population *_output_pattern.txt file(s)")
     ap.add_argument("-i", "--identity", type=float, default=DEFAULT_IDENTITY,
-                    help=f"minimum full-length identity to list a read (default {DEFAULT_IDENTITY})")
+                    help=f"minimum full-length identity to list a read (default {DEFAULT_IDENTITY}). "
+                         "Telomeric reads share a ~0.88-0.92 GT-rich baseline, so 0.90 barely beats "
+                         "chance; a real circle copy is near read accuracy, so 0.98 is used to require "
+                         "a genuine match to the specific circle rather than generic telomere similarity")
     ap.add_argument("-n", "--top-families", type=int, default=0,
                     help="only process the first N families (0 = all)")
     ap.add_argument("-m", "--min-rep-length", type=int, default=100,
