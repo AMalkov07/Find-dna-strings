@@ -6,6 +6,76 @@ from Bio.Seq import Seq
 import re
 
 
+# ── SQK-LSK114 adapter trimming ───────────────────────────────────────────────
+# Basecalling leaves the ligation adapter on the read ends, which poisons the
+# telomere detection window (the telomere then sits behind ~28-40 bp of adapter
+# that the fixed ignore_last offset can't skip). We fuzzy-match the adapter in
+# just the terminal region (not the whole read) and trim it before extraction.
+def _revcomp(s: str) -> str:
+    return s.translate(str.maketrans("ACGT", "TGCA"))[::-1]
+
+# Adapter cores WITHOUT the poly-T leader (which the basecaller usually trims).
+_LSK114_ADAPTER_CORES = [
+    "CCTGTACTTCGTTCAGTTACGTATTGCT",   # SQK-LSK114 top
+    "GCAATACGTAACTGAACGAAGTACAGG",     # SQK-LSK114 bottom
+]
+# Search for each adapter and its reverse complement (adapter can be at either
+# end / either strand).
+_LSK114_ADAPTERS = _LSK114_ADAPTER_CORES + [_revcomp(a) for a in _LSK114_ADAPTER_CORES]
+
+
+def _fuzzy_prefix_end(adapter: str, region: str) -> Tuple[int, int]:
+    """Align the FULL `adapter` as a substring of `region` (free start/end in
+    region; mismatches + indels allowed). Return (end_index_in_region, edits) for
+    the best-scoring placement. Pure-Python infix DP."""
+    m, n = len(adapter), len(region)
+    if m == 0 or n == 0:
+        return 0, m
+    prev = [0] * (n + 1)          # empty adapter matches anywhere at cost 0
+    for i in range(1, m + 1):
+        cur = [i] + [0] * n
+        ai = adapter[i - 1]
+        for j in range(1, n + 1):
+            cur[j] = min(prev[j - 1] + (0 if ai == region[j - 1] else 1),
+                         prev[j] + 1, cur[j - 1] + 1)
+        prev = cur
+    best, best_j = m + 1, 0
+    for j in range(1, n + 1):
+        if prev[j] < best:
+            best, best_j = prev[j], j
+    return best_j, best
+
+
+def _trim_lsk_adapters(seq: str, search_len: int = 60, min_ident: float = 0.70) -> str:
+    """Trim SQK-LSK114 adapters from the read ends. Only the terminal ~search_len
+    bp are inspected (no full-read sweep). Returns the trimmed sequence."""
+    L = len(seq)
+    if L < 40:
+        return seq
+    sl = min(search_len, L)
+
+    # --- start end: find where the adapter ends, trim up to there ---
+    head = seq[:sl]
+    cut_start, best_d = 0, None
+    for ad in _LSK114_ADAPTERS:
+        e, d = _fuzzy_prefix_end(ad, head)
+        if d <= (1 - min_ident) * len(ad) and (best_d is None or d < best_d):
+            best_d, cut_start = d, e
+
+    # --- tail end: reverse both so the same routine finds where it starts ---
+    tail = seq[L - sl:]
+    rtail = tail[::-1]
+    cut_end, best_d2 = L, None
+    for ad in _LSK114_ADAPTERS:
+        e, d = _fuzzy_prefix_end(ad[::-1], rtail)
+        if d <= (1 - min_ident) * len(ad) and (best_d2 is None or d < best_d2):
+            best_d2, cut_end = d, L - e
+
+    if cut_start >= cut_end:      # degenerate — don't trim
+        return seq
+    return seq[cut_start:cut_end]
+
+
 def _process_read_ends(args: Tuple) -> Tuple[str, Optional[str], Optional[str]]:
     """
     Module-level worker for ProcessPoolExecutor — extract telomeres from both ends of one read.
@@ -132,6 +202,7 @@ def _process_read_ends(args: Tuple) -> Tuple[str, Optional[str], Optional[str]]:
             return seq[:n - run]
         return seq
 
+    sequence = _trim_lsk_adapters(sequence)
     start_tel = extract_telomer(sequence)
     if start_tel:
         start_tel = _trim_trailing_alternating(start_tel)
