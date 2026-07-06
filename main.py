@@ -105,6 +105,10 @@ def main(args) -> None:
         telomere_threshold=args.telomere_threshold,
         workers=args.workers,
         population_search_mode=args.population_search_mode,
+        top_patterns=args.top_patterns,
+        variant_threshold=args.variant_threshold,
+        candidate_pool=args.candidate_pool,
+        variant_min_length_ratio=args.variant_min_length_ratio,
     )
 
     # check if file exists
@@ -197,6 +201,22 @@ if __name__ == "__main__":
                         help="run in population mode: takes a FASTA of raw telomere reads (no chr-end structure required), "
                              "scores patterns by per-read coverage, and reports a circle detection confidence score. "
                              "Alignment/graphing steps are skipped.")
+    parser.add_argument("-tn", "--top_patterns", type=int, default=15,
+                        help="population mode: number of patterns to report in both the top-by-score "
+                             "table and the non-variant (distinct-family) table (default: 15)")
+    parser.add_argument("-vt", "--variant_threshold", type=float, default=0.90,
+                        help="population mode: identity (0-1) at which a pattern is treated as a "
+                             "rotation/indel variation of a higher-ranked pattern when building the "
+                             "non-variant table (default: 0.90)")
+    parser.add_argument("-cp", "--candidate_pool", type=int, default=200,
+                        help="population mode: how many top-scored patterns to consider when selecting "
+                             "the non-variant patterns. Larger gives more chance to fill out distinct "
+                             "families but is a little slower (default: 200)")
+    parser.add_argument("-vlr", "--variant_min_length_ratio", type=float, default=0.75,
+                        help="population mode: when consolidating circle families, two patterns are only "
+                             "merged if their lengths are within this ratio (shorter/longer). 0.75 keeps a "
+                             "short sub-repeat as its own family instead of folding it into a longer circle; "
+                             "set 0.0 to disable the length guard (pure containment). (default: 0.75)")
 
     args = parser.parse_args()
 

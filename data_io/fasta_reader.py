@@ -153,17 +153,26 @@ class FastaReader:
         self.fasta_file_path = fasta_file_path
         self.max_ends = max_ends
     
-    def _read_fasta(self) -> List[Tuple[str, str]]:
+    def _read_fasta(self, use_secondary_id: bool = False) -> List[Tuple[str, str]]:
         fasta_file_path = self.fasta_file_path
-    
+
         records = list(SeqIO.parse(fasta_file_path, "fasta"))
-    
+
         # Check if we actually parsed any records
         if not records:
             raise ValueError("No valid FASTA records found in file.")
-    
-        # Extract headers and sequences
-        results = [(record.id, str(record.seq)) for record in records]
+
+        # Extract headers and sequences. With use_secondary_id, prefer the second
+        # whitespace-delimited token of the header (e.g. the nanopore read UUID
+        # "@SRR....N <uuid> length=..."), falling back to record.id if absent.
+        results = []
+        for record in records:
+            if use_secondary_id:
+                parts = record.description.split()
+                rid = parts[1] if len(parts) > 1 else record.id
+            else:
+                rid = record.id
+            results.append((rid, str(record.seq)))
         return results
 
     def _extract_header_info(self, header: str) -> Tuple[str, str, int]:
@@ -317,7 +326,7 @@ class FastaReader:
           Use a lower value than the default 0.9 for raw nanopore reads
           since sequencing errors reduce the apparent fraction.
         """
-        fasta_extract = self._read_fasta()
+        fasta_extract = self._read_fasta(use_secondary_id=True)
         telomeres: Dict[str, str] = {}
 
         args = [(header, sequence, threshold) for header, sequence in fasta_extract]

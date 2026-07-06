@@ -6,6 +6,18 @@ from typing import List, Tuple, Dict, Set, Optional
 from utils.data_structures import TelomereSequence, Config
 
 from os.path import splitext
+
+# ── Population-mode scoring weights ───────────────────────────────────────────
+# score = n_reads^READ_WEIGHT
+#         * mean(log1p(repeats_per_read))^REPEAT_WEIGHT
+#         * mean(log1p(tandem_per_read))^TANDEM_WEIGHT
+#         * pattern_length^LENGTH_WEIGHT
+# Repeats/tandem are log-dampened PER READ before averaging, so one read with an
+# extreme repeat count can't dominate; read count carries the most weight.
+SCORE_READ_WEIGHT = 1.5
+SCORE_REPEAT_WEIGHT = 1.0
+SCORE_TANDEM_WEIGHT = 1.0
+SCORE_LENGTH_WEIGHT = 0.8
 from _io import TextIOWrapper
 
 
@@ -571,11 +583,17 @@ class ChromosomeEndRepeatFinder:
         mean_max_copies = sum(max_copies_list) / len(max_copies_list)
         mean_repeats = sum(repeat_counts) / len(repeat_counts)
 
+        # Log-dampen repeats and tandem copies PER READ before averaging, so a
+        # single read with a huge repeat count cannot dominate the score; the
+        # read count (how many reads carry the pattern) is weighted most.
+        mean_log_repeats = sum(math.log1p(c) for c in repeat_counts) / len(repeat_counts)
+        mean_log_tandem = sum(math.log1p(t) for t in max_copies_list) / len(max_copies_list)
+
         score = (
-            (len(coverages) ** 0.8) *            # number of positive reads
-            (mean_repeats ** 0.8) *              # avg pattern repeats per read
-            (mean_max_copies ** 1.3) *           # avg tandem copies per read
-            (pattern_length ** 0.5)              # preference for longer patterns
+            (len(coverages) ** SCORE_READ_WEIGHT) *      # number of positive reads
+            (mean_log_repeats ** SCORE_REPEAT_WEIGHT) *  # log-damped repeats/read
+            (mean_log_tandem ** SCORE_TANDEM_WEIGHT) *   # log-damped tandem/read
+            (pattern_length ** SCORE_LENGTH_WEIGHT)      # preference for longer patterns
         )
         return score, positive_read_fraction, mean_coverage, mean_max_copies, mean_repeats
 
@@ -941,7 +959,11 @@ def _create_stats_file(output_file) -> TextIOWrapper:
 def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrapper,
                              min_pattern: int, max_pattern: int,
                              total_raw_reads: Optional[int] = None,
-                             max_workers: Optional[int] = None):
+                             max_workers: Optional[int] = None,
+                             top_patterns: int = 15,
+                             variant_threshold: float = 0.90,
+                             candidate_pool: int = 200,
+                             variant_min_length_ratio: float = 0.75):
     """
     Top-level function for population mode: find repeat patterns and assess
     whether a t-circle is present in the read set.
@@ -961,12 +983,13 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
 
     finder = ChromosomeEndRepeatFinder(sequences, pattern_file, max_workers=max_workers)
 
-    results = finder.find_best_population_patterns(
+    pool = finder.find_best_population_patterns(
         min_length=min_pattern,
         max_length=max_pattern,
         min_reads=2,
-        top_n=15,
+        top_n=candidate_pool,
     )
+    results = pool[:top_patterns]   # existing top-N-by-score view (unchanged)
 
     if not results:
         pattern_file.write("No repeated patterns found across reads.\n")
@@ -1012,30 +1035,145 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
             f"    {pattern}\n"
         )
 
-    # ── Circle detection verdict ───────────────────────────────────────────
-    best_pattern, best_stats, best_score = results[0]
-    pop = best_stats['population']
-    conf = pop['circle_confidence']
+    # ── Consolidated circle families (length-aware) ────────────────────────
+    from analysis.pattern_variations import select_non_variant
+    pool_seqs = [p for p, _, _ in pool]
+    primary_idx, assignment = select_non_variant(
+        pool_seqs, threshold=variant_threshold, limit=top_patterns,
+        min_length_ratio=variant_min_length_ratio,
+    )
+    # Group every pooled pattern under the family (primary) it folded into.
+    members_of = {p: [] for p in primary_idx}
+    primary_set = set(primary_idx)
+    for member, parent in assignment.items():
+        if parent in primary_set:
+            members_of[parent].append(member)
 
-    if conf >= 0.4:
-        verdict = "STRONG CIRCLE SIGNAL"
-    elif conf >= 0.2:
-        verdict = "MODERATE CIRCLE SIGNAL"
-    elif conf >= 0.1:
-        verdict = "WEAK / AMBIGUOUS SIGNAL"
-    else:
-        verdict = "NO CIRCLE DETECTED"
+    def _family_stats(parent):
+        reads = set()
+        lengths = []
+        for m in members_of[parent]:
+            reads |= set(pool[m][1]['sequences_present'])
+            lengths.append(pool[m][1]['pattern_length'])
+        return reads, (min(lengths), max(lengths)), len(members_of[parent])
 
     pattern_file.write(f"\n{'='*90}\n")
-    pattern_file.write("CIRCLE DETECTION RESULT\n")
+    pattern_file.write(f"CONSOLIDATED CIRCLE FAMILIES ({len(primary_idx)})\n")
     pattern_file.write("="*90 + "\n")
-    pattern_file.write(f"  Verdict            : {verdict}\n")
-    pattern_file.write(f"  Circle confidence  : {conf:.3f}\n")
-    pattern_file.write(f"  Reads with pattern : {pop['positive_reads']}/{n_reads} ({pop['positive_read_fraction']:.1%})\n")
-    pattern_file.write(f"  Mean repeats/read  : {pop['mean_repeats']:.1f}\n")
-    pattern_file.write(f"  Mean tandem copies : {pop['mean_max_copies']:.1f}\n")
+    pattern_file.write(
+        f"  Distinct circles: patterns merge into one family when one fits inside\n"
+        f"  the other (>= {variant_threshold:.0%} rotation/indel identity) AND their lengths are\n"
+        f"  within {variant_min_length_ratio:.0%} (so a short sub-repeat stays its own family rather\n"
+        f"  than folding into a longer circle). Grouped from the top {len(pool)} scored\n"
+        f"  patterns. The representative is each family's highest-scored member.\n"
+        f"    RepLen   = representative length      LenRange = min-max member length\n"
+        f"    FamReads = reads containing ANY family member (union)\n"
+        f"    Members  = detected patterns folded into the family\n\n"
+    )
+    pattern_file.write(
+        f"{'#':>3}  {'RepLen':>6}  {'LenRange':>9}  {'FamReads':>9}  "
+        f"{'Members':>7}  {'Score':>8}  Representative Preview\n"
+    )
+    pattern_file.write("-"*90 + "\n")
+    for n, idx in enumerate(primary_idx):
+        pattern, stats, score = pool[idx]
+        reads, (lmin, lmax), nmem = _family_stats(idx)
+        preview = pattern[:40] + "..." if len(pattern) > 40 else pattern
+        pattern_file.write(
+            f"{n+1:3d}  {stats['pattern_length']:6d}  {lmin:>4}-{lmax:<4}  "
+            f"{len(reads):4d}/{n_reads:<4d}  {nmem:7d}  {score:8.2f}  {preview}\n"
+        )
+
     pattern_file.write(f"\n{'='*90}\n")
-    pattern_file.write("BEST PATTERN\n")
+    pattern_file.write("CONSOLIDATED CIRCLE FAMILIES — REPRESENTATIVE SEQUENCES\n")
+    pattern_file.write("="*90 + "\n")
+    for n, idx in enumerate(primary_idx):
+        pattern, stats, score = pool[idx]
+        reads, (lmin, lmax), nmem = _family_stats(idx)
+        pattern_file.write(
+            f"  Family #{n+1}  ({stats['pattern_length']} bp representative  "
+            f"len {lmin}-{lmax}  fam_reads={len(reads)}/{n_reads}  "
+            f"members={nmem}  score={score:.2f})\n"
+            f"    {pattern}\n"
+        )
+
+    # ── Companion file: every read containing each top (unfiltered) pattern ─
+    reads_path = getattr(pattern_file, 'name', '')
+    if reads_path.endswith("_pattern.txt"):
+        reads_path = reads_path[:-len("_pattern.txt")] + "_pattern_reads.txt"
+    elif reads_path:
+        reads_path = reads_path + "_reads.txt"
+    if reads_path:
+        with open(reads_path, 'w') as rf:
+            rf.write("READS CONTAINING EACH TOP PATTERN (unfiltered, top-by-score)\n")
+            rf.write("=" * 90 + "\n")
+            rf.write("  For each of the top patterns, every read in which the pattern is\n")
+            rf.write("  detected (as a >=2x repeat within the read) is listed, with the\n")
+            rf.write("  read's extracted telomere sequence in FASTA form.\n")
+            rf.write("=" * 90 + "\n\n")
+            for i, (pattern, stats, score) in enumerate(results):
+                present = stats['sequences_present']
+                details = stats['sequence_details']
+                rf.write(f"########## Rank {i+1}  |  {stats['pattern_length']} bp  |  "
+                         f"{len(present)} reads  |  score {score:.2f} ##########\n")
+                rf.write(f"pattern: {pattern}\n")
+                for seq_id in present:
+                    occ = details.get(seq_id, {}).get('occurrences', 0)
+                    seq = finder.sequences.get(seq_id, "")
+                    rf.write(f">{seq_id}  occurrences={occ}\n{seq}\n")
+                rf.write("\n")
+        pattern_file.write(
+            f"\n  Reads per top pattern written to: {os.path.basename(reads_path)}\n"
+        )
+
+    # ── Circle summary (factual, family-based) ─────────────────────────────
+    # Report each consolidated family's read support instead of a single mis-scaled
+    # confidence number. 'reads' = reads where the family unit repeats >=2x (the
+    # first-pass tandem detection) = evidence of circularization.
+    CIRCLE_MIN_LEN = 90  # families at/above this are candidate circles; below is backbone
+    fam_summary = []
+    for idx in primary_idx:
+        reads, (lmin, lmax), nmem = _family_stats(idx)
+        fam_summary.append({
+            'len': pool[idx][1]['pattern_length'],
+            'reads': len(reads), 'members': nmem, 'seq': pool[idx][0],
+        })
+    fam_by_reads = sorted(fam_summary, key=lambda x: -x['reads'])
+    circle_fams = [f for f in fam_by_reads if f['len'] >= CIRCLE_MIN_LEN]
+
+    pattern_file.write(f"\n{'='*90}\n")
+    pattern_file.write("CIRCLE SUMMARY\n")
+    pattern_file.write("="*90 + "\n")
+    pattern_file.write(f"  Telomeric reads analysed : {n_reads}\n")
+    pattern_file.write(f"  Repeat families detected : {len(fam_summary)}  "
+                       f"({len(circle_fams)} candidate circle(s) >= {CIRCLE_MIN_LEN} bp; "
+                       f"shorter families are usually the telomere backbone repeat)\n")
+    if circle_fams:
+        top = circle_fams[0]
+        pattern_file.write(
+            f"  Most prevalent circle    : {top['len']} bp in "
+            f"{top['reads']}/{n_reads} reads ({top['reads']/n_reads:.1%} circularized)\n"
+        )
+    else:
+        pattern_file.write("  Most prevalent circle    : none >= "
+                           f"{CIRCLE_MIN_LEN} bp (only short backbone repeats found)\n")
+    pattern_file.write("\n  Family read support (reads with >= 2 tandem copies of the unit):\n")
+    pattern_file.write(f"    {'RepLen':>6}  {'Reads':>16}  {'Members':>7}\n")
+    for f in fam_by_reads:
+        tag = "  <- circle" if f['len'] >= CIRCLE_MIN_LEN else ""
+        pattern_file.write(
+            f"    {f['len']:>6}  {f['reads']:>6}/{n_reads:<5} ({f['reads']/n_reads:>5.1%})  "
+            f"{f['members']:>7}{tag}\n"
+        )
+    pattern_file.write(
+        "\n  Note: this counts only reads with an in-read TANDEM (>=2 copies). Reads\n"
+        "  with a single clean copy are NOT counted here — run classify_family_reads.py\n"
+        "  for full per-family read lists (circularized + single-instance).\n"
+    )
+
+    best_pattern, best_stats, best_score = results[0]
+    pattern_file.write(f"\n{'='*90}\n")
+    pattern_file.write("TOP-SCORING PATTERN\n")
     pattern_file.write("="*90 + "\n")
     pattern_file.write(f"  Length  : {best_stats['pattern_length']} bp\n")
     pattern_file.write(f"  Score   : {best_score:.2f}\n")
@@ -1043,14 +1181,12 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
 
     # Print to screen
     print(f"\n{'='*70}")
-    print(f"CIRCLE DETECTION: {verdict}")
+    print(f"CIRCLE SUMMARY: {len(circle_fams)} candidate circle(s) of {len(fam_summary)} families")
     print(f"{'='*70}")
-    print(f"  Confidence  : {conf:.3f}")
-    print(f"  Reads       : {pop['positive_reads']}/{n_reads} ({pop['positive_read_fraction']:.1%})")
-    print(f"  Repeats     : {pop['mean_repeats']:.1f} mean repeats per positive read")
-    print(f"  Tandem      : {pop['mean_max_copies']:.1f} mean tandem copies per positive read")
-    print(f"  Pattern     : {best_stats['pattern_length']} bp")
-    print(f"    {best_pattern}")
+    for f in circle_fams[:5]:
+        print(f"  {f['len']:>4} bp  {f['reads']:>6}/{n_reads} reads ({f['reads']/n_reads:.1%}) circularized")
+    if not circle_fams:
+        print("  (only short backbone repeats found)")
     print(f"{'='*70}\n")
 
     finder.visualize_pattern_across_sequences(best_pattern, best_stats)
@@ -1107,6 +1243,10 @@ def pattern_finder_execute_population(config: Config) -> Optional[str]:
     _, best_pattern, _ = analyze_population_reads(
         sequences, pattern_file, config.min_pattern_length, config.max_pattern_length,
         total_raw_reads=total_raw, max_workers=max_workers,
+        top_patterns=config.top_patterns,
+        variant_threshold=config.variant_threshold,
+        candidate_pool=config.candidate_pool,
+        variant_min_length_ratio=config.variant_min_length_ratio,
     )
     return best_pattern
 
