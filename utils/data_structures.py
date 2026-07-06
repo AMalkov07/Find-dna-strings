@@ -38,7 +38,7 @@ class Config:
     workers: Optional[int] = None
     population_search_mode: Optional[str] = None
     top_patterns: int = 15
-    variant_threshold: float = 0.90
+    variant_threshold: float = 0.93
     candidate_pool: int = 200
     variant_min_length_ratio: float = 0.75
     max_read_length: int = 0

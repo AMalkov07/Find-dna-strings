@@ -15,7 +15,7 @@ annotate_pattern_variations.py script so the logic stays in one place.
 
 from typing import Dict, List, Optional, Sequence, Tuple
 
-DEFAULT_THRESHOLD = 0.90
+DEFAULT_THRESHOLD = 0.93
 
 
 # ── core matching ─────────────────────────────────────────────────────────────

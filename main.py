@@ -205,10 +205,12 @@ if __name__ == "__main__":
     parser.add_argument("-tn", "--top_patterns", type=int, default=15,
                         help="population mode: number of patterns to report in both the top-by-score "
                              "table and the non-variant (distinct-family) table (default: 15)")
-    parser.add_argument("-vt", "--variant_threshold", type=float, default=0.90,
+    parser.add_argument("-vt", "--variant_threshold", type=float, default=0.93,
                         help="population mode: identity (0-1) at which a pattern is treated as a "
                              "rotation/indel variation of a higher-ranked pattern when building the "
-                             "non-variant table (default: 0.90)")
+                             "consolidated families. 0.93 keeps distinct telomeric circles (incl. across "
+                             "strains) separate while merging true rotations/variants; lower over-merges, "
+                             "higher over-splits (default: 0.93)")
     parser.add_argument("-cp", "--candidate_pool", type=int, default=200,
                         help="population mode: how many top-scored patterns to consider when selecting "
                              "the non-variant patterns. Larger gives more chance to fill out distinct "
