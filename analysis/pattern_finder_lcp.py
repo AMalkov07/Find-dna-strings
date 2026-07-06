@@ -38,6 +38,87 @@ def _resolve_workers(workers: Optional[int]) -> Optional[int]:
     return int(nslots) if nslots else None
 
 
+def _build_suffix_array(sequence: str) -> List[int]:
+    """Suffix array via prefix doubling — O(n log^2 n) time, O(n) memory.
+
+    Produces the SAME lexicographic order as sorted(range(n), key=lambda i:
+    sequence[i:]) but without materializing every suffix (which was O(n^2) memory
+    and pathologically slow on the long tandem-repeat reads circles produce).
+    Ranks compare (rank[i], rank[i+k]) integer pairs; a position past the end
+    ranks as -1 so a shorter suffix (a prefix of a longer one) sorts first,
+    matching Python's string comparison.
+    """
+    n = len(sequence)
+    if n == 0:
+        return []
+    # Compressed initial ranks (0..distinct-1, lexical) so the counting sorts
+    # below stay within [0, n].
+    order = {c: i for i, c in enumerate(sorted(set(sequence)))}
+    rank = [order[c] for c in sequence]
+    sa = list(range(n))
+    tmp = [0] * n
+    k = 1
+    while True:
+        # Two-pass LSD counting sort of sa by (rank[i], rank[i+k]): O(n) per
+        # round, no per-element comparison. Sort by the 2nd key, then stably by
+        # the 1st key. A position past the end ranks below any real char.
+        cnt = [0] * (n + 1)
+        for i in range(n):
+            cnt[rank[i + k] + 1 if i + k < n else 0] += 1
+        for i in range(1, n + 1):
+            cnt[i] += cnt[i - 1]
+        by2 = [0] * n
+        for i in range(n - 1, -1, -1):
+            key = rank[i + k] + 1 if i + k < n else 0
+            cnt[key] -= 1
+            by2[cnt[key]] = i
+        cnt = [0] * (n + 1)
+        for i in range(n):
+            cnt[rank[i]] += 1
+        for i in range(1, n + 1):
+            cnt[i] += cnt[i - 1]
+        for idx in range(n - 1, -1, -1):
+            i = by2[idx]
+            cnt[rank[i]] -= 1
+            sa[cnt[rank[i]]] = i
+        # Recompute ranks from the new order.
+        tmp[sa[0]] = 0
+        for i in range(1, n):
+            a, b = sa[i - 1], sa[i]
+            ka = (rank[a], rank[a + k] if a + k < n else -1)
+            kb = (rank[b], rank[b + k] if b + k < n else -1)
+            tmp[b] = tmp[a] + (1 if ka != kb else 0)
+        rank, tmp = tmp, rank
+        if rank[sa[-1]] == n - 1:   # all ranks distinct -> fully sorted
+            break
+        k <<= 1
+    return sa
+
+
+def _build_lcp_array(sequence: str, sa: List[int]) -> List[int]:
+    """LCP array via Kasai's algorithm — O(n). lcp[i] = LCP(sa[i], sa[i+1]),
+    identical to the previous naive adjacent-suffix comparison."""
+    n = len(sequence)
+    if n <= 1:
+        return []
+    rank = [0] * n
+    for i, p in enumerate(sa):
+        rank[p] = i
+    lcp = [0] * (n - 1)
+    h = 0
+    for i in range(n):
+        if rank[i] > 0:
+            j = sa[rank[i] - 1]
+            while i + h < n and j + h < n and sequence[i + h] == sequence[j + h]:
+                h += 1
+            lcp[rank[i] - 1] = h
+            if h > 0:
+                h -= 1
+        else:
+            h = 0
+    return lcp
+
+
 def _analyze_single_sequence(args: Tuple) -> Tuple[str, Dict]:
     """
     Module-level worker for ProcessPoolExecutor — analyze one sequence for repeated patterns.
@@ -46,21 +127,9 @@ def _analyze_single_sequence(args: Tuple) -> Tuple[str, Dict]:
     seq_id, sequence, min_length, max_length = args
     n = len(sequence)
 
-    # ── Suffix array ──────────────────────────────────────────────────────────
-    suffix_array = sorted(range(n), key=lambda i: sequence[i:])
-
-    # ── LCP array ─────────────────────────────────────────────────────────────
-    lcp_array = []
-    for i in range(n - 1):
-        s1, s2 = suffix_array[i], suffix_array[i + 1]
-        common = 0
-        limit = min(n - s1, n - s2)
-        for j in range(limit):
-            if sequence[s1 + j] == sequence[s2 + j]:
-                common += 1
-            else:
-                break
-        lcp_array.append(common)
+    # ── Suffix array + LCP (prefix doubling + Kasai: O(n log n), O(n) memory) ──
+    suffix_array = _build_suffix_array(sequence)
+    lcp_array = _build_lcp_array(sequence, suffix_array)
 
     # ── Raw repeated patterns via LCP ─────────────────────────────────────────
     raw_patterns: Dict[str, set] = defaultdict(set)
