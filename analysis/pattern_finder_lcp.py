@@ -1032,7 +1032,8 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
                              top_patterns: int = 15,
                              variant_threshold: float = 0.90,
                              candidate_pool: int = 200,
-                             variant_min_length_ratio: float = 0.75):
+                             variant_min_length_ratio: float = 0.75,
+                             max_read_length: int = 0):
     """
     Top-level function for population mode: find repeat patterns and assess
     whether a t-circle is present in the read set.
@@ -1040,9 +1041,27 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
     Analogous to analyze_chromosome_ends() but uses per-read coverage scoring
     instead of cross-sequence presence scoring, and outputs a circle confidence score.
     """
+    # Cap read length: the pattern-extraction length-sweep is O(read_len) per
+    # position, so a few very long tandem-array reads dominate runtime. A circle
+    # only needs a couple of copies to be detected, so truncating long reads costs
+    # nothing for detection (only the reported copy count of those reads shrinks).
+    n_capped = 0
+    if max_read_length and max_read_length > 0:
+        capped = {}
+        for rid, seq in sequences.items():
+            if len(seq) > max_read_length:
+                n_capped += 1
+                capped[rid] = seq[:max_read_length]
+            else:
+                capped[rid] = seq
+        sequences = capped
+
     pattern_file.write("POPULATION TELOMERE READ ANALYSIS\n")
     pattern_file.write("="*90 + "\n")
     pattern_file.write(f"  Pattern length range : {min_pattern}–{max_pattern} bp\n")
+    if max_read_length and max_read_length > 0:
+        pattern_file.write(f"  Max read length      : {max_read_length} bp "
+                           f"({n_capped} read(s) truncated)\n")
     if total_raw_reads is not None:
         pattern_file.write(f"  Total raw reads      : {total_raw_reads}\n")
         pattern_file.write(f"  Telomeric reads      : {len(sequences)}\n")
@@ -1316,6 +1335,7 @@ def pattern_finder_execute_population(config: Config) -> Optional[str]:
         variant_threshold=config.variant_threshold,
         candidate_pool=config.candidate_pool,
         variant_min_length_ratio=config.variant_min_length_ratio,
+        max_read_length=config.max_read_length,
     )
     return best_pattern
 

@@ -109,6 +109,7 @@ def main(args) -> None:
         variant_threshold=args.variant_threshold,
         candidate_pool=args.candidate_pool,
         variant_min_length_ratio=args.variant_min_length_ratio,
+        max_read_length=args.max_read_length,
     )
 
     # check if file exists
@@ -212,6 +213,12 @@ if __name__ == "__main__":
                         help="population mode: how many top-scored patterns to consider when selecting "
                              "the non-variant patterns. Larger gives more chance to fill out distinct "
                              "families but is a little slower (default: 200)")
+    parser.add_argument("-mrl", "--max_read_length", type=int, default=0,
+                        help="population mode: truncate any telomere read longer than this many bp "
+                             "before pattern-finding. The extraction cost is per-read-length, so a few "
+                             "very long tandem-array reads dominate runtime; a circle only needs a couple "
+                             "of copies to be detected, so capping (e.g. 2000) speeds up circle-enriched "
+                             "data with negligible effect on detection. 0 = no cap (default)")
     parser.add_argument("-vlr", "--variant_min_length_ratio", type=float, default=0.75,
                         help="population mode: when consolidating circle families, two patterns are only "
                              "merged if their lengths are within this ratio (shorter/longer). 0.75 keeps a "

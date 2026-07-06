@@ -41,6 +41,7 @@ class Config:
     variant_threshold: float = 0.90
     candidate_pool: int = 200
     variant_min_length_ratio: float = 0.75
+    max_read_length: int = 0
 
 @dataclass
 class TemplateSwitchEvent:
