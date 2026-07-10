@@ -110,6 +110,10 @@ def main(args) -> None:
         candidate_pool=args.candidate_pool,
         variant_min_length_ratio=args.variant_min_length_ratio,
         max_read_length=args.max_read_length,
+        circle_min_unit=args.circle_min_unit,
+        circle_min_copies=args.circle_min_copies,
+        circle_min_span=args.circle_min_span,
+        circle_min_cov=args.circle_min_cov,
     )
 
     # check if file exists
@@ -226,6 +230,20 @@ if __name__ == "__main__":
                              "merged if their lengths are within this ratio (shorter/longer). 0.75 keeps a "
                              "short sub-repeat as its own family instead of folding it into a longer circle; "
                              "set 0.0 to disable the length guard (pure containment). (default: 0.75)")
+    parser.add_argument("-cmu", "--circle_min_unit", type=int, default=80,
+                        help="population mode: first-pass circle-read caller — minimum repeat-unit length "
+                             "(bp) for a read's own tandem to count as a circle. Long units separate real "
+                             "circles from the short (~8/52 bp) linear-telomere backbone period (default: 80)")
+    parser.add_argument("-cmc", "--circle_min_copies", type=int, default=2,
+                        help="population mode: first-pass circle-read caller — minimum adjacent tandem "
+                             "copies of the unit within a single read (default: 2)")
+    parser.add_argument("-cms", "--circle_min_span", type=int, default=200,
+                        help="population mode: first-pass circle-read caller — minimum bp spanned by the "
+                             "tandem array (copies x unit) for a read to be called a circle (default: 200)")
+    parser.add_argument("-cmcov", "--circle_min_cov", type=float, default=0.40,
+                        help="population mode: first-pass circle-read caller — minimum fraction of the read "
+                             "covered by the tandem array (default: 0.40). Raising it demands the circle "
+                             "dominate the read; lowering it admits shorter tandems in long reads")
 
     args = parser.parse_args()
 

@@ -42,6 +42,10 @@ class Config:
     candidate_pool: int = 200
     variant_min_length_ratio: float = 0.75
     max_read_length: int = 0
+    circle_min_unit: int = 80
+    circle_min_copies: int = 2
+    circle_min_span: int = 200
+    circle_min_cov: float = 0.40
 
 @dataclass
 class TemplateSwitchEvent:

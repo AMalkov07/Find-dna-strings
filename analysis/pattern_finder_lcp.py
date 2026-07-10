@@ -676,6 +676,9 @@ class ChromosomeEndRepeatFinder:
         Population-specific stats are stored in stats['population'].
         """
         all_data = self.analyze_all_sequences(min_length, max_length, verbose=False)
+        # Stash for the first-pass per-read circle caller (find_circle_reads),
+        # so it reuses this suffix-array pass instead of recomputing it.
+        self.all_data = all_data
 
         all_patterns: Set[str] = set()
         for seq_data in all_data.values():
@@ -1025,6 +1028,56 @@ def _create_stats_file(output_file) -> TextIOWrapper:
     pattern_output_file = open(pattern_file_name, 'w')
     return pattern_output_file
 
+
+def find_circle_reads(all_data: Dict[str, Dict], sequences: Dict[str, str],
+                      min_unit: int = 80, min_copies: int = 2,
+                      min_span: int = 200, min_cov: float = 0.40) -> List[Dict]:
+    """First-pass, per-read circle caller.
+
+    A read is a "likely circle read" purely from its OWN repeat structure — no
+    cross-read agreement required. This recovers noisy circle reads whose exact
+    circle sequence is read-unique (sequencing errors), so it never reaches the
+    cross-read min_reads consolidation, even though the rolling-circle signature
+    is unmistakable inside the single read.
+
+    Signature: a LONG exact unit repeated in an ADJACENT tandem array. A linear
+    chromosome-end telomere only ever produces the short (~8/52 bp) fundamental
+    period, so requiring a long unit (>= min_unit) in a >= min_copies tandem
+    that spans >= min_span bp AND >= min_cov of the read keeps the generic GT
+    telomere baseline out while catching real (even error-rich) circles.
+
+    Returns a list of dicts (one per flagged read), sorted by span descending:
+        {read_id, unit_len, copies, span, coverage, read_len, unit_seq}
+    """
+    flagged: List[Dict] = []
+    for rid, data in all_data.items():
+        read_len = len(sequences.get(rid, ""))
+        if read_len <= 0:
+            continue
+        # best tandem array in this read, chosen by span (bp of tandem coverage)
+        best = None
+        for pattern, s in data.items():
+            unit_len = s['pattern_length']
+            if unit_len < min_unit:
+                continue
+            for (start, end, count) in s['tandem_arrays']:
+                span = end - start
+                if count >= min_copies and (best is None or span > best['span']):
+                    best = {'unit_len': unit_len, 'copies': count,
+                            'span': span, 'unit_seq': pattern}
+        if best is None:
+            continue
+        cov = best['span'] / read_len
+        if best['span'] >= min_span and cov >= min_cov:
+            flagged.append({
+                'read_id': rid, 'unit_len': best['unit_len'],
+                'copies': best['copies'], 'span': best['span'],
+                'coverage': cov, 'read_len': read_len,
+                'unit_seq': best['unit_seq'],
+            })
+    flagged.sort(key=lambda x: -x['span'])
+    return flagged
+
 def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrapper,
                              min_pattern: int, max_pattern: int,
                              total_raw_reads: Optional[int] = None,
@@ -1033,7 +1086,11 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
                              variant_threshold: float = 0.93,
                              candidate_pool: int = 200,
                              variant_min_length_ratio: float = 0.75,
-                             max_read_length: int = 0):
+                             max_read_length: int = 0,
+                             circle_min_unit: int = 80,
+                             circle_min_copies: int = 2,
+                             circle_min_span: int = 200,
+                             circle_min_cov: float = 0.40):
     """
     Top-level function for population mode: find repeat patterns and assess
     whether a t-circle is present in the read set.
@@ -1259,6 +1316,105 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
         "  for full per-family read lists (circularized + single-instance).\n"
     )
 
+    # ── First-pass per-read circle reads (self-evidence, no cross-read filter) ─
+    # Flag reads whose OWN tandem structure is a rolling-circle signature. This
+    # recovers noisy circle reads whose exact circle is read-unique and so never
+    # survives the cross-read min_reads consolidation above.
+    from analysis.pattern_variations import variant_identity, length_ratio
+    all_data = getattr(finder, 'all_data', None)
+    circle_reads = []
+    if all_data is not None:
+        circle_reads = find_circle_reads(
+            all_data, finder.sequences,
+            min_unit=circle_min_unit, min_copies=circle_min_copies,
+            min_span=circle_min_span, min_cov=circle_min_cov,
+        )
+
+    # Tag each circle read: (a) which reported CIRCLE family (>= CIRCLE_MIN_LEN) its
+    # tandem unit matches, and (b) source = 'recovered' (only the tandem caller found
+    # it) vs 'consolidated' (already in a circle family's fam_reads above). Only
+    # circle-length families count for both, so the short backbone families don't
+    # make a genuinely-new circle read look already-found. The recovered set is
+    # exactly the circle reads the cross-read consolidation was missing.
+    fam_reps = [(n, pool[idx][0]) for n, idx in enumerate(primary_idx)
+                if pool[idx][1]['pattern_length'] >= CIRCLE_MIN_LEN]
+    consolidated_reads = set()
+    for n, idx in enumerate(primary_idx):
+        if pool[idx][1]['pattern_length'] >= CIRCLE_MIN_LEN:
+            consolidated_reads |= _family_stats(idx)[0]
+
+    def _assign_family(unit_seq):
+        best_n, best_id = None, 0.0
+        for n, rep in fam_reps:
+            if length_ratio(unit_seq, rep) < variant_min_length_ratio:
+                continue
+            idn = variant_identity(unit_seq, rep)
+            if idn >= variant_threshold and idn > best_id:
+                best_n, best_id = n, idn
+        return best_n  # 0-based family index, or None
+
+    for c in circle_reads:
+        fam = _assign_family(c['unit_seq'])
+        c['family'] = f"#{fam+1}" if fam is not None else "none"
+        c['source'] = "consolidated" if c['read_id'] in consolidated_reads else "recovered"
+    # group by family (then recovered-first, then largest span) for the listing
+    fam_order = {f"#{n+1}": n for n, _ in fam_reps}
+    circle_reads.sort(key=lambda c: (fam_order.get(c['family'], 10**6),
+                                     0 if c['source'] == 'recovered' else 1,
+                                     -c['span']))
+    n_recovered = sum(1 for c in circle_reads if c['source'] == 'recovered')
+
+    pattern_file.write(f"\n{'='*90}\n")
+    pattern_file.write("LIKELY CIRCLE READS (first pass, per-read tandem)\n")
+    pattern_file.write("="*90 + "\n")
+    pattern_file.write(
+        f"  Reads called as circles from their OWN repeat structure alone — a long\n"
+        f"  unit (>= {circle_min_unit} bp) in an adjacent tandem of >= {circle_min_copies} copies spanning\n"
+        f"  >= {circle_min_span} bp and >= {circle_min_cov:.0%} of the read. No cross-read agreement is\n"
+        f"  required, so this catches error-rich circle reads whose exact sequence is\n"
+        f"  read-unique and thus never reaches the consolidated families above.\n"
+        f"    family = reported circle family (>= {CIRCLE_MIN_LEN} bp, above) the read's tandem unit\n"
+        f"             matches, or 'none' (a circle matching no reported family)\n"
+        f"    source = 'recovered' (ONLY this tandem caller found it) vs 'consolidated'\n"
+        f"             (already in a circle family's fam_reads above). 'recovered' = reads\n"
+        f"             the cross-read consolidation was missing.\n"
+        f"  Tagged sequences written to the companion *_circle_reads.fasta.\n\n"
+    )
+    pattern_file.write(f"  Circle reads: {len(circle_reads)}/{n_reads}  "
+                       f"({n_recovered} recovered, {len(circle_reads)-n_recovered} already consolidated)\n\n")
+    if circle_reads:
+        pattern_file.write(
+            f"    {'ReadId':36}  {'Family':>6}  {'Source':>12}  {'Unit':>4}  "
+            f"{'Copies':>6}  {'Span':>5}  {'Cov':>4}  {'ReadLen':>7}\n"
+        )
+        for c in circle_reads:
+            pattern_file.write(
+                f"    {c['read_id']:36}  {c['family']:>6}  {c['source']:>12}  "
+                f"{c['unit_len']:>4}  {c['copies']:>6}  {c['span']:>5}  "
+                f"{c['coverage']:>4.2f}  {c['read_len']:>7}\n"
+            )
+
+    # Companion FASTA of the circle reads (the "circle reads file"), family/source tagged.
+    circle_path = getattr(pattern_file, 'name', '')
+    if circle_path.endswith("_pattern.txt"):
+        circle_path = circle_path[:-len("_pattern.txt")] + "_circle_reads.fasta"
+    elif circle_path:
+        circle_path = circle_path + "_circle_reads.fasta"
+    if circle_path:
+        with open(circle_path, 'w') as cf:
+            for c in circle_reads:
+                cf.write(
+                    f">{c['read_id']} family={c['family']} source={c['source']} "
+                    f"unit={c['unit_len']} copies={c['copies']} "
+                    f"span={c['span']} cov={c['coverage']:.2f} readlen={c['read_len']}\n"
+                    f"{finder.sequences.get(c['read_id'], '')}\n"
+                )
+        pattern_file.write(
+            f"\n  Circle reads written to: {os.path.basename(circle_path)}\n"
+        )
+    print(f"  First-pass circle reads: {len(circle_reads)}/{n_reads} "
+          f"({n_recovered} recovered)")
+
     best_pattern, best_stats, best_score = results[0]
     pattern_file.write(f"\n{'='*90}\n")
     pattern_file.write("TOP-SCORING PATTERN\n")
@@ -1336,6 +1492,10 @@ def pattern_finder_execute_population(config: Config) -> Optional[str]:
         candidate_pool=config.candidate_pool,
         variant_min_length_ratio=config.variant_min_length_ratio,
         max_read_length=config.max_read_length,
+        circle_min_unit=config.circle_min_unit,
+        circle_min_copies=config.circle_min_copies,
+        circle_min_span=config.circle_min_span,
+        circle_min_cov=config.circle_min_cov,
     )
     return best_pattern
 
