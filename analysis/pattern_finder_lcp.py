@@ -625,16 +625,22 @@ class ChromosomeEndRepeatFinder:
 
         Returns (score, positive_read_fraction, mean_coverage, mean_max_copies, mean_repeats)
         """
+        entries = [(seq_id, seq_data[pattern]) for seq_id, seq_data in all_data.items()
+                   if pattern in seq_data]
+        return self._score_population_entries(pattern, entries)
+
+    def _score_population_entries(self, pattern: str,
+                                  entries: List[Tuple[str, Dict]]) -> Tuple[float, float, float, float, float]:
+        """score_population_pattern on a precomputed list of (seq_id, data) for the
+        reads that contain `pattern`, in all_data order. Lets population mode score
+        every pattern from one pass over all_data instead of one pass per pattern."""
         pattern_length = len(pattern)
         total_reads = len(self.sequences)
         coverages: List[float] = []
         max_copies_list: List[int] = []
         repeat_counts: List[int] = []
 
-        for seq_id, seq_data in all_data.items():
-            if pattern not in seq_data:
-                continue
-            data = seq_data[pattern]
+        for seq_id, data in entries:
             n_copies = data['non_overlapping_occurrences']
             if n_copies < 2:
                 continue
@@ -681,19 +687,35 @@ class ChromosomeEndRepeatFinder:
         for seq_data in all_data.values():
             all_patterns.update(seq_data.keys())
 
-        scored_patterns: List[Tuple[str, Dict, float]] = []
-        for pattern in all_patterns:
-            if _is_two_base_alternating(pattern):
-                continue
-            reads_with_pattern = sum(
-                1 for seq_data in all_data.values()
-                if pattern in seq_data and seq_data[pattern]['non_overlapping_occurrences'] >= 2
-            )
-            if reads_with_pattern < min_reads:
-                continue
+        # One pass over all_data instead of one per pattern: with long (Type II)
+        # telomere reads there are tens of millions of patterns, and scanning every
+        # read for each of them took days. Pass 1 counts the reads carrying each
+        # pattern >= 2 times; pass 2 gathers, in all_data order, the entries of just
+        # the patterns that clear min_reads. Scores and stats are unchanged.
+        reads_with: Counter = Counter()
+        for seq_data in all_data.values():
+            for pattern, data in seq_data.items():
+                if data['non_overlapping_occurrences'] >= 2:
+                    reads_with[pattern] += 1
+        entries_of: Dict[str, List[Tuple[str, Dict]]] = {
+            p: [] for p, n in reads_with.items()
+            if n >= min_reads and not _is_two_base_alternating(p)
+        }
+        for seq_id, seq_data in all_data.items():
+            for pattern, data in seq_data.items():
+                bucket = entries_of.get(pattern)
+                if bucket is not None:
+                    bucket.append((seq_id, data))
 
-            score, pos_frac, mean_cov, mean_copies, mean_reps = self.score_population_pattern(pattern, all_data)
-            stats = self.compile_pattern_statistics(pattern, all_data)
+        scored_patterns: List[Tuple[str, Dict, float]] = []
+        for pattern in all_patterns:   # same iteration order as before
+            entries = entries_of.get(pattern)
+            if entries is None:
+                continue
+            reads_with_pattern = reads_with[pattern]
+
+            score, pos_frac, mean_cov, mean_copies, mean_reps = self._score_population_entries(pattern, entries)
+            stats = self._compile_stats_entries(pattern, entries)
             stats['population'] = {
                 'positive_reads': reads_with_pattern,
                 'total_reads': len(self.sequences),
@@ -776,6 +798,12 @@ class ChromosomeEndRepeatFinder:
     
     def compile_pattern_statistics(self, pattern: str, all_data: Dict[str, Dict[str, any]]) -> Dict:
         """Compile comprehensive statistics for a pattern"""
+        entries = [(seq_id, seq_data[pattern]) for seq_id, seq_data in all_data.items()
+                   if pattern in seq_data]
+        return self._compile_stats_entries(pattern, entries)
+
+    def _compile_stats_entries(self, pattern: str, entries: List[Tuple[str, Dict]]) -> Dict:
+        """compile_pattern_statistics on a precomputed (seq_id, data) list, in all_data order."""
         stats = {
             'pattern': pattern,
             'pattern_length': len(pattern),
@@ -789,22 +817,20 @@ class ChromosomeEndRepeatFinder:
             'sequence_details': {}
         }
         
-        for seq_id, seq_data in all_data.items():
-            if pattern in seq_data:
-                data = seq_data[pattern]
-                stats['sequences_present'].append(seq_id)
-                stats['total_occurrences'] += data['total_occurrences']
-                stats['total_tandem_arrays'] += data['tandem_array_count']
-                stats['total_tandem_copies'] += data['total_tandem_copies']
-                stats['max_tandem_array'] = max(stats['max_tandem_array'], data['max_tandem_copies'])
-                
-                stats['sequence_details'][seq_id] = {
-                    'occurrences': data['total_occurrences'],
-                    'tandem_arrays': data['tandem_array_count'],
-                    'tandem_copies': data['total_tandem_copies'],
-                    'max_array_size': data['max_tandem_copies'],
-                    'array_positions': data['tandem_arrays']
-                }
+        for seq_id, data in entries:
+            stats['sequences_present'].append(seq_id)
+            stats['total_occurrences'] += data['total_occurrences']
+            stats['total_tandem_arrays'] += data['tandem_array_count']
+            stats['total_tandem_copies'] += data['total_tandem_copies']
+            stats['max_tandem_array'] = max(stats['max_tandem_array'], data['max_tandem_copies'])
+
+            stats['sequence_details'][seq_id] = {
+                'occurrences': data['total_occurrences'],
+                'tandem_arrays': data['tandem_array_count'],
+                'tandem_copies': data['total_tandem_copies'],
+                'max_array_size': data['max_tandem_copies'],
+                'array_positions': data['tandem_arrays']
+            }
         
         stats['sequence_coverage'] = len(stats['sequences_present']) / len(self.sequences)
         stats['avg_tandem_strength'] = stats['total_tandem_copies'] / max(stats['total_tandem_arrays'], 1)
