@@ -219,6 +219,15 @@ def _process_read_ends(args: Tuple) -> Tuple[str, Optional[str], Optional[str]]:
         end_tel = None
     return header, start_tel, end_tel
 
+
+def filter_short_telomeres(telomeres: Dict[str, str], min_length: int) -> Tuple[Dict[str, str], int]:
+    """Population mode: drop extracted telomeres shorter than min_length bp.
+    Returns (kept, n_dropped). min_length <= 0 keeps everything."""
+    if not min_length or min_length <= 0:
+        return telomeres, 0
+    kept = {rid: seq for rid, seq in telomeres.items() if len(seq) >= min_length}
+    return kept, len(telomeres) - len(kept)
+
 class FastaReader:
     def __init__(self, fasta_file_path: str, max_ends: int):
         self.fasta_file_path = fasta_file_path

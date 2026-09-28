@@ -42,6 +42,7 @@ class Config:
     candidate_pool: int = 200
     variant_min_length_ratio: float = 0.75
     max_read_length: int = 0
+    min_telomere_length: int = 200
 
 @dataclass
 class TemplateSwitchEvent:

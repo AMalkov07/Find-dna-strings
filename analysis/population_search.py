@@ -205,7 +205,7 @@ def _run_imperfect(sequences: Dict[str, str], pattern: str,
 
 def population_search_execute(config: Config) -> None:
     """Search for a specific pattern in population telomeric reads."""
-    from data_io.fasta_reader import FastaReader
+    from data_io.fasta_reader import FastaReader, filter_short_telomeres
     from analysis.pattern_finder_lcp import _resolve_workers
 
     if not config.pattern:
@@ -216,6 +216,11 @@ def population_search_execute(config: Config) -> None:
     sequences, total_raw = reader.parse_fasta_population(
         threshold=config.telomere_threshold, max_workers=max_workers
     )
+    n_extracted = len(sequences)
+    sequences, n_short = filter_short_telomeres(sequences, config.min_telomere_length)
+    if n_short:
+        print(f"  Dropped {n_short} of {n_extracted} telomeres shorter than "
+              f"{config.min_telomere_length} bp")
 
     if not sequences:
         raise ValueError("No telomeric sequences found in FASTA file")

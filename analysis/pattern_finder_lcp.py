@@ -1059,7 +1059,9 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
                              variant_threshold: float = 0.93,
                              candidate_pool: int = 200,
                              variant_min_length_ratio: float = 0.75,
-                             max_read_length: int = 0):
+                             max_read_length: int = 0,
+                             min_telomere_length: int = 0,
+                             n_short_dropped: int = 0):
     """
     Top-level function for population mode: find repeat patterns and assess
     whether a t-circle is present in the read set.
@@ -1088,6 +1090,9 @@ def analyze_population_reads(sequences: Dict[str, str], pattern_file: TextIOWrap
     if max_read_length and max_read_length > 0:
         pattern_file.write(f"  Max read length      : {max_read_length} bp "
                            f"({n_capped} read(s) truncated)\n")
+    if min_telomere_length and min_telomere_length > 0:
+        pattern_file.write(f"  Min telomere length  : {min_telomere_length} bp "
+                           f"({n_short_dropped} shorter telomere(s) dropped)\n")
     if total_raw_reads is not None:
         pattern_file.write(f"  Total raw reads      : {total_raw_reads}\n")
         pattern_file.write(f"  Telomeric reads      : {len(sequences)}\n")
@@ -1329,7 +1334,7 @@ def pattern_finder_execute_population(config: Config) -> Optional[str]:
     Extracts telomeric regions from both ends of each read, converts all to
     TG orientation, then runs population scoring and prints a circle detection verdict.
     """
-    from data_io.fasta_reader import FastaReader
+    from data_io.fasta_reader import FastaReader, filter_short_telomeres
 
     pattern_file = _create_stats_file(config.output_file)
 
@@ -1341,6 +1346,12 @@ def pattern_finder_execute_population(config: Config) -> Optional[str]:
     sequences, total_raw = reader.parse_fasta_population(
         threshold=config.telomere_threshold, max_workers=max_workers
     )
+
+    n_extracted = len(sequences)
+    sequences, n_short = filter_short_telomeres(sequences, config.min_telomere_length)
+    if n_short:
+        print(f"  Dropped {n_short} of {n_extracted} telomeres shorter than "
+              f"{config.min_telomere_length} bp")
 
     if not sequences:
         raise ValueError("No telomeric sequences found in FASTA file")
@@ -1362,6 +1373,8 @@ def pattern_finder_execute_population(config: Config) -> Optional[str]:
         candidate_pool=config.candidate_pool,
         variant_min_length_ratio=config.variant_min_length_ratio,
         max_read_length=config.max_read_length,
+        min_telomere_length=config.min_telomere_length,
+        n_short_dropped=n_short,
     )
     return best_pattern
 
